@@ -8,5 +8,5 @@ if (!apiKey) {
 
 const genAI = new GoogleGenerativeAI(apiKey || "");
 
-// Using gemini-1.5-flash for stable and fast task generation
-export const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+// Using gemini-2.5-flash for high-performance task generation
+export const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
