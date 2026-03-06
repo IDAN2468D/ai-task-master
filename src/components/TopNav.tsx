@@ -39,29 +39,11 @@ export default function TopNav() {
                     </div>
 
                     <div className="flex items-center gap-6">
-                        {/* Desktop Links (Hidden on mobile) */}
-                        <div className="hidden md:flex items-center gap-8 text-sm font-bold mr-4">
-                            {links.map((link) => (
-                                <Link
-                                    key={link.href}
-                                    href={link.href}
-                                    className={`transition-colors ${isActive(link.href) ? 'text-[#4318FF] dark:text-[#00E5FF]' : 'text-slate-500 dark:text-slate-400 hover:text-[#4318FF] dark:hover:text-[#00E5FF]'}`}
-                                >
-                                    {link.label}
-                                </Link>
-                            ))}
-                        </div>
-
                         <div className="flex items-center gap-3">
-                            {/* Profile Icon (Desktop Only) */}
-                            <Link href="/profile" className="hidden md:flex w-10 h-10 rounded-full bg-indigo-100 dark:bg-indigo-900/40 items-center justify-center text-[#4318FF] dark:text-indigo-400 cursor-pointer shadow-[0_0_15px_rgba(67,24,255,0.2)] transition-transform hover:scale-105">
-                                <User className="w-5 h-5" />
-                            </Link>
-
-                            {/* Mobile Hamburger Toggle (Mobile Only) */}
+                            {/* Global Hamburger Toggle (Shown on Desktop & Mobile) */}
                             <button
                                 onClick={() => setIsOpen(!isOpen)}
-                                className="md:hidden w-10 h-10 flex items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-white shadow-sm hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                                className="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-white shadow-sm hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
                             >
                                 {isOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
                             </button>
@@ -70,34 +52,34 @@ export default function TopNav() {
                 </div>
             </nav>
 
-            {/* Mobile Menu Overlay */}
+            {/* Global Menu Overlay */}
             <AnimatePresence>
                 {isOpen && (
                     <motion.div
                         initial={{ opacity: 0, y: -20, filter: 'blur(10px)' }}
                         animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
                         exit={{ opacity: 0, y: -20, filter: 'blur(10px)' }}
-                        className="fixed inset-0 z-[990] bg-white/95 dark:bg-[#0B1437]/95 backdrop-blur-2xl pt-28 px-8 flex flex-col items-center md:hidden"
+                        className="fixed inset-0 z-[990] bg-white/95 dark:bg-[#0B1437]/95 backdrop-blur-2xl px-8 flex flex-col items-center justify-center"
                     >
-                        <div className="flex flex-col gap-8 text-center mt-10 w-full">
+                        <div className="flex flex-col gap-8 text-center w-full max-w-md">
                             {links.map((link) => (
                                 <Link
                                     key={link.href}
                                     href={link.href}
                                     onClick={() => setIsOpen(false)}
-                                    className={`text-3xl font-black tracking-tight transition-all ${isActive(link.href) ? 'text-gradient-primary' : 'text-slate-800 dark:text-white hover:text-[#4318FF]'}`}
+                                    className={`text-4xl md:text-5xl font-black tracking-tight transition-all hover:scale-105 ${isActive(link.href) ? 'text-gradient-primary' : 'text-slate-800 dark:text-white hover:text-[#4318FF] dark:hover:text-[#00E5FF]'}`}
                                 >
                                     {link.label}
                                 </Link>
                             ))}
-                            <div className="w-full h-px bg-slate-200 dark:bg-white/10 my-4"></div>
+                            <div className="w-full h-px bg-slate-200 dark:bg-white/10 my-6"></div>
                             <Link
                                 href="/profile"
                                 onClick={() => setIsOpen(false)}
-                                className="flex items-center justify-center gap-3 text-2xl font-black text-slate-800 dark:text-white"
+                                className="flex items-center justify-center gap-3 text-3xl md:text-4xl font-black text-slate-800 dark:text-white hover:text-[#4318FF] transition-colors"
                             >
-                                <User className="w-6 h-6 text-[#4318FF]" />
-                                My Profile <ArrowRight className="w-5 h-5 text-slate-400" />
+                                <User className="w-8 h-8 md:w-10 md:h-10 text-[#4318FF]" />
+                                My Profile <ArrowRight className="w-6 h-6 md:w-8 md:h-8 text-slate-400" />
                             </Link>
                         </div>
                     </motion.div>
