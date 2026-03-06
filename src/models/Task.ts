@@ -4,13 +4,14 @@ import mongoose, { Schema, Document, Model } from 'mongoose';
 export interface ITask extends Document {
     title: string;
     description?: string;
-    isCompleted: boolean;
+    status: 'Todo' | 'InProgress' | 'Done';
+    priority: 'Low' | 'Medium' | 'High';
     category: string;
     dueDate?: Date;
     createdAt: Date;
 }
 
-// Create the Mongoose Schema reflecting the interface
+// Create the Mongoose Schema 
 const TaskSchema: Schema<ITask> = new Schema({
     title: {
         type: String,
@@ -22,14 +23,19 @@ const TaskSchema: Schema<ITask> = new Schema({
         required: false,
         trim: true,
     },
-    isCompleted: {
-        type: Boolean,
-        default: false,
+    status: {
+        type: String,
+        enum: ['Todo', 'InProgress', 'Done'],
+        default: 'Todo',
+    },
+    priority: {
+        type: String,
+        enum: ['Low', 'Medium', 'High'],
+        default: 'Medium',
     },
     category: {
         type: String,
         default: 'Personal',
-        enum: ['Work', 'Personal', 'Urgent', 'Health', 'Finance'],
     },
     dueDate: {
         type: Date,
@@ -41,7 +47,7 @@ const TaskSchema: Schema<ITask> = new Schema({
     },
 });
 
-// Use existing model if it exists to avoid overwrite errors during hot reloading in Next.js
+// Use existing model if it exists
 const Task: Model<ITask> = mongoose.models.Task || mongoose.model<ITask>('Task', TaskSchema);
 
 export default Task;

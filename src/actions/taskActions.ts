@@ -5,26 +5,33 @@ import connectDB from '@/lib/mongodb';
 import Task from '@/models/Task';
 
 /**
- * Fetch all tasks from the MongoDB database.
- * Returns them sorted by creation date (newest first).
+ * Fetch tasks with server-side searching and filtering.
  */
-export async function getTasks() {
+export async function getTasks(searchQuery?: string, filterPriority?: string) {
   try {
     await connectDB();
-    const tasks = await Task.find({}).sort({ createdAt: -1 }).lean();
 
-    // We must serialize the Mongoose Documents (which have ObjectIds and Dates) 
-    // to plain JSON objects before passing them to Client Components.
+    // Build dynamic query object
+    const query: any = {};
+
+    if (searchQuery) {
+      query.title = { $regex: searchQuery, $options: 'i' };
+    }
+
+    if (filterPriority && filterPriority !== 'All') {
+      query.priority = filterPriority;
+    }
+
+    const tasks = await Task.find(query).sort({ createdAt: -1 }).lean();
     return JSON.parse(JSON.stringify(tasks));
   } catch (error) {
-    console.error('Error fetching tasks from DB:', error);
+    console.error('Error fetching tasks:', error);
     throw new Error('Failed to fetch tasks');
   }
 }
 
 /**
- * Creates a new task in the database based on form data,
- * including category and dueDate.
+ * Create a new task with status and priority.
  */
 export async function createTask(formData: FormData) {
   try {
@@ -32,6 +39,7 @@ export async function createTask(formData: FormData) {
 
     const title = formData.get('title') as string;
     const category = formData.get('category') as string;
+    const priority = formData.get('priority') as string;
     const dueDateStr = formData.get('dueDate') as string;
 
     if (!title || title.trim() === '') {
@@ -41,16 +49,15 @@ export async function createTask(formData: FormData) {
     const taskData: any = {
       title: title.trim(),
       category: category || 'Personal',
+      priority: priority || 'Medium',
+      status: 'Todo',
     };
 
     if (dueDateStr) {
       taskData.dueDate = new Date(dueDateStr);
     }
 
-    // Create a new task.
     await Task.create(taskData);
-
-    // Instantly invalidate the home page cache
     revalidatePath('/');
   } catch (error) {
     console.error('Error creating task:', error);
@@ -59,21 +66,21 @@ export async function createTask(formData: FormData) {
 }
 
 /**
- * Toggles the completion status of a specific task.
+ * Update the status of a task (for Kanban transitions).
  */
-export async function toggleTaskStatus(taskId: string, currentStatus: boolean) {
+export async function updateTaskStatus(taskId: string, newStatus: string) {
   try {
     await connectDB();
-    await Task.findByIdAndUpdate(taskId, { isCompleted: !currentStatus });
+    await Task.findByIdAndUpdate(taskId, { status: newStatus });
     revalidatePath('/');
   } catch (error) {
-    console.error('Error toggling task status:', error);
+    console.error('Error updating task status:', error);
     throw new Error('Failed to update task status');
   }
 }
 
 /**
- * Deletes a task from the database.
+ * Delete a task.
  */
 export async function deleteTask(taskId: string) {
   try {
