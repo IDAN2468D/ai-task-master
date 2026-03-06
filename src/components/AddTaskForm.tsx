@@ -13,20 +13,20 @@ function SubmitButton({ useAI }: { useAI: boolean }) {
         <button
             type="submit"
             disabled={pending}
-            className={`group relative flex items-center justify-center gap-3 w-full py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] text-white overflow-hidden transition-all duration-500
+            className={`group relative flex items-center justify-center gap-3 w-full py-4 rounded-3xl font-black uppercase tracking-[0.2em] text-[10px] text-white overflow-hidden transition-all duration-700
         ${pending
-                    ? 'bg-slate-400 cursor-not-allowed'
+                    ? 'bg-slate-900 cursor-not-allowed'
                     : 'bg-slate-950 dark:bg-white dark:text-slate-950 hover:scale-[1.02] active:scale-[0.98] shadow-2xl'
                 }`}
         >
-            <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-violet-600 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <div className={`absolute inset-0 bg-blue-500 transition-opacity duration-700 ${pending ? 'opacity-20' : 'opacity-0 group-hover:opacity-10'}`} />
             <div className="relative flex items-center gap-2">
                 {pending ? (
                     <Loader2 className="w-4 h-4 animate-spin" />
                 ) : (
-                    useAI ? <Wand2 className="w-4 h-4 animate-pulse" /> : <PlusCircle className="w-4 h-4" />
+                    useAI ? <Wand2 className="w-4 h-4 text-blue-500 animate-pulse" /> : <PlusCircle className="w-4 h-4" />
                 )}
-                <span>{pending ? 'Processing...' : (useAI ? 'AI Smart Create' : 'Standard Create')}</span>
+                <span>{pending ? 'Processing...' : (useAI ? 'AI Smart Sequence' : 'Standard Add')}</span>
             </div>
         </button>
     );
@@ -41,59 +41,52 @@ export default function AddTaskForm() {
             formData.append('useAI', useAI.toString());
             await createSmartTask(formData);
             formRef.current?.reset();
-        } catch (err) {
-            alert('Failed to add task.');
-        }
+        } catch (err) { alert('Failed to add task.'); }
     };
 
     return (
         <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="luxury-glass p-8 rounded-[3rem] relative overflow-hidden group"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="bento-item bg-slate-900/40 p-10 !rounded-[2.5rem] relative overflow-hidden group shadow-2xl"
         >
-            <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 blur-3xl -z-10 group-hover:bg-blue-500/10 transition-colors duration-700" />
+            <div className="absolute top-0 right-0 w-40 h-40 bg-blue-500/5 blur-[80px] -z-10 group-hover:bg-blue-500/10 transition-colors duration-1000" />
 
-            <div className="flex items-center justify-between mb-8">
-                <h3 className="text-xs font-black uppercase tracking-[0.3em] text-slate-400 flex items-center gap-2">
-                    <PlusCircle className="w-4 h-4" /> New Task
-                </h3>
+            <div className="flex items-center justify-between mb-10">
+                <div className="flex flex-col">
+                    <span className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 mb-2">New Operation</span>
+                    <h3 className="text-xl font-black text-white tracking-tighter">Draft Mission.</h3>
+                </div>
 
-                {/* AI Toggle */}
                 <button
                     type="button"
                     onClick={() => setUseAI(!useAI)}
-                    className={`flex items-center gap-2 px-3 py-1.5 rounded-full transition-all duration-500 ${useAI ? 'bg-blue-500/10 text-blue-600' : 'bg-slate-100 text-slate-400'}`}
+                    className={`flex items-center gap-2 px-3 py-1.5 rounded-full transition-all duration-500 border ${useAI ? 'bg-blue-500/10 border-blue-500/20 text-blue-500' : 'bg-slate-100 border-transparent text-slate-400'}`}
                 >
                     <Sparkles className={`w-3.5 h-3.5 ${useAI ? 'animate-pulse' : ''}`} />
-                    <span className="text-[9px] font-black uppercase tracking-tighter">{useAI ? 'Smart Mode' : 'Manual'}</span>
+                    <span className="text-[9px] font-bold uppercase tracking-tighter">{useAI ? 'AI On' : 'AI Off'}</span>
                 </button>
             </div>
 
-            <form ref={formRef} action={clientAction} className="space-y-6">
+            <form ref={formRef} action={clientAction} className="space-y-8">
 
                 <div className="relative">
                     <input
                         type="text"
                         name="title"
                         required
-                        placeholder="What needs to be done?"
-                        className="w-full px-6 py-4 bg-slate-50/50 dark:bg-slate-900/50 border border-transparent focus:border-blue-500/30 text-slate-900 dark:text-slate-100 rounded-2xl focus:outline-none transition-all font-bold text-sm placeholder:text-slate-400 placeholder:font-medium"
+                        placeholder="Define your next step..."
+                        className="w-full px-0 py-3 bg-transparent border-b border-slate-800 focus:border-blue-500 text-slate-100 placeholder:text-slate-700 transition-all font-bold text-xl focus:outline-none"
                     />
                 </div>
 
                 {!useAI && (
-                    <motion.div
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: 'auto', opacity: 1 }}
-                        className="grid grid-cols-2 gap-4 overflow-hidden"
-                    >
-                        <div className="space-y-2">
-                            <label className="text-[9px] font-black uppercase text-slate-400 ml-1">Category</label>
+                    <motion.div initial={{ height: 0 }} animate={{ height: 'auto' }} className="grid grid-cols-2 gap-6 overflow-hidden">
+                        <div className="space-y-1">
+                            <label className="text-[9px] font-black uppercase tracking-widest text-slate-600">Category</label>
                             <select
                                 name="category"
-                                defaultValue="Personal"
-                                className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border-none text-slate-600 dark:text-slate-300 rounded-xl focus:ring-1 focus:ring-blue-500 font-bold text-[10px] uppercase tracking-wider"
+                                className="w-full bg-transparent text-slate-400 border-none p-0 text-sm font-bold focus:ring-0 cursor-pointer"
                             >
                                 <option value="Work">Work</option>
                                 <option value="Personal">Personal</option>
@@ -102,12 +95,11 @@ export default function AddTaskForm() {
                                 <option value="Finance">Finance</option>
                             </select>
                         </div>
-                        <div className="space-y-2">
-                            <label className="text-[9px] font-black uppercase text-slate-400 ml-1">Priority</label>
+                        <div className="space-y-1">
+                            <label className="text-[9px] font-black uppercase tracking-widest text-slate-600">Priority</label>
                             <select
                                 name="priority"
-                                defaultValue="Medium"
-                                className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border-none text-slate-600 dark:text-slate-300 rounded-xl focus:ring-1 focus:ring-blue-500 font-bold text-[10px] uppercase tracking-wider"
+                                className="w-full bg-transparent text-slate-400 border-none p-0 text-sm font-bold focus:ring-0 cursor-pointer"
                             >
                                 <option value="Low">Low</option>
                                 <option value="Medium">Medium</option>
@@ -117,14 +109,14 @@ export default function AddTaskForm() {
                     </motion.div>
                 )}
 
-                <div className="space-y-2">
-                    <label className="text-[9px] font-black uppercase text-slate-400 ml-1">Deadline (Optional)</label>
+                <div className="space-y-1">
+                    <label className="text-[9px] font-black uppercase tracking-widest text-slate-600">Deadline</label>
                     <div className="relative">
-                        <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                        <Calendar className="absolute left-0 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-600" />
                         <input
                             type="date"
                             name="dueDate"
-                            className="w-full pl-12 pr-4 py-3 bg-slate-50 dark:bg-slate-900 border-none text-slate-600 dark:text-slate-300 rounded-xl focus:ring-1 focus:ring-blue-500 font-bold text-[10px] uppercase tracking-wider [color-scheme:light] dark:[color-scheme:dark]"
+                            className="w-full pl-8 bg-transparent border-none text-slate-400 text-sm font-bold focus:ring-0 [color-scheme:dark]"
                         />
                     </div>
                 </div>

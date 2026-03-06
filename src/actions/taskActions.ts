@@ -146,6 +146,24 @@ export async function toggleSubtask(taskId: string, subtaskId: string, currentSt
   } catch (error) { throw new Error('Failed to toggle subtask'); }
 }
 
+/**
+ * AI Task Optimizer: Rewrites a task title to be more professional or concise.
+ */
+export async function optimizeTaskTitle(taskId: string, currentTitle: string) {
+  try {
+    await connectDB();
+    const prompt = `Task: "${currentTitle}". Rewrite this task title to be more professional, concise, and clear (maximum 5 words). Return ONLY the new title string.`;
+    const result = await model.generateContent(prompt);
+    const newTitle = result.response.text().trim().replace(/^"|"$/g, '');
+
+    await Task.findByIdAndUpdate(taskId, { title: newTitle });
+    revalidatePath('/');
+  } catch (error) {
+    console.error('Error optimizing task title:', error);
+    throw new Error('AI optimization failed');
+  }
+}
+
 export async function deleteTask(taskId: string) {
   try {
     await connectDB();

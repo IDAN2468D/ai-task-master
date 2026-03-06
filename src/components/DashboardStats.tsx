@@ -1,7 +1,7 @@
 'use client';
 
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, BarChart, Bar, XAxis, YAxis } from 'recharts';
-import { LayoutGrid, CheckCircle2, Timer, AlertCircle, Zap } from 'lucide-react';
+import { Target, CheckCircle, Clock, Zap, Activity, Info } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface Task {
@@ -17,89 +17,67 @@ export default function DashboardStats({ tasks }: { tasks: Task[] }) {
     };
 
     const chartData = [
-        { name: 'To Do', value: stats.Todo, color: '#818cf8' },
-        { name: 'In Progress', value: stats.InProgress, color: '#60a5fa' },
-        { name: 'Done', value: stats.Done, color: '#34d399' },
+        { name: 'To Do', value: stats.Todo, color: '#6366f1' },
+        { name: 'In Progress', value: stats.InProgress, color: '#3b82f6' },
+        { name: 'Done', value: stats.Done, color: '#10b981' },
     ];
 
     const total = tasks.length;
     const completionRate = total > 0 ? Math.round((stats.Done / total) * 100) : 0;
 
     return (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-16 px-2">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-5 mb-16 max-w-7xl mx-auto px-4">
 
-            {/* Metrics Section */}
-            <div className="lg:col-span-8 grid grid-cols-2 md:grid-cols-4 gap-4">
-                {[
-                    { label: 'Total Tasks', value: total, icon: LayoutGrid, color: 'indigo' },
-                    { label: 'In Progress', value: stats.InProgress, icon: Timer, color: 'blue' },
-                    { label: 'Completed', value: stats.Done, icon: CheckCircle2, color: 'emerald' },
-                    { label: 'Efficiency', value: `${completionRate}%`, icon: Zap, color: 'amber' }
-                ].map((item, idx) => (
-                    <motion.div
-                        key={item.label}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: idx * 0.1 }}
-                        className="glass-panel p-6 rounded-[2rem] flex flex-col items-center text-center group hover:scale-105 transition-transform duration-500"
-                    >
-                        <div className={`p-3 rounded-2xl bg-${item.color}-500/10 text-${item.color}-500 mb-4 group-hover:rotate-12 transition-transform`}>
-                            <item.icon className="w-6 h-6" />
+            {/* Hero Metric Bento */}
+            <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="md:col-span-8 bento-item bg-slate-900/40 relative overflow-hidden flex flex-col justify-between"
+            >
+                <div className="absolute top-0 right-0 p-8 text-blue-500/10 pointer-events-none">
+                    <Activity className="w-40 h-40 rotate-12" />
+                </div>
+
+                <div>
+                    <div className="flex items-center gap-2 mb-4">
+                        <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
+                        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-blue-500">Real-time Analytics</span>
+                    </div>
+                    <h3 className="text-4xl md:text-5xl font-black text-white tracking-tighter mb-2">Workspace<br /><span className="text-blue-500/80">Velocity.</span></h3>
+                    <p className="text-slate-500 text-sm font-medium">Your current productivity flow based on task completion.</p>
+                </div>
+
+                <div className="grid grid-cols-3 gap-8 mt-10">
+                    {[
+                        { label: 'Completion', value: `${completionRate}%`, icon: Zap },
+                        { label: 'Active Focus', value: stats.InProgress, icon: Clock },
+                        { label: 'Finalized', value: stats.Done, icon: CheckCircle }
+                    ].map(item => (
+                        <div key={item.label}>
+                            <p className="text-[10px] font-black uppercase text-slate-500 tracking-tighter mb-1 flex items-center gap-1.5">
+                                <item.icon className="w-3 h-3" /> {item.label}
+                            </p>
+                            <p className="text-2xl font-black text-white tabular-nums">{item.value}</p>
                         </div>
-                        <p className="text-[10px] font-black uppercase tracking-tighter text-slate-400 mb-1">{item.label}</p>
-                        <p className="text-3xl font-black text-slate-800 dark:text-white tabular-nums">{item.value}</p>
-                    </motion.div>
-                ))}
+                    ))}
+                </div>
+            </motion.div>
 
-                {/* Bar Chart Section */}
-                <motion.div
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: 0.4 }}
-                    className="col-span-full glass-panel p-8 rounded-[2.5rem] h-64 overflow-hidden"
-                >
-                    <ResponsiveContainer width="100%" height="100%">
-                        <BarChart data={chartData}>
-                            <defs>
-                                {chartData.map((entry, index) => (
-                                    <linearGradient key={`grad-${index}`} id={`color-${index}`} x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor={entry.color} stopOpacity={0.8} />
-                                        <stop offset="95%" stopColor={entry.color} stopOpacity={0.1} />
-                                    </linearGradient>
-                                ))}
-                            </defs>
-                            <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 12, fontWeight: 700 }} dy={10} />
-                            <Tooltip
-                                contentStyle={{ background: 'rgba(255,255,255,0.8)', backdropFilter: 'blur(10px)', border: 'none', borderRadius: '16px', boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)' }}
-                                itemStyle={{ color: '#1e293b', fontWeight: 'bold' }}
-                            />
-                            <Bar dataKey="value" radius={[12, 12, 0, 0]} barSize={40}>
-                                {chartData.map((entry, index) => (
-                                    <Cell key={`cell-${index}`} fill={`url(#color-${index})`} />
-                                ))}
-                            </Bar>
-                        </BarChart>
-                    </ResponsiveContainer>
-                </motion.div>
-            </div>
-
-            {/* Distribution Section */}
+            {/* Chart Bento */}
             <motion.div
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.5 }}
-                className="lg:col-span-4 glass-panel p-8 rounded-[2.5rem] flex flex-col items-center justify-center relative overflow-hidden"
+                transition={{ delay: 0.2 }}
+                className="md:col-span-4 bento-item bg-slate-900/40 flex flex-col items-center justify-center min-h-[300px]"
             >
-                <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/5 blur-3xl -z-10 rounded-full" />
-                <h4 className="text-xs font-black uppercase tracking-[0.2em] text-slate-400 mb-8">Workload Distribution</h4>
-                <div className="w-full h-56">
+                <div className="w-full h-48 opacity-80">
                     <ResponsiveContainer width="100%" height="100%">
                         <PieChart>
                             <Pie
                                 data={chartData}
-                                innerRadius={70}
-                                outerRadius={95}
-                                paddingAngle={8}
+                                innerRadius={65}
+                                outerRadius={85}
+                                paddingAngle={10}
                                 dataKey="value"
                                 stroke="none"
                             >
@@ -107,16 +85,18 @@ export default function DashboardStats({ tasks }: { tasks: Task[] }) {
                                     <Cell key={`cell-${index}`} fill={entry.color} />
                                 ))}
                             </Pie>
-                            <Tooltip />
+                            <Tooltip
+                                contentStyle={{ background: '#0f172a', border: '1px solid #1e293b', borderRadius: '12px' }}
+                                itemStyle={{ color: '#fff', fontSize: '10px', fontWeight: 'bold' }}
+                            />
                         </PieChart>
                     </ResponsiveContainer>
                 </div>
-                <div className="grid grid-cols-3 gap-2 w-full mt-6">
+                <div className="flex justify-center gap-4 mt-6">
                     {chartData.map(item => (
-                        <div key={item.name} className="flex flex-col items-center gap-1">
-                            <div className="w-1.5 h-1.5 rounded-full mb-1" style={{ backgroundColor: item.color }} />
-                            <span className="text-[9px] font-black text-slate-400 uppercase tracking-tighter">{item.name}</span>
-                            <span className="text-xs font-bold text-slate-700 dark:text-slate-200">{item.value}</span>
+                        <div key={item.name} className="flex items-center gap-2">
+                            <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: item.color }} />
+                            <span className="text-[8px] font-black text-slate-500 uppercase">{item.name}</span>
                         </div>
                     ))}
                 </div>
