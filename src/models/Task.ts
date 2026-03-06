@@ -5,6 +5,8 @@ export interface ITask extends Document {
     title: string;
     description?: string;
     isCompleted: boolean;
+    category: string;
+    dueDate?: Date;
     createdAt: Date;
 }
 
@@ -23,6 +25,15 @@ const TaskSchema: Schema<ITask> = new Schema({
     isCompleted: {
         type: Boolean,
         default: false,
+    },
+    category: {
+        type: String,
+        default: 'Personal',
+        enum: ['Work', 'Personal', 'Urgent', 'Health', 'Finance'],
+    },
+    dueDate: {
+        type: Date,
+        required: false,
     },
     createdAt: {
         type: Date,

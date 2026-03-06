@@ -2,7 +2,7 @@
 
 import { revalidatePath } from 'next/cache';
 import connectDB from '@/lib/mongodb';
-import Task, { ITask } from '@/models/Task';
+import Task from '@/models/Task';
 
 /**
  * Fetch all tasks from the MongoDB database.
@@ -24,22 +24,33 @@ export async function getTasks() {
 
 /**
  * Creates a new task in the database based on form data,
- * and revalidates the Home page to update the UI instantly.
+ * including category and dueDate.
  */
 export async function createTask(formData: FormData) {
   try {
     await connectDB();
 
     const title = formData.get('title') as string;
+    const category = formData.get('category') as string;
+    const dueDateStr = formData.get('dueDate') as string;
 
     if (!title || title.trim() === '') {
       throw new Error('Task title cannot be empty.');
     }
 
-    // Create a new task.
-    await Task.create({ title: title.trim() });
+    const taskData: any = {
+      title: title.trim(),
+      category: category || 'Personal',
+    };
 
-    // Instantly invalidate the home page cache to fetch latest db state
+    if (dueDateStr) {
+      taskData.dueDate = new Date(dueDateStr);
+    }
+
+    // Create a new task.
+    await Task.create(taskData);
+
+    // Instantly invalidate the home page cache
     revalidatePath('/');
   } catch (error) {
     console.error('Error creating task:', error);
@@ -53,10 +64,7 @@ export async function createTask(formData: FormData) {
 export async function toggleTaskStatus(taskId: string, currentStatus: boolean) {
   try {
     await connectDB();
-
-    // Note: We use the flipped status for the update
     await Task.findByIdAndUpdate(taskId, { isCompleted: !currentStatus });
-
     revalidatePath('/');
   } catch (error) {
     console.error('Error toggling task status:', error);
@@ -71,7 +79,6 @@ export async function deleteTask(taskId: string) {
   try {
     await connectDB();
     await Task.findByIdAndDelete(taskId);
-
     revalidatePath('/');
   } catch (error) {
     console.error('Error deleting task:', error);
