@@ -111,7 +111,7 @@ export async function generateSubtasksWithAI(taskId: string, taskTitle: string) 
     const response = await result.response;
     const text = response.text().replace(/```json|```/g, '').trim();
 
-    let subtaskTitles = JSON.parse(text);
+    const subtaskTitles = JSON.parse(text);
     if (Array.isArray(subtaskTitles)) {
       const newSubtasks = subtaskTitles.map(title => ({ title: title.trim(), isCompleted: false }));
       await Task.findByIdAndUpdate(taskId, { $push: { subtasks: { $each: newSubtasks } } });
@@ -332,7 +332,7 @@ export async function createRecurringFromTask(taskId: string) {
     if (task.recurring?.enabled) {
       const freq = task.recurring.frequency;
       const now = new Date();
-      let nextDue = new Date(now);
+      const nextDue = new Date(now);
 
       if (freq === 'daily') nextDue.setDate(now.getDate() + 1);
       else if (freq === 'weekly') nextDue.setDate(now.getDate() + 7);
