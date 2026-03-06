@@ -23,6 +23,7 @@ import {
     verticalListSortingStrategy
 } from '@dnd-kit/sortable';
 import { motion } from 'framer-motion';
+import { Zap, Command, Layers, Activity } from 'lucide-react';
 
 interface Task {
     _id: string;
@@ -49,9 +50,9 @@ export default function KanbanBoard({ tasks: initialTasks }: { tasks: Task[] }) 
     );
 
     const columns = [
-        { id: 'Todo', title: 'To Do', color: 'bg-indigo-500' },
-        { id: 'InProgress', title: 'InProgress', color: 'bg-blue-500' },
-        { id: 'Done', title: 'Completed', color: 'bg-emerald-500' },
+        { id: 'Todo', title: 'Inbox', color: 'bg-indigo-500', desc: 'Awaiting Focus' },
+        { id: 'InProgress', title: 'Action', color: 'bg-blue-500', desc: 'Strategic Flow' },
+        { id: 'Done', title: 'Archive', color: 'bg-emerald-500', desc: 'Mission Success' },
     ];
 
     const handleDragStart = (event: DragStartEvent) => {
@@ -69,7 +70,7 @@ export default function KanbanBoard({ tasks: initialTasks }: { tasks: Task[] }) 
 
         const isOverAColumn = columns.find(col => col.id === overId);
         if (isOverAColumn) {
-            if (activeTask.status !== overId) {
+            if (activeTask.status !== (overId as any)) {
                 setTasks(prev => prev.map(t => t._id === activeId ? { ...t, status: overId as any } : t));
             }
             return;
@@ -100,36 +101,59 @@ export default function KanbanBoard({ tasks: initialTasks }: { tasks: Task[] }) 
             onDragOver={handleDragOver}
             onDragEnd={handleDragEnd}
         >
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-7xl mx-auto px-4">
-                {columns.map((col) => {
-                    const colTasks = tasks.filter((t) => t.status === col.id);
+            <div className="ether-card !rounded-[3rem] p-4 lg:p-10 mb-20 relative overflow-hidden group/board">
 
-                    return (
-                        <div key={col.id} id={col.id} className="flex flex-col h-full min-h-[600px]">
-                            <div className="flex items-center gap-3 mb-8 px-6">
-                                <div className={`w-1.5 h-1.5 rounded-full ${col.color}`} />
-                                <h3 className="text-xs font-black uppercase tracking-[0.2em] text-white/50">{col.id === 'InProgress' ? 'In Progress' : col.title}</h3>
-                                <span className="text-[10px] font-black tabular-nums text-slate-700 ml-auto bg-slate-900 px-2 py-0.5 rounded-md border border-slate-800">{colTasks.length}</span>
-                            </div>
+                {/* Board Surface Background */}
+                <div className="absolute top-0 right-0 w-80 h-80 bg-blue-500/5 blur-[120px] pointer-events-none -z-10 animate-pulse" />
 
-                            <div className="flex-1 space-y-4">
-                                <SortableContext items={colTasks.map(t => t._id)} strategy={verticalListSortingStrategy}>
-                                    {colTasks.map((task) => (
-                                        <TaskItem key={task._id} task={task} />
-                                    ))}
-                                    {colTasks.length === 0 && (
-                                        <div className="p-10 text-center text-slate-900 font-bold border-2 border-dashed border-slate-900 rounded-[2.5rem]">
-                                            Nothing Active.
-                                        </div>
-                                    )}
-                                </SortableContext>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-0 relative">
+                    {columns.map((col, idx) => {
+                        const colTasks = tasks.filter((t) => t.status === col.id);
+
+                        return (
+                            <div
+                                key={col.id}
+                                id={col.id}
+                                className={`flex flex-col h-full min-h-[700px] transition-all duration-700 ${idx !== 0 ? 'md:border-l border-white/[0.03]' : ''} px-6 py-4`}
+                            >
+                                {/* Column Header */}
+                                <div className="flex flex-col gap-1 mb-10">
+                                    <div className="flex items-center gap-2">
+                                        <div className={`w-1.5 h-1.5 rounded-full ${col.color} animate-pulse shadow-[0_0_10px_currentColor]`} />
+                                        <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-white transition-opacity group-hover/board:opacity-100">{col.title}</h3>
+                                    </div>
+                                    <span className="text-[9px] font-black uppercase tracking-widest text-slate-600 block pl-3.5 group-hover/board:text-slate-400 transition-colors">{col.desc}</span>
+                                </div>
+
+                                <div className="flex-1 space-y-4">
+                                    <SortableContext items={colTasks.map(t => t._id)} strategy={verticalListSortingStrategy}>
+                                        {colTasks.map((task) => (
+                                            <TaskItem key={task._id} task={task} />
+                                        ))}
+                                        {colTasks.length === 0 && (
+                                            <div className="h-60 flex flex-col items-center justify-center gap-4 text-center border-2 border-dashed border-white/[0.03] rounded-[2.5rem]">
+                                                <Command className="w-6 h-6 text-slate-900" />
+                                                <p className="text-[10px] font-black uppercase tracking-widest text-slate-800">Clear Space.</p>
+                                            </div>
+                                        )}
+                                    </SortableContext>
+                                </div>
+
+                                {/* Column Footer: AI Workload Score */}
+                                <div className="mt-8 pt-4 border-t border-white/[0.02] flex items-center justify-between">
+                                    <div className="flex items-center gap-2 text-[8px] font-black uppercase text-slate-600">
+                                        <Activity className="w-3 h-3" />
+                                        <span>Workload: {colTasks.length > 5 ? 'High' : 'Optimal'}</span>
+                                    </div>
+                                    <span className="text-[10px] font-black text-white/20">{colTasks.length}</span>
+                                </div>
                             </div>
-                        </div>
-                    );
-                })}
+                        );
+                    })}
+                </div>
             </div>
 
-            <DragOverlay dropAnimation={{ sideEffects: defaultDropAnimationSideEffects({ styles: { active: { opacity: '0.1' } } }) }}>
+            <DragOverlay dropAnimation={{ sideEffects: defaultDropAnimationSideEffects({ styles: { active: { opacity: '0.05' } } }) }}>
                 {activeTask ? <TaskItem task={activeTask} /> : null}
             </DragOverlay>
         </DndContext>

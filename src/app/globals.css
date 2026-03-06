@@ -8,62 +8,85 @@
 :root {
   --background: #ffffff;
   --foreground: #020617;
-  --border: #e2e8f0;
   --accent: #3b82f6;
+  --glass: rgba(255, 255, 255, 0.7);
+  --glass-border: rgba(226, 232, 240, 0.8);
 }
 
 .dark {
-  --background: #000000;
+  --background: #050505;
   --foreground: #f8fafc;
-  --border: #1e293b;
-  --accent: #60a5fa;
+  --accent: #3b82f6;
+  --glass: rgba(5, 5, 5, 0.8);
+  --glass-border: rgba(255, 255, 255, 0.08);
 }
 
 body {
   background-color: var(--background);
   color: var(--foreground);
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  -webkit-font-smoothing: antialiased;
+  font-family: 'Inter', system-ui, sans-serif;
+  letter-spacing: -0.02em;
 }
 
-/* Linear-style Surface */
-.surface {
-  background: rgba(255, 255, 255, 0.03);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+/* Ether Glassmorphism */
+.ether-card {
+  background: var(--glass);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid var(--glass-border);
+  transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.dark .surface {
-  background: rgba(10, 10, 10, 0.6);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+.ether-card:hover {
+  background: rgba(255, 255, 255, 0.01);
+  border-color: rgba(59, 130, 246, 0.4);
+  box-shadow: 0 40px 100px -20px rgba(0, 0, 0, 0.5), 0 0 20px rgba(59, 130, 246, 0.1);
+  transform: translateY(-2px);
 }
 
-/* Bento Grid Item */
-.bento-item {
-  @apply rounded-[2rem] p-8 transition-all duration-500;
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0) 100%);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+/* Holographic Accent */
+.hologram {
+  position: relative;
+  overflow: hidden;
 }
 
-.bento-item:hover {
-  border-color: rgba(59, 130, 246, 0.3);
-  box-shadow: 0 0 40px rgba(59, 130, 246, 0.05);
+.hologram::after {
+  content: '';
+  position: absolute;
+  top: -100%;
+  left: -100%;
+  width: 300%;
+  height: 300%;
+  background: linear-gradient(45deg,
+      transparent 0%,
+      rgba(59, 130, 246, 0.05) 45%,
+      rgba(168, 85, 247, 0.05) 50%,
+      rgba(59, 130, 246, 0.05) 55%,
+      transparent 100%);
+  animation: hologram-flow 10s linear infinite;
+  pointer-events: none;
 }
 
-/* Gradients */
-.text-gradient {
-  @apply bg-clip-text text-transparent bg-gradient-to-br from-white via-slate-400 to-slate-600;
+@keyframes hologram-flow {
+  0% {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+
+  100% {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
 }
 
-.glow-blue {
-  box-shadow: 0 0 80px -10px rgba(59, 130, 246, 0.15);
+/* Text Gradient */
+.text-ethereal {
+  @apply bg-clip-text text-transparent bg-gradient-to-br from-white via-slate-400 to-slate-800;
 }
 
 .custom-scrollbar::-webkit-scrollbar {
-  width: 4px;
+  width: 3px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: #334155;
+  background: rgba(255, 255, 255, 0.1);
   border-radius: 10px;
 }
