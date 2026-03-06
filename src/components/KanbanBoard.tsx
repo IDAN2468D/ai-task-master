@@ -114,10 +114,17 @@ export default function KanbanBoard({ tasks: initialTasks }: { tasks: Task[] }) 
                             <div
                                 key={col.id}
                                 id={col.id}
-                                className={`flex flex-col h-full min-h-[700px] transition-all duration-700 ${idx !== 0 ? 'md:border-l border-white/[0.03]' : ''} px-6 py-4`}
+                                className={`flex flex-col h-full min-h-[700px] transition-all duration-700 ${col.id === 'Todo' ? 'bg-gradient-to-b from-indigo-500/[0.05] to-transparent border border-indigo-500/10 rounded-[2.5rem] relative shadow-[inset_0_0_80px_rgba(99,102,241,0.02)] scale-[1.02] z-10' : (idx !== 0 ? 'md:border-l border-white/[0.03]' : '')} px-6 py-6`}
                             >
                                 {/* Column Header */}
-                                <div className="flex flex-col gap-1 mb-10">
+                                {col.id === 'Todo' && (
+                                    <>
+                                        <div className="absolute top-0 inset-x-0 h-[2px] bg-gradient-to-r from-transparent via-indigo-500/80 to-transparent" />
+                                        <div className="absolute top-0 right-10 w-40 h-40 bg-indigo-500/10 blur-[60px] pointer-events-none -z-10" />
+                                        <div className="absolute bottom-0 inset-x-0 h-32 bg-gradient-to-t from-indigo-500/5 to-transparent pointer-events-none -z-10" />
+                                    </>
+                                )}
+                                <div className="flex flex-col gap-1 mb-10 z-10">
                                     <div className="flex items-center gap-2">
                                         <div className={`w-1.5 h-1.5 rounded-full ${col.color} animate-pulse shadow-[0_0_10px_currentColor]`} />
                                         <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-white transition-opacity group-hover/board:opacity-100">{col.title}</h3>

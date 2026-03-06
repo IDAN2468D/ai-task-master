@@ -57,7 +57,6 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
 
                 {/* Hero Header: 2026 Minimalist Scale */}
                 <div className="max-w-4xl mb-32">
-                    <motion_header initial_y={20} initial_opacity={0} />
                     <div className="flex items-center gap-3 mb-10">
                         <div className="px-5 py-2.5 bg-white/5 border border-white/5 rounded-full text-[10px] font-black uppercase tracking-[0.3em] text-white/40 flex items-center gap-3">
                             <Sparkles className="w-3.5 h-3.5 text-blue-500 animate-pulse" />
@@ -120,8 +119,4 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
 
         </main>
     );
-}
-
-function motion_header({ initial_y, initial_opacity }: any) {
-    return null; // This is inside a Server Component, so we use standard HTML/CSS for entrance or client components for motion.
 }
