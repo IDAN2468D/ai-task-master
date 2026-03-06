@@ -6,7 +6,7 @@ import { useState, useEffect } from 'react';
 import { DndContext, DragOverlay, closestCorners, KeyboardSensor, PointerSensor, useSensor, useSensors, DragStartEvent, DragOverEvent, DragEndEvent, useDroppable } from '@dnd-kit/core';
 import { SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { motion } from 'framer-motion';
-import { Inbox, Workflow, Archive } from 'lucide-react';
+import { Inbox, Workflow, Archive, Sparkles } from 'lucide-react';
 
 interface Task {
     _id: string;
@@ -23,9 +23,22 @@ export default function KanbanBoard({ tasks: initialTasks }: { tasks: Task[] }) 
     const [tasks, setTasks] = useState(initialTasks);
     const [activeTask, setActiveTask] = useState<Task | null>(null);
     const [isMounted, setIsMounted] = useState(false);
+    const [isSorting, setIsSorting] = useState(false);
 
     useEffect(() => { setTasks(initialTasks); }, [initialTasks]);
     useEffect(() => { setIsMounted(true); }, []);
+
+    const handleMagicSort = () => {
+        setIsSorting(true);
+        setTimeout(() => {
+            const sorted = [...tasks].sort((a, b) => {
+                const priorityMap: any = { High: 0, Medium: 1, Low: 2 };
+                return priorityMap[a.priority] - priorityMap[b.priority];
+            });
+            setTasks(sorted);
+            setIsSorting(false);
+        }, 1500);
+    };
 
     const sensors = useSensors(
         useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
@@ -72,18 +85,36 @@ export default function KanbanBoard({ tasks: initialTasks }: { tasks: Task[] }) 
     if (!isMounted) return <div className="h-96 flex items-center justify-center font-bold text-blue-500 animate-pulse">Loading Board...</div>;
 
     return (
-        <DndContext sensors={sensors} collisionDetection={closestCorners} onDragStart={handleDragStart} onDragOver={handleDragOver} onDragEnd={handleDragEnd}>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
-                {columns.map((col) => {
-                    const colTasks = tasks.filter((t) => t.status === col.id);
-                    return <KanbanColumn key={col.id} col={col} tasks={colTasks} />;
-                })}
+        <div className="relative">
+            {/* AI Magic Sort Header */}
+            <div className="flex justify-end mb-6">
+                <button
+                    onClick={handleMagicSort}
+                    disabled={isSorting}
+                    className="flex items-center gap-2 px-5 py-2.5 bg-gradient-stat-2 text-white font-black uppercase tracking-wider text-[10px] rounded-xl hover:shadow-[0_10px_30px_rgba(0,229,255,0.3)] hover:-translate-y-0.5 transition-all disabled:opacity-50"
+                >
+                    {isSorting ? (
+                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    ) : (
+                        <Sparkles className="w-4 h-4" />
+                    )}
+                    {isSorting ? "AI Optimizing..." : "AI Magic Sort"}
+                </button>
             </div>
 
-            <DragOverlay>
-                {activeTask ? <div className="opacity-90 shadow-[0_30px_60px_rgba(67,24,255,0.3)]"><TaskItem task={activeTask} /></div> : null}
-            </DragOverlay>
-        </DndContext>
+            <DndContext sensors={sensors} collisionDetection={closestCorners} onDragStart={handleDragStart} onDragOver={handleDragOver} onDragEnd={handleDragEnd}>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
+                    {columns.map((col) => {
+                        const colTasks = tasks.filter((t) => t.status === col.id);
+                        return <KanbanColumn key={col.id} col={col} tasks={colTasks} />;
+                    })}
+                </div>
+
+                <DragOverlay>
+                    {activeTask ? <div className="opacity-90 shadow-[0_30px_60px_rgba(67,24,255,0.3)]"><TaskItem task={activeTask} /></div> : null}
+                </DragOverlay>
+            </DndContext>
+        </div>
     );
 }
 

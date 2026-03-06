@@ -20,13 +20,26 @@ export default function TaskItem({ task }: { task: Task }) {
     const [aiAdvice, setAiAdvice] = useState<string | null>(null);
     const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: task._id });
 
+    const getThematicStyles = () => {
+        const t = task.title.toLowerCase();
+        const c = task.category.toLowerCase();
+
+        if (t.includes('code') || t.includes('dev') || c.includes('tech')) return 'from-blue-600/5 to-indigo-600/5 dark:from-blue-400/10 dark:to-indigo-400/10';
+        if (t.includes('design') || t.includes('art') || c.includes('design')) return 'from-pink-600/5 to-purple-600/5 dark:from-pink-400/10 dark:to-purple-400/10';
+        if (t.includes('money') || t.includes('pay') || c.includes('finance')) return 'from-emerald-600/5 to-teal-600/5 dark:from-emerald-400/10 dark:to-teal-400/10';
+        if (t.includes('meeting') || t.includes('call') || c.includes('work')) return 'from-amber-600/5 to-orange-600/5 dark:from-amber-400/10 dark:to-orange-400/10';
+        return 'from-slate-600/5 to-slate-600/5 dark:from-slate-400/5 dark:to-slate-400/5';
+    };
+
     const style = { transform: CSS.Transform.toString(transform), transition, zIndex: isDragging ? 50 : 'auto' };
     const comps = task.subtasks?.filter(s => s.isCompleted).length || 0;
     const total = task.subtasks?.length || 0;
     const prog = total > 0 ? (comps / total) * 100 : 0;
 
     return (
-        <motion.div ref={setNodeRef} style={style} layout className={`vibrant-card p-5 group/item ${isDragging ? 'opacity-50 scale-105 rotate-2' : ''} ${task.status === 'Done' ? 'opacity-60 saturate-50' : ''}`}>
+        <motion.div ref={setNodeRef} style={style} layout className={`vibrant-card p-5 group/item relative overflow-hidden bg-gradient-to-br ${getThematicStyles()} ${isDragging ? 'opacity-50 scale-105 rotate-2' : ''} ${task.status === 'Done' ? 'opacity-60 saturate-50' : ''}`}>
+            {/* AI Decorative Pattern */}
+            <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 dark:bg-white/5 blur-3xl rounded-full -mr-16 -mt-16 pointer-events-none" />
             {/* Header Tags */}
             <div className="flex justify-between items-center mb-3">
                 <div className="flex items-center gap-2">
