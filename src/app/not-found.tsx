@@ -1,6 +1,8 @@
 import { SearchX, Home, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 
+export const dynamic = 'force-dynamic';
+
 // NOTE: Do NOT use <html> or <body> tags here. 
 // NotFound is rendered inside your RootLayout.
 export default function NotFound() {
