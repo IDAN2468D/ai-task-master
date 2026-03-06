@@ -1,116 +1,177 @@
 'use client';
 
-import { toggleTaskStatus, deleteTask } from '@/actions/taskActions';
-import { Check, Trash2, Calendar, Layout, AlertCircle, Briefcase, Heart, Wallet } from 'lucide-react';
-import { useTransition } from 'react';
+import { addSubtask, toggleSubtask, deleteTask } from '@/actions/taskActions';
+import { Trash2, Calendar, Plus, CheckSquare, Square, GripVertical, MoreHorizontal, Layers } from 'lucide-react';
+import { useTransition, useState } from 'react';
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+import { motion, AnimatePresence } from 'framer-motion';
 
-interface TaskProps {
-    task: {
-        _id: string;
-        title: string;
-        description?: string;
-        isCompleted: boolean;
-        category: string;
-        dueDate?: string;
-        createdAt: string;
-    };
+interface Task {
+    _id: string;
+    title: string;
+    status: 'Todo' | 'InProgress' | 'Done';
+    priority: 'Low' | 'Medium' | 'High';
+    category: string;
+    dueDate?: string;
+    subtasks: any[];
+    createdAt: string;
 }
 
-// Helper to get category specific styles
-const getCategoryConfig = (category: string) => {
-    switch (category) {
-        case 'Work': return { color: 'text-blue-600 bg-blue-50 border-blue-100 dark:bg-blue-900/20 dark:border-blue-800/50', icon: Briefcase };
-        case 'Urgent': return { color: 'text-rose-600 bg-rose-50 border-rose-100 dark:bg-rose-900/20 dark:border-rose-800/50', icon: AlertCircle };
-        case 'Health': return { color: 'text-emerald-600 bg-emerald-50 border-emerald-100 dark:bg-emerald-900/20 dark:border-emerald-800/50', icon: Heart };
-        case 'Finance': return { color: 'text-amber-600 bg-amber-50 border-amber-100 dark:bg-amber-900/20 dark:border-amber-800/50', icon: Wallet };
-        default: return { color: 'text-indigo-600 bg-indigo-50 border-indigo-100 dark:bg-indigo-900/20 dark:border-indigo-800/50', icon: Layout };
-    }
-};
+export default function TaskItem({ task }: { task: Task }) {
+    const [isPending, startTransition] = useTransition();
+    const [showSubtasks, setShowSubtasks] = useState(false);
+    const [newSubtask, setNewSubtask] = useState('');
 
-export default function TaskItem({ task }: TaskProps) {
-    const [isPendingToggle, startToggleTransition] = useTransition();
-    const [isPendingDelete, startDeleteTransition] = useTransition();
+    const {
+        attributes,
+        listeners,
+        setNodeRef,
+        transform,
+        transition,
+        isDragging,
+    } = useSortable({ id: task._id });
 
-    const config = getCategoryConfig(task.category);
-    const CatIcon = config.icon;
-
-    const isCompleted = task.isCompleted;
-    const isBusy = isPendingToggle || isPendingDelete;
-
-    const handleToggle = () => {
-        startToggleTransition(async () => {
-            await toggleTaskStatus(task._id, isCompleted);
-        });
+    const style = {
+        transform: CSS.Transform.toString(transform),
+        transition,
+        zIndex: isDragging ? 100 : 'auto',
     };
 
-    const handleDelete = () => {
-        if (confirm('Are you sure you want to delete this task?')) {
-            startDeleteTransition(async () => {
-                await deleteTask(task._id);
-            });
-        }
-    };
+    const completedSubtasks = task.subtasks?.filter(s => s.isCompleted).length || 0;
+    const totalSubtasks = task.subtasks?.length || 0;
+    const progress = totalSubtasks > 0 ? (completedSubtasks / totalSubtasks) * 100 : 0;
 
     return (
-        <div className={`group relative bg-white dark:bg-slate-900 rounded-[2rem] border-2 transition-all duration-500 hover:scale-[1.01] ${isCompleted
-                ? 'opacity-60 border-transparent bg-slate-50/50 dark:bg-slate-800/20'
-                : 'border-slate-100 dark:border-slate-800 shadow-lg hover:shadow-2xl hover:border-blue-100 dark:hover:border-blue-900/30'
-            } ${isBusy ? 'opacity-30 scale-95' : ''}`}>
+        <motion.div
+            ref={setNodeRef}
+            style={style}
+            layout
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className={`relative glass-panel rounded-[2rem] p-6 mb-4 group transition-shadow hover:shadow-2xl hover:shadow-blue-500/10 ${isDragging ? 'opacity-50 ring-2 ring-blue-500 scale-105' : ''}`}
+        >
+            {/* Category Badge & Priority */}
+            <div className="flex justify-between items-center mb-4">
+                <span className="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400">
+                    {task.category}
+                </span>
+                <PriorityIndicator priority={task.priority} />
+            </div>
 
-            <div className="p-6 sm:p-8 flex items-start gap-6">
-
-                {/* Custom Checkbox */}
-                <button
-                    onClick={handleToggle}
-                    disabled={isBusy}
-                    className={`flex-shrink-0 w-10 h-10 rounded-2xl border-2 flex items-center justify-center transition-all duration-300 transform ${isCompleted
-                            ? 'bg-gradient-to-br from-emerald-500 to-teal-600 border-transparent rotate-12'
-                            : 'bg-transparent border-slate-200 dark:border-slate-700 hover:border-blue-500 hover:rotate-6'
-                        }`}
-                >
-                    {isCompleted && <Check className="w-6 h-6 text-white" strokeWidth={3} />}
-                </button>
-
-                {/* Content Area */}
-                <div className="flex-1 min-w-0">
-
-                    {/* Top Row: Category Badge */}
-                    <div className="flex items-center gap-3 mb-3">
-                        <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border tracking-wide uppercase ${config.color}`}>
-                            <CatIcon className="w-3.5 h-3.5" />
-                            {task.category}
-                        </span>
-
-                        {task.dueDate && (
-                            <span className={`inline-flex items-center gap-1.5 text-xs font-semibold ${new Date(task.dueDate) < new Date() && !isCompleted ? 'text-rose-500 animate-pulse' : 'text-slate-400'
-                                }`}>
-                                <Calendar className="w-3.5 h-3.5" />
-                                {new Date(task.dueDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
-                            </span>
-                        )}
-                    </div>
-
-                    {/* Title */}
-                    <h3 className={`text-xl sm:text-2xl font-bold transition-all duration-500 mb-1 ${isCompleted ? 'text-slate-400 line-through' : 'text-slate-800 dark:text-slate-100'
-                        }`}>
-                        {task.title}
-                    </h3>
-
-                    {/* Timestamp */}
-                    <p className="text-xs font-medium text-slate-400 flex items-center gap-1">
-                        Created {new Date(task.createdAt).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}
-                    </p>
+            <div className="flex gap-4">
+                {/* Drag Handle */}
+                <div {...listeners} {...attributes} className="cursor-grab active:cursor-grabbing text-slate-300 hover:text-blue-500 transition-colors py-1">
+                    <GripVertical className="w-5 h-5" />
                 </div>
 
-                {/* Delete Trigger */}
+                <div className="flex-1 min-w-0">
+                    <h4 className={`text-lg font-bold text-slate-900 dark:text-white mb-2 leading-tight ${task.status === 'Done' ? 'opacity-50 line-through' : ''}`}>
+                        {task.title}
+                    </h4>
+
+                    {/* Progress Bar Mini */}
+                    {totalSubtasks > 0 && (
+                        <div className="flex items-center gap-3 mb-4">
+                            <div className="flex-1 h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                                <motion.div
+                                    initial={{ width: 0 }}
+                                    animate={{ width: `${progress}%` }}
+                                    className={`h-full ${progress === 100 ? 'bg-emerald-500' : 'bg-blue-500'}`}
+                                />
+                            </div>
+                            <span className="text-[10px] font-black text-slate-400">{Math.round(progress)}%</span>
+                        </div>
+                    )}
+
+                    <div className="flex flex-wrap items-center gap-4 text-[11px] font-bold text-slate-400 uppercase tracking-tighter">
+                        {task.dueDate && (
+                            <div className="flex items-center gap-1.5">
+                                <Calendar className="w-3.5 h-3.5" />
+                                <span>{new Date(task.dueDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</span>
+                            </div>
+                        )}
+                        <div className="flex items-center gap-1.5">
+                            <Layers className="w-3.5 h-3.5" />
+                            <span>{totalSubtasks} Tasks</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Actions Footer */}
+            <div className="mt-6 pt-5 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
                 <button
-                    onClick={handleDelete}
-                    disabled={isBusy}
-                    className="flex-shrink-0 p-4 text-slate-300 dark:text-slate-600 hover:text-rose-500 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-900/10 rounded-2xl transition-all duration-200 group-hover:translate-x-0 sm:opacity-0 group-hover:opacity-100"
+                    onClick={() => setShowSubtasks(!showSubtasks)}
+                    className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${showSubtasks ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/40' : 'bg-slate-50 dark:bg-slate-800 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700'
+                        }`}
                 >
-                    <Trash2 className="w-6 h-6" />
+                    {showSubtasks ? 'Collapse' : 'Manage Subtasks'}
+                </button>
+
+                <button
+                    onClick={() => startTransition(async () => await deleteTask(task._id))}
+                    className="p-2 text-slate-300 hover:text-rose-500 hover:scale-110 transition-all"
+                >
+                    <Trash2 className="w-4 h-4" />
                 </button>
             </div>
+
+            {/* Subtasks Panel */}
+            <AnimatePresence>
+                {showSubtasks && (
+                    <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        className="overflow-hidden"
+                    >
+                        <div className="mt-4 space-y-3 pt-2">
+                            {task.subtasks?.map((sub: any) => (
+                                <div key={sub._id} className="flex items-center gap-3">
+                                    <button onClick={() => startTransition(() => toggleSubtask(task._id, sub._id, sub.isCompleted))}>
+                                        {sub.isCompleted ? <CheckSquare className="w-4 h-4 text-emerald-500" /> : <Square className="w-4 h-4 text-slate-300" />}
+                                    </button>
+                                    <span className={`text-sm ${sub.isCompleted ? 'text-slate-400 line-through' : 'text-slate-700 dark:text-slate-300'}`}>
+                                        {sub.title}
+                                    </span>
+                                </div>
+                            ))}
+                            <form onSubmit={(e) => {
+                                e.preventDefault();
+                                if (!newSubtask.trim()) return;
+                                startTransition(async () => {
+                                    await addSubtask(task._id, newSubtask);
+                                    setNewSubtask('');
+                                });
+                            }} className="flex gap-2">
+                                <input
+                                    type="text"
+                                    placeholder="New subtask..."
+                                    value={newSubtask}
+                                    onChange={(e) => setNewSubtask(e.target.value)}
+                                    className="flex-1 bg-slate-50 dark:bg-slate-800 border-none rounded-lg p-2 text-sm focus:ring-1 focus:ring-blue-500"
+                                />
+                                <button type="submit" className="p-2 bg-blue-500 text-white rounded-lg"><Plus className="w-4 h-4" /></button>
+                            </form>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+        </motion.div>
+    );
+}
+
+function PriorityIndicator({ priority }: { priority: string }) {
+    const colors = {
+        High: 'text-rose-500 bg-rose-500/10',
+        Medium: 'text-amber-500 bg-amber-500/10',
+        Low: 'text-emerald-500 bg-emerald-500/10'
+    }[priority] || 'text-slate-400';
+
+    return (
+        <div className={`px-2 py-0.5 rounded-md text-[8px] font-black uppercase tracking-[0.2em] ${colors}`}>
+            {priority}
         </div>
     );
 }

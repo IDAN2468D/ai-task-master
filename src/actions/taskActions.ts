@@ -2,25 +2,14 @@
 
 import { revalidatePath } from 'next/cache';
 import connectDB from '@/lib/mongodb';
-import Task from '@/models/Task';
+import Task, { ITask } from '@/models/Task';
 
-/**
- * Fetch tasks with server-side searching and filtering.
- */
 export async function getTasks(searchQuery?: string, filterPriority?: string) {
   try {
     await connectDB();
-
-    // Build dynamic query object
     const query: any = {};
-
-    if (searchQuery) {
-      query.title = { $regex: searchQuery, $options: 'i' };
-    }
-
-    if (filterPriority && filterPriority !== 'All') {
-      query.priority = filterPriority;
-    }
+    if (searchQuery) query.title = { $regex: searchQuery, $options: 'i' };
+    if (filterPriority && filterPriority !== 'All') query.priority = filterPriority;
 
     const tasks = await Task.find(query).sort({ createdAt: -1 }).lean();
     return JSON.parse(JSON.stringify(tasks));
@@ -30,32 +19,25 @@ export async function getTasks(searchQuery?: string, filterPriority?: string) {
   }
 }
 
-/**
- * Create a new task with status and priority.
- */
 export async function createTask(formData: FormData) {
   try {
     await connectDB();
-
     const title = formData.get('title') as string;
     const category = formData.get('category') as string;
     const priority = formData.get('priority') as string;
     const dueDateStr = formData.get('dueDate') as string;
 
-    if (!title || title.trim() === '') {
-      throw new Error('Task title cannot be empty.');
-    }
+    if (!title || title.trim() === '') throw new Error('Task title cannot be empty.');
 
     const taskData: any = {
       title: title.trim(),
       category: category || 'Personal',
       priority: priority || 'Medium',
       status: 'Todo',
+      subtasks: [],
     };
 
-    if (dueDateStr) {
-      taskData.dueDate = new Date(dueDateStr);
-    }
+    if (dueDateStr) taskData.dueDate = new Date(dueDateStr);
 
     await Task.create(taskData);
     revalidatePath('/');
@@ -65,9 +47,6 @@ export async function createTask(formData: FormData) {
   }
 }
 
-/**
- * Update the status of a task (for Kanban transitions).
- */
 export async function updateTaskStatus(taskId: string, newStatus: string) {
   try {
     await connectDB();
@@ -79,9 +58,33 @@ export async function updateTaskStatus(taskId: string, newStatus: string) {
   }
 }
 
-/**
- * Delete a task.
- */
+export async function addSubtask(taskId: string, title: string) {
+  try {
+    await connectDB();
+    await Task.findByIdAndUpdate(taskId, {
+      $push: { subtasks: { title, isCompleted: false } }
+    });
+    revalidatePath('/');
+  } catch (error) {
+    console.error('Error adding subtask:', error);
+    throw new Error('Failed to add subtask');
+  }
+}
+
+export async function toggleSubtask(taskId: string, subtaskId: string, currentStatus: boolean) {
+  try {
+    await connectDB();
+    await Task.updateOne(
+      { _id: taskId, "subtasks._id": subtaskId },
+      { $set: { "subtasks.$.isCompleted": !currentStatus } }
+    );
+    revalidatePath('/');
+  } catch (error) {
+    console.error('Error toggling subtask:', error);
+    throw new Error('Failed to toggle subtask');
+  }
+}
+
 export async function deleteTask(taskId: string) {
   try {
     await connectDB();

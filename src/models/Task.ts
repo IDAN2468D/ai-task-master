@@ -1,6 +1,13 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
 
-// Define the clear, strictly typed interface for our Task Model
+// Define Subtask Interface
+export interface ISubtask {
+    _id?: string;
+    title: string;
+    isCompleted: boolean;
+}
+
+// Define Task Interface
 export interface ITask extends Document {
     title: string;
     description?: string;
@@ -8,10 +15,17 @@ export interface ITask extends Document {
     priority: 'Low' | 'Medium' | 'High';
     category: string;
     dueDate?: Date;
+    subtasks: ISubtask[];
     createdAt: Date;
 }
 
-// Create the Mongoose Schema 
+// Subtask Schema
+const SubtaskSchema = new Schema({
+    title: { type: String, required: true },
+    isCompleted: { type: Boolean, default: false }
+});
+
+// Task Schema
 const TaskSchema: Schema<ITask> = new Schema({
     title: {
         type: String,
@@ -41,13 +55,13 @@ const TaskSchema: Schema<ITask> = new Schema({
         type: Date,
         required: false,
     },
+    subtasks: [SubtaskSchema],
     createdAt: {
         type: Date,
         default: Date.now,
     },
 });
 
-// Use existing model if it exists
 const Task: Model<ITask> = mongoose.models.Task || mongoose.model<ITask>('Task', TaskSchema);
 
 export default Task;

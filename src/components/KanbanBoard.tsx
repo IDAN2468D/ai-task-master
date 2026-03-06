@@ -1,8 +1,27 @@
 'use client';
 
-import { updateTaskStatus, deleteTask } from '@/actions/taskActions';
-import { ArrowRight, ArrowLeft, Trash2, Clock, Calendar, AlertCircle } from 'lucide-react';
-import { useTransition } from 'react';
+import { updateTaskStatus } from '@/actions/taskActions';
+import TaskItem from './TaskItem';
+import {
+    DndContext,
+    DragOverlay,
+    closestCorners,
+    KeyboardSensor,
+    PointerSensor,
+    useSensor,
+    useSensors,
+    DragStartEvent,
+    DragOverEvent,
+    DragEndEvent,
+    defaultDropAnimationSideEffects
+} from '@dnd-kit/core';
+import {
+    arrayMove,
+    SortableContext,
+    sortableKeyboardCoordinates,
+    verticalListSortingStrategy
+} from '@dnd-kit/sortable';
+import { useState, useMemo } from 'react';
 
 interface Task {
     _id: string;
@@ -11,125 +30,128 @@ interface Task {
     priority: 'Low' | 'Medium' | 'High';
     category: string;
     dueDate?: string;
+    subtasks: any[];
     createdAt: string;
 }
 
-const PriorityBadge = ({ priority }: { priority: string }) => {
-    const colors = {
-        High: 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400',
-        Medium: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
-        Low: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
-    }[priority] || 'bg-slate-100 text-slate-700';
+export default function KanbanBoard({ tasks: initialTasks }: { tasks: Task[] }) {
+    const [tasks, setTasks] = useState(initialTasks);
+    const [activeTask, setActiveTask] = useState<Task | null>(null);
 
-    return (
-        <span className={`text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md ${colors}`}>
-            {priority}
-        </span>
+    const sensors = useSensors(
+        useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+        useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
     );
-};
 
-const TaskCard = ({ task }: { task: Task }) => {
-    const [isPending, startTransition] = useTransition();
-
-    const handleMove = (newStatus: string) => {
-        startTransition(async () => {
-            await updateTaskStatus(task._id, newStatus);
-        });
-    };
-
-    const handleDelete = () => {
-        if (confirm('Delete this task?')) {
-            startTransition(async () => {
-                await deleteTask(task._id);
-            });
-        }
-    };
-
-    return (
-        <div className={`bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm hover:shadow-md transition-all ${isPending ? 'opacity-50 pointer-events-none' : ''}`}>
-            <div className="flex justify-between items-start mb-3">
-                <PriorityBadge priority={task.priority} />
-                <button onClick={handleDelete} className="text-slate-300 hover:text-rose-500 transition-colors">
-                    <Trash2 className="w-4 h-4" />
-                </button>
-            </div>
-
-            <h4 className="text-slate-800 dark:text-slate-100 font-bold mb-2 leading-tight">{task.title}</h4>
-
-            <div className="flex items-center gap-2 text-[11px] text-slate-400 dark:text-slate-500 font-medium mb-4">
-                <LayoutIcon category={task.category} />
-                <span>{task.category}</span>
-                {task.dueDate && (
-                    <div className="flex items-center gap-1 ml-auto">
-                        <Calendar className="w-3 h-3" />
-                        <span>{new Date(task.dueDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</span>
-                    </div>
-                )}
-            </div>
-
-            <div className="flex items-center justify-between pt-3 border-t border-slate-50 dark:border-slate-700/50">
-                {task.status !== 'Todo' ? (
-                    <button
-                        onClick={() => handleMove(task.status === 'Done' ? 'InProgress' : 'Todo')}
-                        className="p-2 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg text-slate-400 transition-colors"
-                    >
-                        <ArrowLeft className="w-4 h-4" />
-                    </button>
-                ) : <div />}
-
-                {task.status !== 'Done' ? (
-                    <button
-                        onClick={() => handleMove(task.status === 'Todo' ? 'InProgress' : 'Done')}
-                        className="flex items-center gap-1 px-3 py-1.5 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-lg text-xs font-bold hover:bg-blue-100 transition-colors"
-                    >
-                        <span>Move</span>
-                        <ArrowRight className="w-3.5 h-3.5" />
-                    </button>
-                ) : <div className="text-emerald-500 flex items-center gap-1 text-[11px] font-bold uppercase"><AlertCircle className="w-3.5 h-3.5" /> Completed</div>}
-            </div>
-        </div>
-    );
-};
-
-const LayoutIcon = ({ category }: { category: string }) => {
-    // Simple icon picker
-    return <Clock className="w-3 h-3" />;
-};
-
-export default function KanbanBoard({ tasks }: { tasks: Task[] }) {
     const columns = [
         { id: 'Todo', title: 'To Do', color: 'bg-indigo-500' },
         { id: 'InProgress', title: 'In Progress', color: 'bg-blue-500' },
         { id: 'Done', title: 'Done', color: 'bg-emerald-500' },
     ];
 
+    const handleDragStart = (event: DragStartEvent) => {
+        const task = tasks.find(t => t._id === event.active.id);
+        if (task) setActiveTask(task);
+    };
+
+    const handleDragOver = (event: DragOverEvent) => {
+        const { active, over } = event;
+        if (!over) return;
+
+        const activeId = active.id as string;
+        const overId = over.id as string;
+
+        const activeTask = tasks.find(t => t._id === activeId);
+        if (!activeTask) return;
+
+        // Check if dropping over a column or another task
+        const isOverAColumn = columns.find(col => col.id === overId);
+
+        if (isOverAColumn) {
+            if (activeTask.status !== overId) {
+                setTasks(prev => prev.map(t =>
+                    t._id === activeId ? { ...t, status: overId as any } : t
+                ));
+            }
+            return;
+        }
+
+        const overTask = tasks.find(t => t._id === overId);
+        if (overTask && activeTask.status !== overTask.status) {
+            setTasks(prev => prev.map(t =>
+                t._id === activeId ? { ...t, status: overTask.status } : t
+            ));
+        }
+    };
+
+    const handleDragEnd = async (event: DragEndEvent) => {
+        const { active, over } = event;
+        setActiveTask(null);
+
+        if (!over) return;
+
+        const activeId = active.id as string;
+        const overId = over.id as string;
+
+        const finalTaskState = tasks.find(t => t._id === activeId);
+        if (finalTaskState) {
+            // Sync with server
+            await updateTaskStatus(activeId, finalTaskState.status);
+        }
+    };
+
     return (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {columns.map((col) => {
-                const columnTasks = tasks.filter((t) => t.status === col.id);
+        <DndContext
+            sensors={sensors}
+            collisionDetection={closestCorners}
+            onDragStart={handleDragStart}
+            onDragOver={handleDragOver}
+            onDragEnd={handleDragEnd}
+        >
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                {columns.map((col) => {
+                    const colTasks = tasks.filter((t) => t.status === col.id);
 
-                return (
-                    <div key={col.id} className="flex flex-col h-full">
-                        <div className="flex items-center gap-3 mb-6 px-2">
-                            <div className={`w-2.5 h-2.5 rounded-full ${col.color}`} />
-                            <h3 className="text-lg font-black text-slate-800 dark:text-slate-200">{col.title}</h3>
-                            <span className="ml-auto bg-slate-200 dark:bg-slate-800 text-slate-500 px-2.5 py-0.5 rounded-lg text-xs font-bold">
-                                {columnTasks.length}
-                            </span>
-                        </div>
+                    return (
+                        <div key={col.id} id={col.id} className="flex flex-col h-full min-h-[500px]">
+                            <div className="flex items-center gap-3 mb-6 px-4 py-2">
+                                <div className={`w-3 h-3 rounded-full ${col.color} shadow-lg shadow-${col.color}/30`} />
+                                <h3 className="text-xl font-black text-slate-800 dark:text-slate-100">{col.title}</h3>
+                                <span className="ml-auto bg-slate-100 dark:bg-slate-800 text-slate-500 px-3 py-1 rounded-xl text-xs font-black">
+                                    {colTasks.length}
+                                </span>
+                            </div>
 
-                        <div className="flex-1 space-y-4 bg-slate-100/50 dark:bg-slate-900/20 p-4 rounded-[2rem] border border-slate-200/50 dark:border-slate-800/50 min-h-[300px]">
-                            {columnTasks.length > 0 ? (
-                                columnTasks.map((task) => <TaskCard key={task._id} task={task} />)
-                            ) : (
-                                <div className="h-full flex items-center justify-center text-slate-400 dark:text-slate-600 italic text-sm py-10">
-                                    Empty column
-                                </div>
-                            )}
+                            <div className="flex-1 bg-slate-50/50 dark:bg-slate-900/30 p-4 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 transition-colors">
+                                <SortableContext items={colTasks.map(t => t._id)} strategy={verticalListSortingStrategy}>
+                                    <div className="space-y-4">
+                                        {colTasks.map((task) => (
+                                            <TaskItem key={task._id} task={task} />
+                                        ))}
+                                        {colTasks.length === 0 && (
+                                            <div className="py-20 text-center text-slate-300 dark:text-slate-700 italic text-sm">
+                                                Drop tasks here
+                                            </div>
+                                        )}
+                                    </div>
+                                </SortableContext>
+                            </div>
                         </div>
-                    </div>
-                );
-            })}
-        </div>
+                    );
+                })}
+            </div>
+
+            <DragOverlay dropAnimation={{
+                sideEffects: defaultDropAnimationSideEffects({
+                    styles: {
+                        active: {
+                            opacity: '0.5',
+                        },
+                    },
+                }),
+            }}>
+                {activeTask ? <TaskItem task={activeTask} /> : null}
+            </DragOverlay>
+        </DndContext>
     );
 }
