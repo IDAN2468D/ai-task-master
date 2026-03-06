@@ -180,3 +180,29 @@ export async function deleteTask(taskId: string) {
     revalidatePath('/');
   } catch (error) { throw new Error('Failed to delete task'); }
 }
+
+/**
+ * AI Weekly Intelligence: Analyzes all tasks and returns a strategic summary.
+ */
+export async function generateWeeklyInsight() {
+  try {
+    await connectDB();
+    const tasks = await Task.find({}).lean();
+
+    if (tasks.length === 0) return "Add some tasks to start receiving AI intelligence reports!";
+
+    const taskSummary = tasks.map((t: any) => `- ${t.title} (${t.status}, ${t.priority})`).join('\n');
+
+    const prompt = `As an elite productivity coach, analyze this user's current task list:
+    ${taskSummary}
+    
+    Provide a 2-3 sentence strategic high-level insight about their current workload.
+    Be precise, slightly provocative, and extremely motivating. Return ONLY the insight text.`;
+
+    const result = await model.generateContent(prompt);
+    return result.response.text();
+  } catch (error) {
+    console.error('Error generating AI weekly insight:', error);
+    return "Your workload is high, but your potential is higher. Keep pushing!";
+  }
+}
