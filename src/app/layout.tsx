@@ -26,15 +26,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="he" dir="rtl" suppressHydrationWarning>
+    <html lang="he" dir="rtl">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-slate-50 dark:bg-[#0B1437]`}>
         <ClientOnly>
-          {/* TopNav and Widgets contain framer-motion and browser-only APIs. 
-              Wrapping them in ClientOnly ensures they don't break static generation or SSR in Next.js 15. */}
           <TopNav />
           <GlobalFloatingWidgets />
         </ClientOnly>
-
         {children}
       </body>
     </html>
