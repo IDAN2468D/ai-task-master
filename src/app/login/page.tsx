@@ -1,7 +1,7 @@
 'use client';
 
 import { loginUser } from '@/actions/authActions';
-import { Rocket, Mail, Lock, ArrowRight, Zap } from 'lucide-react';
+import { Rocket, Mail, Lock, ArrowRight, Zap, Eye, EyeOff } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
 import { motion } from 'framer-motion';
@@ -9,6 +9,7 @@ import { motion } from 'framer-motion';
 export default function LoginPage() {
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
 
     const handleSubmit = async (formData: FormData) => {
         setLoading(true);
@@ -65,7 +66,10 @@ export default function LoginPage() {
                             <label className="text-[11px] font-black uppercase tracking-widest text-slate-500 ml-1">Password</label>
                             <div className="relative">
                                 <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-                                <input type="password" name="password" required placeholder="Enter your password" className="w-full pl-12 pr-5 py-4 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-white/10 rounded-2xl focus:border-[#4318FF] text-slate-800 dark:text-white font-bold text-sm focus:outline-none transition-colors" />
+                                <input type={showPassword ? 'text' : 'password'} name="password" required placeholder="Enter your password" className="w-full pl-12 pr-12 py-4 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-white/10 rounded-2xl focus:border-[#4318FF] text-slate-800 dark:text-white font-bold text-sm focus:outline-none transition-colors" />
+                                <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-[#4318FF] transition-colors">
+                                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                                </button>
                             </div>
                         </div>
 
