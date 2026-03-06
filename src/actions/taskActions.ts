@@ -4,6 +4,8 @@ import { revalidatePath } from 'next/cache';
 import connectDB from '@/lib/mongodb';
 import Task, { ITask } from '@/models/Task';
 import { model } from '@/lib/gemini';
+import { getCurrentUser } from '@/actions/authActions';
+import { sendTaskCreatedEmail } from '@/lib/email';
 
 export async function getTasks(searchQuery?: string, filterPriority?: string) {
   try {
@@ -72,6 +74,13 @@ export async function createSmartTask(formData: FormData) {
     if (dueDateStr) (taskData as any).dueDate = new Date(dueDateStr);
 
     await Task.create(taskData);
+
+    // Send email notification (non-blocking)
+    const user = await getCurrentUser();
+    if (user) {
+      sendTaskCreatedEmail(user.name, user.email, title.trim(), priority, category);
+    }
+
     revalidatePath('/');
   } catch (error) {
     console.error('Error creating smart task:', error);

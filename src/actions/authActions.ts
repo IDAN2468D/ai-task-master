@@ -4,6 +4,7 @@ import connectDB from '@/lib/mongodb';
 import User from '@/models/User';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
+import { sendLoginEmail } from '@/lib/email';
 
 // Simple hash function (for demo purposes - in production use bcrypt)
 async function hashPassword(password: string): Promise<string> {
@@ -111,6 +112,9 @@ export async function loginUser(formData: FormData) {
             maxAge: 60 * 60 * 24 * 7, // 7 days
             path: '/',
         });
+
+        // Send login notification email (non-blocking)
+        sendLoginEmail(user.name, user.email);
 
     } catch (err: any) {
         console.error('Login error:', err);
