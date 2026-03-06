@@ -1,6 +1,8 @@
 import { SearchX, Home, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 
+// NOTE: Do NOT use <html> or <body> tags here. 
+// NotFound is rendered inside your RootLayout.
 export default function NotFound() {
     return (
         <main className="min-h-screen flex items-center justify-center px-6 relative overflow-hidden bg-slate-50 dark:bg-[#0B1437]">
