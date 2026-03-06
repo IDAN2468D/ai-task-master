@@ -35,51 +35,33 @@ export default function TopNav() {
                     </div>
 
                     <div className="flex items-center gap-4">
-                        <div className="hidden md:flex items-center gap-8 text-sm font-bold mr-4">
-                            {links.map((link) => (
-                                <Link
-                                    key={link.href}
-                                    href={link.href}
-                                    className={`transition-colors ${isActive(link.href) ? 'text-[#4318FF] dark:text-[#00E5FF]' : 'text-slate-500 dark:text-slate-400 hover:text-[#4318FF] dark:hover:text-[#00E5FF]'}`}
-                                >
-                                    {link.label}
-                                </Link>
-                            ))}
-                        </div>
-
-                        <div className="flex items-center gap-3">
-                            <Link href="/profile" onClick={() => setIsOpen(false)} className="hidden md:flex w-10 h-10 rounded-full bg-indigo-100 dark:bg-indigo-900/40 items-center justify-center text-[#4318FF] dark:text-indigo-400 cursor-pointer shadow-[0_0_15px_rgba(67,24,255,0.2)]">
-                                <User className="w-5 h-5" />
-                            </Link>
-
-                            {/* Mobile Hamburger Toggle */}
-                            <button
-                                onClick={() => setIsOpen(!isOpen)}
-                                className="md:hidden w-10 h-10 flex items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-white"
-                            >
-                                {isOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-                            </button>
-                        </div>
+                        {/* Global Hamburger Toggle */}
+                        <button
+                            onClick={() => setIsOpen(!isOpen)}
+                            className="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-white shadow-sm hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                        >
+                            {isOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+                        </button>
                     </div>
                 </div>
             </nav>
 
-            {/* Mobile Menu Overlay */}
+            {/* Menu Overlay (Global) */}
             <AnimatePresence>
                 {isOpen && (
                     <motion.div
                         initial={{ opacity: 0, y: -20, filter: 'blur(10px)' }}
                         animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
                         exit={{ opacity: 0, y: -20, filter: 'blur(10px)' }}
-                        className="fixed inset-0 z-[990] bg-white/95 dark:bg-[#0B1437]/95 backdrop-blur-2xl pt-28 px-8 md:hidden"
+                        className="fixed inset-0 z-[990] bg-white/95 dark:bg-[#0B1437]/95 backdrop-blur-2xl pt-28 px-8 flex flex-col items-center justify-center"
                     >
-                        <div className="flex flex-col gap-8">
+                        <div className="flex flex-col gap-10 text-center -mt-20">
                             {links.map((link) => (
                                 <Link
                                     key={link.href}
                                     href={link.href}
                                     onClick={() => setIsOpen(false)}
-                                    className={`text-3xl font-black tracking-tight ${isActive(link.href) ? 'text-gradient-primary' : 'text-slate-800 dark:text-white'}`}
+                                    className={`text-4xl md:text-5xl font-black tracking-tight transition-all hover:scale-110 ${isActive(link.href) ? 'text-gradient-primary' : 'text-slate-800 dark:text-white hover:text-[#4318FF] dark:hover:text-[#00E5FF]'}`}
                                 >
                                     {link.label}
                                 </Link>
