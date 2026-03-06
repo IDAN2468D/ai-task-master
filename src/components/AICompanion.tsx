@@ -1,27 +1,65 @@
 'use client';
 
 import { Sparkles, X, Send, Bot, BrainCircuit, LineChart, Zap } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { chatWithAI } from '@/actions/taskActions';
 
 export default function AICompanion() {
     const [isOpen, setIsOpen] = useState(false);
     const [messages, setMessages] = useState<{ role: 'ai' | 'user'; text: string }[]>([
-        { role: 'ai', text: 'Hello! I am your AI TaskFlow Companion. How can I help you optimize your workflow today?' }
+        { role: 'ai', text: 'שלום! אני העוזר החכם שלך ב-TaskFlow. איך אפשר לעזור לך לייעל את העבודה היום? 🚀' }
     ]);
     const [inputValue, setInputValue] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+    const messagesEndRef = useRef<HTMLDivElement>(null);
 
     const toggleSidebar = () => setIsOpen(!isOpen);
 
-    const handleSend = () => {
-        if (!inputValue.trim()) return;
-        setMessages([...messages, { role: 'user', text: inputValue }]);
-        setInputValue('');
+    const scrollToBottom = () => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    };
 
-        // Mock AI response for now - we will connect this to Gemini later
-        setTimeout(() => {
-            setMessages(prev => [...prev, { role: 'ai', text: 'I am analyzing your data. Give me a moment to suggest some optimizations!' }]);
-        }, 800);
+    useEffect(() => {
+        scrollToBottom();
+    }, [messages]);
+
+    const handleSend = async () => {
+        if (!inputValue.trim() || isLoading) return;
+
+        const userMsg = inputValue;
+        setMessages(prev => [...prev, { role: 'user', text: userMsg }]);
+        setInputValue('');
+        setIsLoading(true);
+
+        try {
+            const aiResponse = await chatWithAI(userMsg);
+            setMessages(prev => [...prev, { role: 'ai', text: aiResponse }]);
+        } catch (error) {
+            setMessages(prev => [...prev, { role: 'ai', text: 'מצטער, נתקלתי בבעיה. נסה שוב! 🤖' }]);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const quickActions = [
+        { icon: BrainCircuit, label: "פרק משימה", prompt: "עזור לי לפרק את המשימה הדחופה ביותר שלי לצעדים קטנים", color: "text-[#4318FF]", bg: "bg-[#4318FF]/10" },
+        { icon: LineChart, label: "תובנת ביצועים", prompt: "תנתח את הביצועים שלי ותן לי תובנות", color: "text-[#FF00E5]", bg: "bg-[#FF00E5]/10" },
+        { icon: Zap, label: "תעדוף חכם", prompt: "תעזור לי לתעדף את המשימות שלי - מה הכי דחוף?", color: "text-[#00E5FF]", bg: "bg-[#00E5FF]/10" },
+        { icon: Sparkles, label: "עצה יומית", prompt: "תן לי עצה פרודוקטיביות להיום", color: "text-[#FF7D00]", bg: "bg-[#FF7D00]/10" },
+    ];
+
+    const handleQuickAction = async (prompt: string) => {
+        setMessages(prev => [...prev, { role: 'user', text: prompt }]);
+        setIsLoading(true);
+        try {
+            const aiResponse = await chatWithAI(prompt);
+            setMessages(prev => [...prev, { role: 'ai', text: aiResponse }]);
+        } catch (error) {
+            setMessages(prev => [...prev, { role: 'ai', text: 'מצטער, נתקלתי בבעיה. נסה שוב! 🤖' }]);
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (
@@ -29,7 +67,7 @@ export default function AICompanion() {
             {/* Sidebar Toggle Button (Floating) */}
             <button
                 onClick={toggleSidebar}
-                className="fixed bottom-24 right-6 w-14 h-14 bg-gradient-stat-1 rounded-full flex items-center justify-center shadow-2xl shadow-[#4318FF]/40 z-[1000] hover:scale-110 transition-transform group"
+                className="fixed bottom-24 left-6 w-14 h-14 bg-gradient-stat-1 rounded-full flex items-center justify-center shadow-2xl shadow-[#4318FF]/40 z-[1000] hover:scale-110 transition-transform group"
             >
                 <Sparkles className="w-6 h-6 text-white group-hover:rotate-12 transition-transform" />
                 <div className="absolute inset-0 bg-[#4318FF] rounded-full animate-ping opacity-20 group-hover:opacity-40" />
@@ -39,11 +77,11 @@ export default function AICompanion() {
             <AnimatePresence>
                 {isOpen && (
                     <motion.div
-                        initial={{ x: 400, opacity: 0 }}
+                        initial={{ x: -400, opacity: 0 }}
                         animate={{ x: 0, opacity: 1 }}
-                        exit={{ x: 400, opacity: 0 }}
+                        exit={{ x: -400, opacity: 0 }}
                         transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-                        className="fixed right-0 top-0 h-full w-full md:w-[400px] z-[2000] bg-white/80 dark:bg-[#0B1437]/80 backdrop-blur-2xl border-l border-slate-200 dark:border-white/10 shadow-2xl flex flex-col"
+                        className="fixed left-0 top-0 h-full w-full md:w-[400px] z-[2000] bg-white/80 dark:bg-[#0B1437]/80 backdrop-blur-2xl border-l border-slate-200 dark:border-white/10 shadow-2xl flex flex-col"
                     >
                         {/* Header */}
                         <div className="p-6 border-b border-slate-200 dark:border-white/10 flex items-center justify-between">
@@ -52,8 +90,8 @@ export default function AICompanion() {
                                     <Bot className="w-6 h-6 text-white" />
                                 </div>
                                 <div>
-                                    <h3 className="text-lg font-black text-slate-800 dark:text-white">AI Companion</h3>
-                                    <span className="text-[10px] font-black uppercase tracking-widest text-[#00E5FF]">v2.0 Neural Active</span>
+                                    <h3 className="text-lg font-black text-slate-800 dark:text-white">עוזר AI</h3>
+                                    <span className="text-[10px] font-black uppercase tracking-widest text-[#00E5FF]">גרסה 2.0 ● נוירלי פעיל</span>
                                 </div>
                             </div>
                             <button onClick={toggleSidebar} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors">
@@ -63,14 +101,21 @@ export default function AICompanion() {
 
                         {/* Quick Actions Grid */}
                         <div className="p-4 grid grid-cols-2 gap-3">
-                            <QuickActionBtn icon={BrainCircuit} label="Break Down Task" color="text-[#4318FF]" bg="bg-[#4318FF]/10" />
-                            <QuickActionBtn icon={LineChart} label="Performance Insight" color="text-[#FF00E5]" bg="bg-[#FF00E5]/10" />
-                            <QuickActionBtn icon={Zap} label="Magic Prioritize" color="text-[#00E5FF]" bg="bg-[#00E5FF]/10" />
-                            <QuickActionBtn icon={Sparkles} label="Optimize Titles" color="text-[#FF7D00]" bg="bg-[#FF7D00]/10" />
+                            {quickActions.map((action, idx) => (
+                                <button
+                                    key={idx}
+                                    onClick={() => handleQuickAction(action.prompt)}
+                                    disabled={isLoading}
+                                    className={`${action.bg} ${action.color} p-3 rounded-2xl flex flex-col items-center gap-2 border border-transparent hover:border-current transition-all group disabled:opacity-50`}
+                                >
+                                    <action.icon className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                                    <span className="text-[10px] font-black uppercase tracking-tight">{action.label}</span>
+                                </button>
+                            ))}
                         </div>
 
                         {/* Chat Messages */}
-                        <div className="flex-1 p-6 overflow-y-auto space-y-4">
+                        <div className="flex-1 p-6 overflow-y-auto space-y-4 custom-scrollbar">
                             {messages.map((msg, i) => (
                                 <motion.div
                                     key={i}
@@ -79,13 +124,25 @@ export default function AICompanion() {
                                     className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
                                 >
                                     <div className={`max-w-[85%] p-4 rounded-2xl text-sm font-medium leading-relaxed ${msg.role === 'user'
-                                            ? 'bg-[#4318FF] text-white rounded-tr-none'
-                                            : 'bg-slate-100 dark:bg-[#111C44] text-slate-700 dark:text-slate-300 rounded-tl-none border border-slate-200/50 dark:border-white/5'
+                                        ? 'bg-[#4318FF] text-white rounded-tl-none'
+                                        : 'bg-slate-100 dark:bg-[#111C44] text-slate-700 dark:text-slate-300 rounded-tr-none border border-slate-200/50 dark:border-white/5'
                                         }`}>
                                         {msg.text}
                                     </div>
                                 </motion.div>
                             ))}
+                            {isLoading && (
+                                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex justify-start">
+                                    <div className="bg-slate-100 dark:bg-[#111C44] p-4 rounded-2xl rounded-tr-none border border-slate-200/50 dark:border-white/5">
+                                        <div className="flex gap-1.5">
+                                            <div className="w-2 h-2 bg-[#4318FF] rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                                            <div className="w-2 h-2 bg-[#4318FF] rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                                            <div className="w-2 h-2 bg-[#4318FF] rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                                        </div>
+                                    </div>
+                                </motion.div>
+                            )}
+                            <div ref={messagesEndRef} />
                         </div>
 
                         {/* Input Area */}
@@ -95,13 +152,15 @@ export default function AICompanion() {
                                     type="text"
                                     value={inputValue}
                                     onChange={(e) => setInputValue(e.target.value)}
-                                    onKeyPress={(e) => e.key === 'Enter' && handleSend()}
-                                    placeholder="Ask about your workflow..."
-                                    className="w-full pl-5 pr-14 py-4 bg-white dark:bg-[#111C44] rounded-2xl border border-slate-200 dark:border-white/10 text-sm font-bold shadow-inner focus:outline-none focus:border-[#4318FF] transition-all"
+                                    onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+                                    placeholder="שאל על המשימות שלך..."
+                                    disabled={isLoading}
+                                    className="w-full pr-5 pl-14 py-4 bg-white dark:bg-[#111C44] rounded-2xl border border-slate-200 dark:border-white/10 text-sm font-bold shadow-inner focus:outline-none focus:border-[#4318FF] transition-all disabled:opacity-50"
                                 />
                                 <button
                                     onClick={handleSend}
-                                    className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 bg-[#4318FF] text-white rounded-xl flex items-center justify-center hover:scale-105 transition-transform"
+                                    disabled={isLoading}
+                                    className="absolute left-2 top-1/2 -translate-y-1/2 w-10 h-10 bg-[#4318FF] text-white rounded-xl flex items-center justify-center hover:scale-105 transition-transform disabled:opacity-50"
                                 >
                                     <Send className="w-4 h-4" />
                                 </button>
@@ -111,14 +170,5 @@ export default function AICompanion() {
                 )}
             </AnimatePresence>
         </>
-    );
-}
-
-function QuickActionBtn({ icon: Icon, label, color, bg }: any) {
-    return (
-        <button className={`${bg} ${color} p-3 rounded-2xl flex flex-col items-center gap-2 border border-transparent hover:border-current transition-all group`}>
-            <Icon className="w-5 h-5 group-hover:scale-110 transition-transform" />
-            <span className="text-[10px] font-black uppercase tracking-tight">{label}</span>
-        </button>
     );
 }

@@ -1,9 +1,34 @@
 'use client';
 
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import { LayoutDashboard, CheckCircle2, Flame } from 'lucide-react';
-import { motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
+import dynamic from 'next/dynamic';
+
+// Lazy load Recharts - it's a heavy library (~200KB)
+const LazyPieChart = dynamic(
+    () => import('recharts').then(mod => {
+        const { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } = mod;
+        return {
+            default: ({ chartData }: { chartData: { name: string; value: number; color: string }[] }) => (
+                <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                        <Pie data={chartData} innerRadius={35} outerRadius={50} paddingAngle={5} dataKey="value" stroke="none">
+                            {chartData.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.color} />)}
+                        </Pie>
+                        <Tooltip
+                            contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 10px 30px rgba(0,0,0,0.1)' }}
+                            itemStyle={{ color: '#000', fontWeight: 'bold' }}
+                        />
+                    </PieChart>
+                </ResponsiveContainer>
+            )
+        };
+    }),
+    {
+        ssr: false,
+        loading: () => <div className="w-full h-full bg-slate-100 dark:bg-slate-800 rounded-full animate-pulse" />,
+    }
+);
 
 interface Task {
     status: 'Todo' | 'InProgress' | 'Done';
@@ -23,9 +48,9 @@ export default function DashboardStats({ tasks }: { tasks: Task[] }) {
     };
 
     const chartData = [
-        { name: 'To Do', value: stats.Todo, color: '#4318FF' },
-        { name: 'Active', value: stats.InProgress, color: '#00E5FF' },
-        { name: 'Done', value: stats.Done, color: '#FF7D00' },
+        { name: 'לביצוע', value: stats.Todo, color: '#4318FF' },
+        { name: 'בתהליך', value: stats.InProgress, color: '#00E5FF' },
+        { name: 'הושלם', value: stats.Done, color: '#FF7D00' },
     ];
 
     return (
@@ -34,19 +59,19 @@ export default function DashboardStats({ tasks }: { tasks: Task[] }) {
             {/* Mini Stat Cards */}
             <div className="md:col-span-8 grid grid-cols-1 sm:grid-cols-3 gap-6">
                 <StatCard
-                    title="Tasks Pending"
+                    title="משימות ממתינות"
                     value={stats.Todo}
                     icon={<LayoutDashboard className="w-8 h-8 text-white relative z-10" />}
                     bgClass="bg-gradient-stat-1"
                 />
                 <StatCard
-                    title="In Motion"
+                    title="בתנועה"
                     value={stats.InProgress}
                     icon={<Flame className="w-8 h-8 text-white relative z-10" />}
                     bgClass="bg-gradient-stat-2"
                 />
                 <StatCard
-                    title="Total Wins"
+                    title="הושלמו"
                     value={stats.Done}
                     icon={<CheckCircle2 className="w-8 h-8 text-white relative z-10" />}
                     bgClass="bg-gradient-stat-3"
@@ -54,13 +79,10 @@ export default function DashboardStats({ tasks }: { tasks: Task[] }) {
             </div>
 
             {/* Chart Card */}
-            <motion.div
-                initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-                className="md:col-span-4 vibrant-card p-6 flex items-center justify-between"
-            >
+            <div className="md:col-span-4 vibrant-card p-6 flex items-center justify-between">
                 <div className="flex flex-col gap-4 w-1/2">
-                    <h3 className="text-sm font-bold text-slate-500 dark:text-slate-400">Distribution</h3>
-                    <p className="text-3xl font-black text-slate-800 dark:text-white">{tasks.length} <span className="text-lg text-slate-400">total</span></p>
+                    <h3 className="text-sm font-bold text-slate-500 dark:text-slate-400">התפלגות</h3>
+                    <p className="text-3xl font-black text-slate-800 dark:text-white">{tasks.length} <span className="text-lg text-slate-400">סה״כ</span></p>
                     <div className="flex flex-col gap-2 mt-2">
                         {chartData.map(item => (
                             <div key={item.name} className="flex items-center gap-2">
@@ -72,29 +94,19 @@ export default function DashboardStats({ tasks }: { tasks: Task[] }) {
                 </div>
                 <div className="w-1/2 h-32 relative">
                     {isMounted ? (
-                        <ResponsiveContainer width="100%" height="100%">
-                            <PieChart>
-                                <Pie data={chartData} innerRadius={35} outerRadius={50} paddingAngle={5} dataKey="value" stroke="none">
-                                    {chartData.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.color} />)}
-                                </Pie>
-                                <Tooltip
-                                    contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 10px 30px rgba(0,0,0,0.1)' }}
-                                    itemStyle={{ color: '#000', fontWeight: 'bold' }}
-                                />
-                            </PieChart>
-                        </ResponsiveContainer>
+                        <LazyPieChart chartData={chartData} />
                     ) : (
                         <div className="w-full h-full bg-slate-100 dark:bg-slate-800 rounded-full animate-pulse" />
                     )}
                 </div>
-            </motion.div>
+            </div>
         </div>
     );
 }
 
 function StatCard({ title, value, icon, bgClass }: { title: string, value: number, icon: any, bgClass: string }) {
     return (
-        <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="vibrant-card p-6 flex items-center gap-5">
+        <div className="vibrant-card p-6 flex items-center gap-5">
             <div className={`w-16 h-16 rounded-full flex items-center justify-center relative overflow-hidden ${bgClass} shadow-lg`}>
                 {icon}
                 <div className="absolute top-0 right-0 w-8 h-8 bg-white/20 rounded-full blur-md" />
@@ -103,6 +115,6 @@ function StatCard({ title, value, icon, bgClass }: { title: string, value: numbe
                 <p className="text-sm font-bold text-slate-400 mb-1">{title}</p>
                 <h4 className="text-4xl font-black text-slate-800 dark:text-white tabular-nums">{value}</h4>
             </div>
-        </motion.div>
+        </div>
     );
 }

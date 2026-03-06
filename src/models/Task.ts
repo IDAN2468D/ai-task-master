@@ -7,6 +7,12 @@ export interface ISubtask {
     isCompleted: boolean;
 }
 
+// Define Tag Interface
+export interface ITag {
+    name: string;
+    color: string;
+}
+
 // Define Task Interface
 export interface ITask extends Document {
     title: string;
@@ -16,6 +22,13 @@ export interface ITask extends Document {
     category: string;
     dueDate?: Date;
     subtasks: ISubtask[];
+    tags: ITag[];
+    recurring?: {
+        enabled: boolean;
+        frequency: 'daily' | 'weekly' | 'monthly';
+        nextDue?: Date;
+    };
+    userId?: string;
     createdAt: Date;
 }
 
@@ -24,6 +37,12 @@ const SubtaskSchema = new Schema({
     title: { type: String, required: true },
     isCompleted: { type: Boolean, default: false }
 });
+
+// Tag Schema
+const TagSchema = new Schema({
+    name: { type: String, required: true },
+    color: { type: String, default: '#4318FF' }
+}, { _id: false });
 
 // Task Schema
 const TaskSchema: Schema<ITask> = new Schema({
@@ -36,6 +55,7 @@ const TaskSchema: Schema<ITask> = new Schema({
         type: String,
         required: false,
         trim: true,
+        default: '',
     },
     status: {
         type: String,
@@ -49,18 +69,33 @@ const TaskSchema: Schema<ITask> = new Schema({
     },
     category: {
         type: String,
-        default: 'Personal',
+        default: 'אישי',
     },
     dueDate: {
         type: Date,
         required: false,
     },
     subtasks: [SubtaskSchema],
+    tags: { type: [TagSchema], default: [] },
+    recurring: {
+        enabled: { type: Boolean, default: false },
+        frequency: { type: String, enum: ['daily', 'weekly', 'monthly'] },
+        nextDue: { type: Date },
+    },
+    userId: {
+        type: String,
+        required: false,
+    },
     createdAt: {
         type: Date,
         default: Date.now,
     },
 });
+
+// Index for faster queries
+TaskSchema.index({ status: 1, priority: 1 });
+TaskSchema.index({ dueDate: 1 });
+TaskSchema.index({ 'tags.name': 1 });
 
 const Task: Model<ITask> = mongoose.models.Task || mongoose.model<ITask>('Task', TaskSchema);
 

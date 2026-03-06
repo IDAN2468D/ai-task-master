@@ -2,9 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import TopNav from "@/components/TopNav";
-import AICompanion from "@/components/AICompanion";
-import VoiceActionOrb from "@/components/VoiceActionOrb";
-import CommandCenter from "@/components/CommandCenter";
+import GlobalFloatingWidgets from "@/components/GlobalFloatingWidgets";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -17,8 +15,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "AI Task Master",
-  description: "Next Generation Productivity Workflow",
+  title: "AI Task Master - מנהל משימות חכם",
+  description: "מערכת ניהול משימות חכמה מבוססת בינה מלאכותית",
 };
 
 export default function RootLayout({
@@ -27,17 +25,28 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="he" dir="rtl" suppressHydrationWarning>
+      <head>
+        {/* Prevent flash of wrong theme - runs before React hydration */}
+        <script dangerouslySetInnerHTML={{
+          __html: `
+          try {
+            if (localStorage.getItem('theme') === 'light') {
+              document.documentElement.classList.remove('dark');
+            } else {
+              document.documentElement.classList.add('dark');
+            }
+          } catch(e) {}
+        `}} />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-slate-50 dark:bg-[#0B1437] transition-colors`}
       >
         <TopNav />
         {children}
 
-        {/* Global AI Features */}
-        <AICompanion />
-        <VoiceActionOrb />
-        <CommandCenter />
+        {/* Global AI Features - lazy loaded inside a client wrapper */}
+        <GlobalFloatingWidgets />
       </body>
     </html>
   );

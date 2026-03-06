@@ -1,7 +1,7 @@
 'use client';
 
 import { registerUser } from '@/actions/authActions';
-import { Rocket, User, Mail, Lock, ArrowRight, Sparkles, Eye, EyeOff } from 'lucide-react';
+import { Rocket, User, Mail, Lock, ArrowLeft, Sparkles, Eye, EyeOff } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
 import { motion } from 'framer-motion';
@@ -25,7 +25,7 @@ export default function RegisterPage() {
         <main className="min-h-screen flex items-center justify-center px-6 py-20 relative overflow-hidden">
             {/* Background Effects */}
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-[#4318FF]/10 blur-[150px] rounded-full pointer-events-none" />
-            <div className="absolute bottom-0 right-0 w-[400px] h-[400px] bg-[#00E5FF]/10 blur-[120px] rounded-full pointer-events-none" />
+            <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-[#00E5FF]/10 blur-[120px] rounded-full pointer-events-none" />
 
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -37,14 +37,14 @@ export default function RegisterPage() {
                     <div className="w-12 h-12 bg-gradient-stat-1 rounded-2xl flex items-center justify-center shadow-xl shadow-[#4318FF]/30">
                         <Rocket className="w-6 h-6 text-white" />
                     </div>
-                    <h1 className="text-3xl font-black tracking-tight"><span className="text-gradient-primary">Task</span>Flow</h1>
+                    <h1 className="text-3xl font-black tracking-tight"><span className="text-gradient-primary">טאסק</span>פלו</h1>
                 </div>
 
                 {/* Card */}
                 <div className="vibrant-card p-8 md:p-10">
                     <div className="text-center mb-8">
-                        <h2 className="text-2xl font-black text-slate-800 dark:text-white mb-2">Create Account</h2>
-                        <p className="text-sm text-slate-500 font-medium">Join TaskFlow and supercharge your workflow</p>
+                        <h2 className="text-2xl font-black text-slate-800 dark:text-white mb-2">יצירת חשבון</h2>
+                        <p className="text-sm text-slate-500 font-medium">הצטרף ל-TaskFlow ותשדרג את הפרודוקטיביות שלך</p>
                     </div>
 
                     {error && (
@@ -55,27 +55,27 @@ export default function RegisterPage() {
 
                     <form action={handleSubmit} className="space-y-5">
                         <div className="space-y-2">
-                            <label className="text-[11px] font-black uppercase tracking-widest text-slate-500 ml-1">Full Name</label>
+                            <label className="text-[11px] font-black uppercase tracking-widest text-slate-500 mr-1">שם מלא</label>
                             <div className="relative">
-                                <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-                                <input type="text" name="name" required placeholder="Your name" className="w-full pl-12 pr-5 py-4 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-white/10 rounded-2xl focus:border-[#4318FF] text-slate-800 dark:text-white font-bold text-sm focus:outline-none transition-colors" />
+                                <User className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                                <input type="text" name="name" required placeholder="השם שלך" className="w-full pr-12 pl-5 py-4 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-white/10 rounded-2xl focus:border-[#4318FF] text-slate-800 dark:text-white font-bold text-sm focus:outline-none transition-colors" />
                             </div>
                         </div>
 
                         <div className="space-y-2">
-                            <label className="text-[11px] font-black uppercase tracking-widest text-slate-500 ml-1">Email</label>
+                            <label className="text-[11px] font-black uppercase tracking-widest text-slate-500 mr-1">אימייל</label>
                             <div className="relative">
-                                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-                                <input type="email" name="email" required placeholder="you@example.com" className="w-full pl-12 pr-5 py-4 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-white/10 rounded-2xl focus:border-[#4318FF] text-slate-800 dark:text-white font-bold text-sm focus:outline-none transition-colors" />
+                                <Mail className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                                <input type="email" name="email" required placeholder="you@example.com" className="w-full pr-12 pl-5 py-4 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-white/10 rounded-2xl focus:border-[#4318FF] text-slate-800 dark:text-white font-bold text-sm focus:outline-none transition-colors" />
                             </div>
                         </div>
 
                         <div className="space-y-2">
-                            <label className="text-[11px] font-black uppercase tracking-widest text-slate-500 ml-1">Password</label>
+                            <label className="text-[11px] font-black uppercase tracking-widest text-slate-500 mr-1">סיסמה</label>
                             <div className="relative">
-                                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-                                <input type={showPassword ? 'text' : 'password'} name="password" required minLength={6} placeholder="Min. 6 characters" className="w-full pl-12 pr-12 py-4 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-white/10 rounded-2xl focus:border-[#4318FF] text-slate-800 dark:text-white font-bold text-sm focus:outline-none transition-colors" />
-                                <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-[#4318FF] transition-colors">
+                                <Lock className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                                <input type={showPassword ? 'text' : 'password'} name="password" required minLength={6} placeholder="מינימום 6 תווים" className="w-full pr-12 pl-12 py-4 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-white/10 rounded-2xl focus:border-[#4318FF] text-slate-800 dark:text-white font-bold text-sm focus:outline-none transition-colors" />
+                                <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-[#4318FF] transition-colors">
                                     {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                                 </button>
                             </div>
@@ -91,7 +91,7 @@ export default function RegisterPage() {
                             ) : (
                                 <>
                                     <Sparkles className="w-4 h-4" />
-                                    Create My Account
+                                    צור את החשבון שלי
                                 </>
                             )}
                         </button>
@@ -99,9 +99,9 @@ export default function RegisterPage() {
 
                     <div className="mt-8 text-center">
                         <p className="text-sm text-slate-500 font-medium">
-                            Already have an account?{' '}
+                            כבר יש לך חשבון?{' '}
                             <Link href="/login" className="text-[#4318FF] dark:text-[#00E5FF] font-bold hover:underline">
-                                Sign In <ArrowRight className="w-3 h-3 inline" />
+                                התחבר <ArrowLeft className="w-3 h-3 inline" />
                             </Link>
                         </p>
                     </div>

@@ -21,7 +21,7 @@ function SubmitButton({ useAI }: { useAI: boolean }) {
             ) : (
                 useAI ? <Sparkles className="w-5 h-5 animate-pulse" /> : <PlusCircle className="w-5 h-5" />
             )}
-            <span className="text-sm">{pending ? 'Creating...' : (useAI ? 'AI Smart Create' : 'Add Task')}</span>
+            <span className="text-sm">{pending ? 'יוצר...' : (useAI ? 'יצירה חכמה AI' : 'הוסף משימה')}</span>
         </button>
     );
 }
@@ -35,7 +35,7 @@ export default function AddTaskForm() {
             formData.append('useAI', useAI.toString());
             await createSmartTask(formData);
             formRef.current?.reset();
-        } catch (err) { alert('Failed to add task.'); }
+        } catch (err) { alert('נכשל ביצירת המשימה.'); }
     };
 
     return (
@@ -46,8 +46,8 @@ export default function AddTaskForm() {
                         <Zap className="w-5 h-5 text-[#4318FF]" />
                     </div>
                     <div>
-                        <h3 className="text-lg font-black text-slate-800 dark:text-white">Quick Add</h3>
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">New Workflow</p>
+                        <h3 className="text-lg font-black text-slate-800 dark:text-white">הוספה מהירה</h3>
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">משימה חדשה</p>
                     </div>
                 </div>
 
@@ -57,19 +57,19 @@ export default function AddTaskForm() {
                     className={`flex items-center gap-2 px-3 py-1.5 rounded-xl transition-all font-bold text-xs ${useAI ? 'bg-[#00E5FF]/20 text-[#00E5FF]' : 'bg-slate-100 text-slate-400 dark:bg-slate-800'}`}
                 >
                     <Sparkles className="w-4 h-4" />
-                    <span>{useAI ? 'AI Active' : 'Manual'}</span>
+                    <span>{useAI ? 'AI פעיל' : 'ידני'}</span>
                 </button>
             </div>
 
             <form ref={formRef} action={clientAction} className="space-y-6">
 
                 <div className="space-y-2">
-                    <label className="text-xs font-bold text-slate-500 ml-1">Task Title <span className="text-[#FF2A2A]">*</span></label>
+                    <label className="text-xs font-bold text-slate-500 mr-1">כותרת המשימה <span className="text-[#FF2A2A]">*</span></label>
                     <input
                         type="text"
                         name="title"
                         required
-                        placeholder={useAI ? "E.g., Prepare Q3 presentation" : "Enter task name"}
+                        placeholder={useAI ? "לדוגמה: להכין מצגת רבעון 3" : "הכנס שם משימה"}
                         className="w-full px-5 py-4 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-white/10 rounded-2xl focus:border-[#4318FF] text-slate-800 dark:text-white font-bold text-sm focus:outline-none transition-colors shadow-inner"
                     />
                 </div>
@@ -77,33 +77,33 @@ export default function AddTaskForm() {
                 {!useAI && (
                     <motion.div initial={{ height: 0 }} animate={{ height: 'auto' }} className="grid grid-cols-2 gap-4 overflow-hidden">
                         <div className="space-y-2">
-                            <label className="text-xs font-bold text-slate-500 ml-1">Category</label>
+                            <label className="text-xs font-bold text-slate-500 mr-1">קטגוריה</label>
                             <select name="category" className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-white/10 rounded-xl font-bold text-sm text-slate-700 dark:text-white focus:outline-none">
-                                <option value="Work">Work</option>
-                                <option value="Personal">Personal</option>
-                                <option value="Urgent">Urgent</option>
-                                <option value="Finance">Finance</option>
+                                <option value="עבודה">עבודה</option>
+                                <option value="אישי">אישי</option>
+                                <option value="דחוף">דחוף</option>
+                                <option value="פיננסים">פיננסים</option>
                             </select>
                         </div>
                         <div className="space-y-2">
-                            <label className="text-xs font-bold text-slate-500 ml-1">Priority</label>
+                            <label className="text-xs font-bold text-slate-500 mr-1">עדיפות</label>
                             <select name="priority" className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-white/10 rounded-xl font-bold text-sm text-slate-700 dark:text-white focus:outline-none">
-                                <option value="Low">Low</option>
-                                <option value="Medium">Medium</option>
-                                <option value="High">High</option>
+                                <option value="Low">נמוכה</option>
+                                <option value="Medium">בינונית</option>
+                                <option value="High">גבוהה</option>
                             </select>
                         </div>
                     </motion.div>
                 )}
 
                 <div className="space-y-2">
-                    <label className="text-xs font-bold text-slate-500 ml-1">Deadline</label>
+                    <label className="text-xs font-bold text-slate-500 mr-1">תאריך יעד</label>
                     <div className="relative border border-slate-200 dark:border-white/10 rounded-2xl overflow-hidden bg-slate-50 dark:bg-slate-900/50">
-                        <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                        <Calendar className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                         <input
                             type="date"
                             name="dueDate"
-                            className="w-full pl-12 pr-5 py-4 bg-transparent text-slate-700 dark:text-white font-bold text-sm focus:outline-none [color-scheme:light] dark:[color-scheme:dark]"
+                            className="w-full pr-12 pl-5 py-4 bg-transparent text-slate-700 dark:text-white font-bold text-sm focus:outline-none [color-scheme:light] dark:[color-scheme:dark]"
                         />
                     </div>
                 </div>

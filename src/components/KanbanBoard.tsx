@@ -46,9 +46,9 @@ export default function KanbanBoard({ tasks: initialTasks }: { tasks: Task[] }) 
     );
 
     const columns = [
-        { id: 'Todo', title: 'To Do', icon: Inbox, color: 'text-[#4318FF]', bg: 'bg-[#4318FF]/5 dark:bg-[#4318FF]/10', border: 'border-[#4318FF]/20' },
-        { id: 'InProgress', title: 'In Progress', icon: Workflow, color: 'text-[#00E5FF]', bg: 'bg-[#00E5FF]/5 dark:bg-[#00E5FF]/10', border: 'border-[#00E5FF]/20' },
-        { id: 'Done', title: 'Completed', icon: Archive, color: 'text-[#FF7D00]', bg: 'bg-[#FF7D00]/5 dark:bg-[#FF7D00]/10', border: 'border-[#FF7D00]/20' },
+        { id: 'Todo', title: 'לביצוע', icon: Inbox, color: 'text-[#4318FF]', bg: 'bg-[#4318FF]/5 dark:bg-[#4318FF]/10', border: 'border-[#4318FF]/20' },
+        { id: 'InProgress', title: 'בתהליך', icon: Workflow, color: 'text-[#00E5FF]', bg: 'bg-[#00E5FF]/5 dark:bg-[#00E5FF]/10', border: 'border-[#00E5FF]/20' },
+        { id: 'Done', title: 'הושלם', icon: Archive, color: 'text-[#FF7D00]', bg: 'bg-[#FF7D00]/5 dark:bg-[#FF7D00]/10', border: 'border-[#FF7D00]/20' },
     ];
 
     const handleDragStart = (e: DragStartEvent) => {
@@ -82,7 +82,7 @@ export default function KanbanBoard({ tasks: initialTasks }: { tasks: Task[] }) 
         if (fin) await updateTaskStatus(e.active.id as string, fin.status);
     };
 
-    if (!isMounted) return <div className="h-96 flex items-center justify-center font-bold text-blue-500 animate-pulse">Loading Board...</div>;
+    if (!isMounted) return <div className="h-96 flex items-center justify-center font-bold text-blue-500 animate-pulse">טוען לוח...</div>;
 
     return (
         <div className="relative">
@@ -98,7 +98,7 @@ export default function KanbanBoard({ tasks: initialTasks }: { tasks: Task[] }) 
                     ) : (
                         <Sparkles className="w-4 h-4" />
                     )}
-                    {isSorting ? "AI Optimizing..." : "AI Magic Sort"}
+                    {isSorting ? "AI ממיין..." : "מיון חכם AI"}
                 </button>
             </div>
 
@@ -140,7 +140,7 @@ function KanbanColumn({ col, tasks }: { col: any, tasks: Task[] }) {
                     {tasks.map((task) => <TaskItem key={task._id} task={task} />)}
                     {tasks.length === 0 && (
                         <div className="h-40 flex flex-col items-center justify-center gap-2 text-center border-2 border-dashed border-[#4318FF]/20 rounded-2xl bg-white/50 dark:bg-black/20">
-                            <p className="text-xs font-bold text-slate-400">Empty List</p>
+                            <p className="text-xs font-bold text-slate-400">רשימה ריקה</p>
                         </div>
                     )}
                 </SortableContext>
