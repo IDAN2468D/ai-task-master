@@ -21,14 +21,21 @@ export default function ProfilePage() {
         <main className="min-h-screen bg-slate-50 dark:bg-[#0B1437] text-slate-800 dark:text-white pb-40 transition-colors">
 
 
-            <div className="max-w-[1400px] mx-auto px-6 pt-36">
+            <div className="max-w-[1400px] mx-auto px-6 pt-16">
 
                 {/* Header */}
-                <div className="mb-12">
-                    <h2 className="text-4xl font-black mb-2">
-                        Account <label className="text-gradient-primary">Settings</label>
-                    </h2>
-                    <p className="text-slate-500 font-medium">Manage your personal details, AI preferences, and security.</p>
+                <div className="mb-12 relative flex flex-col md:flex-row md:items-center justify-between gap-6">
+                    <div>
+                        <h2 className="text-4xl font-black mb-2 flex items-center gap-3">
+                            Account <label className="text-gradient-primary">Settings</label>
+                        </h2>
+                        <p className="text-slate-500 font-medium">Manage your personal details, AI preferences, and security.</p>
+                    </div>
+
+                    {/* Back to Home Button */}
+                    <Link href="/" className="px-5 py-2.5 bg-white dark:bg-[#111C44] text-slate-700 dark:text-slate-300 font-bold text-sm rounded-xl border border-slate-200 dark:border-white/10 hover:shadow-lg hover:-translate-y-0.5 transition-all shadow-sm flex flex-row items-center gap-2 self-start">
+                        Take me Home
+                    </Link>
                 </div>
 
                 <div className="grid lg:grid-cols-12 gap-8 items-start">
