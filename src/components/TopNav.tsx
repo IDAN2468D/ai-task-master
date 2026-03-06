@@ -24,8 +24,7 @@ export default function TopNav() {
     };
 
     const links = [
-        { href: '/', label: 'Home' },
-        { href: '/dashboard', label: 'Dashboard' },
+        { href: '/', label: 'Dashboard' },
         { href: '/analytics', label: 'Analytics' }
     ];
 
