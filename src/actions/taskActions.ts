@@ -3,7 +3,11 @@
 import { revalidatePath } from 'next/cache';
 import connectDB from '@/lib/mongodb';
 import Task, { ITask } from '@/models/Task';
+import { model } from '@/lib/gemini';
 
+/**
+ * Fetch tasks with server-side searching and filtering.
+ */
 export async function getTasks(searchQuery?: string, filterPriority?: string) {
   try {
     await connectDB();
@@ -19,6 +23,9 @@ export async function getTasks(searchQuery?: string, filterPriority?: string) {
   }
 }
 
+/**
+ * Create a new task.
+ */
 export async function createTask(formData: FormData) {
   try {
     await connectDB();
@@ -47,6 +54,9 @@ export async function createTask(formData: FormData) {
   }
 }
 
+/**
+ * Update task status (for Kanban DND).
+ */
 export async function updateTaskStatus(taskId: string, newStatus: string) {
   try {
     await connectDB();
@@ -58,6 +68,9 @@ export async function updateTaskStatus(taskId: string, newStatus: string) {
   }
 }
 
+/**
+ * Manual subtask addition.
+ */
 export async function addSubtask(taskId: string, title: string) {
   try {
     await connectDB();
@@ -71,6 +84,9 @@ export async function addSubtask(taskId: string, title: string) {
   }
 }
 
+/**
+ * Toggle subtask completion.
+ */
 export async function toggleSubtask(taskId: string, subtaskId: string, currentStatus: boolean) {
   try {
     await connectDB();
@@ -85,6 +101,51 @@ export async function toggleSubtask(taskId: string, subtaskId: string, currentSt
   }
 }
 
+/**
+ * AI Subtask Generation using Google Gemini.
+ */
+export async function generateSubtasksWithAI(taskId: string, taskTitle: string) {
+  try {
+    await connectDB();
+
+    const prompt = `Generate 3 to 5 short, actionable, and specific subtasks for the task: "${taskTitle}". 
+    Return ONLY a valid JSON array of strings, like this: ["Subtask 1", "Subtask 2"]. 
+    Do not include any other text or markdown formatting in your response.`;
+
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    const text = response.text();
+
+    // Attempt to parse the AI response
+    let subtaskTitles: string[] = [];
+    try {
+      // Clean markdown backticks if AI included them
+      const cleanedText = text.replace(/```json|```/g, '').trim();
+      subtaskTitles = JSON.parse(cleanedText);
+    } catch (parseError) {
+      console.error("AI response parsing failed:", text);
+      throw new Error("AI returned an invalid format. Please try again.");
+    }
+
+    if (Array.isArray(subtaskTitles)) {
+      const newSubtasks = subtaskTitles.map(title => ({ title: title.trim(), isCompleted: false }));
+
+      await Task.findByIdAndUpdate(taskId, {
+        $push: { subtasks: { $each: newSubtasks } }
+      });
+
+      revalidatePath('/');
+    }
+
+  } catch (error) {
+    console.error('Error generating AI subtasks:', error);
+    throw new Error('Failed to generate subtasks with AI');
+  }
+}
+
+/**
+ * Delete task.
+ */
 export async function deleteTask(taskId: string) {
   try {
     await connectDB();

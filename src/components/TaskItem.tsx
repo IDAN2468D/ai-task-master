@@ -1,7 +1,7 @@
 'use client';
 
-import { addSubtask, toggleSubtask, deleteTask } from '@/actions/taskActions';
-import { Trash2, Calendar, Plus, CheckSquare, Square, GripVertical, MoreHorizontal, Layers } from 'lucide-react';
+import { addSubtask, toggleSubtask, deleteTask, generateSubtasksWithAI } from '@/actions/taskActions';
+import { Trash2, Calendar, Plus, CheckSquare, Square, GripVertical, Layers, Sparkles, Loader2 } from 'lucide-react';
 import { useTransition, useState } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -20,6 +20,7 @@ interface Task {
 
 export default function TaskItem({ task }: { task: Task }) {
     const [isPending, startTransition] = useTransition();
+    const [isAISuggesting, startAITransition] = useTransition();
     const [showSubtasks, setShowSubtasks] = useState(false);
     const [newSubtask, setNewSubtask] = useState('');
 
@@ -41,6 +42,17 @@ export default function TaskItem({ task }: { task: Task }) {
     const completedSubtasks = task.subtasks?.filter(s => s.isCompleted).length || 0;
     const totalSubtasks = task.subtasks?.length || 0;
     const progress = totalSubtasks > 0 ? (completedSubtasks / totalSubtasks) * 100 : 0;
+
+    const handleAIGenerate = () => {
+        startAITransition(async () => {
+            try {
+                await generateSubtasksWithAI(task._id, task.title);
+                setShowSubtasks(true); // Automatically expand to show new subtasks
+            } catch (err) {
+                alert("AI generation failed. Please check your API key.");
+            }
+        });
+    };
 
     return (
         <motion.div
@@ -93,7 +105,7 @@ export default function TaskItem({ task }: { task: Task }) {
                         )}
                         <div className="flex items-center gap-1.5">
                             <Layers className="w-3.5 h-3.5" />
-                            <span>{totalSubtasks} Tasks</span>
+                            <span>{totalSubtasks} Subtasks</span>
                         </div>
                     </div>
                 </div>
@@ -101,17 +113,33 @@ export default function TaskItem({ task }: { task: Task }) {
 
             {/* Actions Footer */}
             <div className="mt-6 pt-5 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
-                <button
-                    onClick={() => setShowSubtasks(!showSubtasks)}
-                    className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${showSubtasks ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/40' : 'bg-slate-50 dark:bg-slate-800 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700'
-                        }`}
-                >
-                    {showSubtasks ? 'Collapse' : 'Manage Subtasks'}
-                </button>
+                <div className="flex items-center gap-2">
+                    <button
+                        onClick={() => setShowSubtasks(!showSubtasks)}
+                        className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${showSubtasks ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/40' : 'bg-slate-50 dark:bg-slate-800 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700'
+                            }`}
+                    >
+                        {showSubtasks ? 'Collapse' : 'Subtasks'}
+                    </button>
+
+                    {/* AI Sparkle Button */}
+                    <button
+                        onClick={handleAIGenerate}
+                        disabled={isAISuggesting}
+                        className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-500/10 to-blue-500/10 border border-purple-500/20 rounded-xl text-[10px] font-black uppercase tracking-widest text-purple-600 dark:text-purple-400 hover:scale-105 active:scale-95 transition-all disabled:opacity-50"
+                    >
+                        {isAISuggesting ? (
+                            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        ) : (
+                            <Sparkles className="w-3.5 h-3.5" />
+                        )}
+                        <span>AI Suggest</span>
+                    </button>
+                </div>
 
                 <button
                     onClick={() => startTransition(async () => await deleteTask(task._id))}
-                    className="p-2 text-slate-300 hover:text-rose-500 hover:scale-110 transition-all"
+                    className="p-2 text-slate-300 hover:text-rose-500 hover:scale-110 transition-all font-bold"
                 >
                     <Trash2 className="w-4 h-4" />
                 </button>
@@ -147,10 +175,10 @@ export default function TaskItem({ task }: { task: Task }) {
                             }} className="flex gap-2">
                                 <input
                                     type="text"
-                                    placeholder="New subtask..."
+                                    placeholder="Add subtask manually..."
                                     value={newSubtask}
                                     onChange={(e) => setNewSubtask(e.target.value)}
-                                    className="flex-1 bg-slate-50 dark:bg-slate-800 border-none rounded-lg p-2 text-sm focus:ring-1 focus:ring-blue-500"
+                                    className="flex-1 bg-slate-50 dark:bg-slate-800 border-none rounded-lg p-2 text-sm focus:ring-1 focus:ring-blue-500 text-slate-700 dark:text-slate-200"
                                 />
                                 <button type="submit" className="p-2 bg-blue-500 text-white rounded-lg"><Plus className="w-4 h-4" /></button>
                             </form>
