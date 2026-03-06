@@ -16,7 +16,15 @@ export async function getTasks(searchQuery?: string, filterPriority?: string) {
     if (filterPriority && filterPriority !== 'All') query.priority = filterPriority;
 
     const tasks = await Task.find(query).sort({ createdAt: -1 }).lean();
-    return JSON.parse(JSON.stringify(tasks));
+
+    // Fallback for legacy tasks missing the 'status' field
+    const normalizedTasks = tasks.map((task: any) => ({
+      ...task,
+      status: task.status || (task.isCompleted ? 'Done' : 'Todo'),
+      subtasks: task.subtasks || [],
+    }));
+
+    return JSON.parse(JSON.stringify(normalizedTasks));
   } catch (error) {
     console.error('Error fetching tasks:', error);
     throw new Error('Failed to fetch tasks');

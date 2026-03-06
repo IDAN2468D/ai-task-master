@@ -21,7 +21,7 @@ import {
     sortableKeyboardCoordinates,
     verticalListSortingStrategy
 } from '@dnd-kit/sortable';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 
 interface Task {
     _id: string;
@@ -37,6 +37,17 @@ interface Task {
 export default function KanbanBoard({ tasks: initialTasks }: { tasks: Task[] }) {
     const [tasks, setTasks] = useState(initialTasks);
     const [activeTask, setActiveTask] = useState<Task | null>(null);
+    const [isMounted, setIsMounted] = useState(false);
+
+    // Sync state when server props change
+    useEffect(() => {
+        setTasks(initialTasks);
+    }, [initialTasks]);
+
+    // Fix hydration issues by waiting for mount
+    useEffect(() => {
+        setIsMounted(true);
+    }, []);
 
     const sensors = useSensors(
         useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
@@ -99,6 +110,8 @@ export default function KanbanBoard({ tasks: initialTasks }: { tasks: Task[] }) 
             await updateTaskStatus(activeId, finalTaskState.status);
         }
     };
+
+    if (!isMounted) return <div className="min-h-[500px] flex items-center justify-center text-slate-400 font-bold animate-pulse">Initializing Board...</div>;
 
     return (
         <DndContext
