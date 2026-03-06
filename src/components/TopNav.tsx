@@ -1,17 +1,19 @@
 'use client';
 
-import { Rocket, User, Menu, X, ArrowRight } from 'lucide-react';
+import { Rocket, User, Menu, X, ArrowRight, LogOut } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { logoutUser } from '@/actions/authActions';
 
 export default function TopNav() {
     const pathname = usePathname();
     const [isOpen, setIsOpen] = useState(false);
 
-    // If we are on the profile page, DO NOT show this TopNav completely!
-    if (pathname === '/profile') {
+    // Hide nav on auth pages and profile page
+    const hiddenPages = ['/login', '/register', '/profile'];
+    if (hiddenPages.includes(pathname || '')) {
         return null;
     }
 
@@ -39,7 +41,7 @@ export default function TopNav() {
                     </div>
 
                     <div className="flex items-center gap-6">
-                        {/* Desktop: Show text links + profile icon */}
+                        {/* Desktop: Show text links */}
                         <div className="hidden md:flex items-center gap-8 text-sm font-bold">
                             {links.map((link) => (
                                 <Link
@@ -68,7 +70,7 @@ export default function TopNav() {
                 </div>
             </nav>
 
-            {/* Mobile Menu Overlay (only shown on mobile) */}
+            {/* Mobile Menu Overlay */}
             <AnimatePresence>
                 {isOpen && (
                     <motion.div
@@ -97,6 +99,12 @@ export default function TopNav() {
                                 <User className="w-6 h-6 text-[#4318FF]" />
                                 My Profile <ArrowRight className="w-5 h-5 text-slate-400" />
                             </Link>
+                            <form action={logoutUser}>
+                                <button type="submit" className="flex items-center justify-center gap-3 text-lg font-bold text-red-500 hover:text-red-600 transition-colors mx-auto mt-4">
+                                    <LogOut className="w-5 h-5" />
+                                    Sign Out
+                                </button>
+                            </form>
                         </div>
                     </motion.div>
                 )}

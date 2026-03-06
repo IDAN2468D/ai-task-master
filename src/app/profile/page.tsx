@@ -1,9 +1,10 @@
 'use client';
 
-import { Rocket, User, Settings, CreditCard, Sparkles, Bell, Shield, Paintbrush, MonitorSmartphone, Mail, CheckCircle2 } from 'lucide-react';
+import { Rocket, User, Settings, CreditCard, Sparkles, Bell, Shield, Paintbrush, MonitorSmartphone, Mail, CheckCircle2, LogOut } from 'lucide-react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { useState } from 'react';
+import { logoutUser } from '@/actions/authActions';
 
 export default function ProfilePage() {
     const [activeTab, setActiveTab] = useState('account');
@@ -32,10 +33,18 @@ export default function ProfilePage() {
                         <p className="text-slate-500 font-medium">Manage your personal details, AI preferences, and security.</p>
                     </div>
 
-                    {/* Back to Home Button */}
-                    <Link href="/" className="px-5 py-2.5 bg-white dark:bg-[#111C44] text-slate-700 dark:text-slate-300 font-bold text-sm rounded-xl border border-slate-200 dark:border-white/10 hover:shadow-lg hover:-translate-y-0.5 transition-all shadow-sm flex flex-row items-center gap-2 self-start">
-                        Take me Home
-                    </Link>
+                    {/* Action Buttons */}
+                    <div className="flex flex-row items-center gap-3 self-start">
+                        <Link href="/" className="px-5 py-2.5 bg-white dark:bg-[#111C44] text-slate-700 dark:text-slate-300 font-bold text-sm rounded-xl border border-slate-200 dark:border-white/10 hover:shadow-lg hover:-translate-y-0.5 transition-all shadow-sm flex flex-row items-center gap-2">
+                            Take me Home
+                        </Link>
+                        <form action={logoutUser}>
+                            <button type="submit" className="px-5 py-2.5 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 font-bold text-sm rounded-xl border border-red-200 dark:border-red-800/30 hover:shadow-lg hover:-translate-y-0.5 transition-all shadow-sm flex flex-row items-center gap-2">
+                                <LogOut className="w-4 h-4" />
+                                Sign Out
+                            </button>
+                        </form>
+                    </div>
                 </div>
 
                 <div className="grid lg:grid-cols-12 gap-8 items-start">

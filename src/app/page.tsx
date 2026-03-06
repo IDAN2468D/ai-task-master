@@ -1,18 +1,28 @@
 import { getTasks } from '@/actions/taskActions';
+import { getCurrentUser } from '@/actions/authActions';
 import AddTaskForm from '@/components/AddTaskForm';
 import KanbanBoard from '@/components/KanbanBoard';
 import SearchFilterBar from '@/components/SearchFilterBar';
 import DashboardStats from '@/components/DashboardStats';
-import { Rocket, Lightbulb, User } from 'lucide-react';
-import Link from 'next/link';
+import { Lightbulb } from 'lucide-react';
+import { redirect } from 'next/navigation';
 
 export const dynamic = 'force-dynamic';
 
 export default async function HomePage({ searchParams }: { searchParams: Promise<{ q?: string; priority?: string }> }) {
+    const user = await getCurrentUser();
+    if (!user) {
+        redirect('/login');
+    }
+
     const resolvedParams = await searchParams;
     const q = resolvedParams.q;
     const priority = resolvedParams.priority;
     const tasks = await getTasks(q, priority);
+
+    // Determine greeting based on time of day
+    const hour = new Date().getHours();
+    const greeting = hour < 12 ? 'Good Morning' : hour < 18 ? 'Good Afternoon' : 'Good Evening';
 
     return (
         <main className="min-h-screen text-slate-800 dark:text-white selection:bg-[#4318FF] selection:text-white pb-40">
@@ -23,7 +33,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
                 <div className="flex items-center justify-between mb-8">
                     <div>
                         <h2 className="text-4xl md:text-5xl font-black mb-2">
-                            Good Morning, <label className="text-gradient-primary">Idan!</label>
+                            {greeting}, <label className="text-gradient-primary">{user.name}!</label>
                         </h2>
                         <p className="text-slate-500 font-medium">Here is what's happening with your tasks today.</p>
                     </div>
