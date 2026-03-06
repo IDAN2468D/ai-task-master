@@ -48,7 +48,7 @@ export default function TopNav() {
                         </div>
 
                         <div className="flex items-center gap-3">
-                            <Link href="/profile" onClick={() => setIsOpen(false)} className="w-10 h-10 rounded-full bg-indigo-100 dark:bg-indigo-900/40 flex items-center justify-center text-[#4318FF] dark:text-indigo-400 cursor-pointer shadow-[0_0_15px_rgba(67,24,255,0.2)]">
+                            <Link href="/profile" onClick={() => setIsOpen(false)} className="hidden md:flex w-10 h-10 rounded-full bg-indigo-100 dark:bg-indigo-900/40 items-center justify-center text-[#4318FF] dark:text-indigo-400 cursor-pointer shadow-[0_0_15px_rgba(67,24,255,0.2)]">
                                 <User className="w-5 h-5" />
                             </Link>
 
