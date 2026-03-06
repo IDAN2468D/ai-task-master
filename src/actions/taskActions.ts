@@ -5,9 +5,6 @@ import connectDB from '@/lib/mongodb';
 import Task, { ITask } from '@/models/Task';
 import { model } from '@/lib/gemini';
 
-/**
- * Fetch tasks with server-side searching and filtering.
- */
 export async function getTasks(searchQuery?: string, filterPriority?: string) {
   try {
     await connectDB();
@@ -17,7 +14,6 @@ export async function getTasks(searchQuery?: string, filterPriority?: string) {
 
     const tasks = await Task.find(query).sort({ createdAt: -1 }).lean();
 
-    // Fallback for legacy tasks missing the 'status' field
     const normalizedTasks = tasks.map((task: any) => ({
       ...task,
       status: task.status || (task.isCompleted ? 'Done' : 'Todo'),
@@ -32,39 +28,57 @@ export async function getTasks(searchQuery?: string, filterPriority?: string) {
 }
 
 /**
- * Create a new task.
+ * AI Smart Task Creation: Automatically guesses priority and category using Gemini
  */
-export async function createTask(formData: FormData) {
+export async function createSmartTask(formData: FormData) {
   try {
     await connectDB();
     const title = formData.get('title') as string;
-    const category = formData.get('category') as string;
-    const priority = formData.get('priority') as string;
-    const dueDateStr = formData.get('dueDate') as string;
+    const useAI = formData.get('useAI') === 'true';
 
     if (!title || title.trim() === '') throw new Error('Task title cannot be empty.');
 
-    const taskData: any = {
+    let priority = 'Medium';
+    let category = 'Personal';
+
+    if (useAI) {
+      const prompt = `Analyze this task title: "${title}". 
+            Guess the best priority (High, Medium, Low) and category (Work, Personal, Urgent, Health, Finance).
+            Return ONLY a valid JSON object like this: {"priority": "High", "category": "Work"}`;
+
+      const result = await model.generateContent(prompt);
+      const response = await result.response;
+      try {
+        const aiData = JSON.parse(response.text().replace(/```json|```/g, '').trim());
+        priority = aiData.priority || 'Medium';
+        category = aiData.category || 'Personal';
+      } catch (e) {
+        console.warn("AI Smart classification failed, using defaults");
+      }
+    } else {
+      priority = (formData.get('priority') as string) || 'Medium';
+      category = (formData.get('category') as string) || 'Personal';
+    }
+
+    const taskData = {
       title: title.trim(),
-      category: category || 'Personal',
-      priority: priority || 'Medium',
+      category,
+      priority,
       status: 'Todo',
       subtasks: [],
     };
 
-    if (dueDateStr) taskData.dueDate = new Date(dueDateStr);
+    const dueDateStr = formData.get('dueDate') as string;
+    if (dueDateStr) (taskData as any).dueDate = new Date(dueDateStr);
 
     await Task.create(taskData);
     revalidatePath('/');
   } catch (error) {
-    console.error('Error creating task:', error);
+    console.error('Error creating smart task:', error);
     throw new Error('Failed to create task');
   }
 }
 
-/**
- * Update task status (for Kanban DND).
- */
 export async function updateTaskStatus(taskId: string, newStatus: string) {
   try {
     await connectDB();
@@ -76,91 +90,66 @@ export async function updateTaskStatus(taskId: string, newStatus: string) {
   }
 }
 
-/**
- * Manual subtask addition.
- */
-export async function addSubtask(taskId: string, title: string) {
-  try {
-    await connectDB();
-    await Task.findByIdAndUpdate(taskId, {
-      $push: { subtasks: { title, isCompleted: false } }
-    });
-    revalidatePath('/');
-  } catch (error) {
-    console.error('Error adding subtask:', error);
-    throw new Error('Failed to add subtask');
-  }
-}
-
-/**
- * Toggle subtask completion.
- */
-export async function toggleSubtask(taskId: string, subtaskId: string, currentStatus: boolean) {
-  try {
-    await connectDB();
-    await Task.updateOne(
-      { _id: taskId, "subtasks._id": subtaskId },
-      { $set: { "subtasks.$.isCompleted": !currentStatus } }
-    );
-    revalidatePath('/');
-  } catch (error) {
-    console.error('Error toggling subtask:', error);
-    throw new Error('Failed to toggle subtask');
-  }
-}
-
-/**
- * AI Subtask Generation using Google Gemini.
- */
 export async function generateSubtasksWithAI(taskId: string, taskTitle: string) {
   try {
     await connectDB();
-
-    const prompt = `Generate 3 to 5 short, actionable, and specific subtasks for the task: "${taskTitle}". 
-    Return ONLY a valid JSON array of strings, like this: ["Subtask 1", "Subtask 2"]. 
-    Do not include any other text or markdown formatting in your response.`;
-
+    const prompt = `Generate 3 to 5 short, actionable subtasks for: "${taskTitle}". Return ONLY a JSON array of strings.`;
     const result = await model.generateContent(prompt);
     const response = await result.response;
-    const text = response.text();
+    const text = response.text().replace(/```json|```/g, '').trim();
 
-    // Attempt to parse the AI response
-    let subtaskTitles: string[] = [];
-    try {
-      // Clean markdown backticks if AI included them
-      const cleanedText = text.replace(/```json|```/g, '').trim();
-      subtaskTitles = JSON.parse(cleanedText);
-    } catch (parseError) {
-      console.error("AI response parsing failed:", text);
-      throw new Error("AI returned an invalid format. Please try again.");
-    }
-
+    let subtaskTitles = JSON.parse(text);
     if (Array.isArray(subtaskTitles)) {
       const newSubtasks = subtaskTitles.map(title => ({ title: title.trim(), isCompleted: false }));
-
-      await Task.findByIdAndUpdate(taskId, {
-        $push: { subtasks: { $each: newSubtasks } }
-      });
-
+      await Task.findByIdAndUpdate(taskId, { $push: { subtasks: { $each: newSubtasks } } });
       revalidatePath('/');
     }
-
   } catch (error) {
     console.error('Error generating AI subtasks:', error);
-    throw new Error('Failed to generate subtasks with AI');
+    throw new Error('AI generation failed');
   }
 }
 
 /**
- * Delete task.
+ * AI Smart Breakdown: Deep analysis of a task and its subtasks
  */
+export async function smartBreakdown(taskId: string) {
+  try {
+    await connectDB();
+    const task = await Task.findById(taskId);
+    if (!task) return;
+
+    const prompt = `Task: "${task.title}". Current Subtasks: ${task.subtasks.map((s: any) => s.title).join(', ')}. 
+        Act as a project manager. Provide a concise, motivating summary of what needs to be done and give 2 extra advanced tips for success. 
+        Limit to 3 sentences total.`;
+
+    const result = await model.generateContent(prompt);
+    return result.response.text();
+  } catch (error) {
+    return "AI is busy at the moment, but you've got this!";
+  }
+}
+
+export async function addSubtask(taskId: string, title: string) {
+  try {
+    await connectDB();
+    await Task.findByIdAndUpdate(taskId, { $push: { subtasks: { title, isCompleted: false } } });
+    revalidatePath('/');
+  } catch (error) { throw new Error('Failed to add subtask'); }
+}
+
+export async function toggleSubtask(taskId: string, subtaskId: string, currentStatus: boolean) {
+  try {
+    await connectDB();
+    await Task.updateOne({ _id: taskId, "subtasks._id": subtaskId }, { $set: { "subtasks.$.isCompleted": !currentStatus } });
+    revalidatePath('/');
+  } catch (error) { throw new Error('Failed to toggle subtask'); }
+}
+
 export async function deleteTask(taskId: string) {
   try {
     await connectDB();
     await Task.findByIdAndDelete(taskId);
     revalidatePath('/');
-  } catch (error) {
-    console.error('Error deleting task:', error);
-    throw new Error('Failed to delete task');
-  }
+  } catch (error) { throw new Error('Failed to delete task'); }
 }
