@@ -6,87 +6,86 @@
 }
 
 :root {
-  --background: #ffffff;
-  --foreground: #020617;
-  --accent: #3b82f6;
-  --glass: rgba(255, 255, 255, 0.7);
-  --glass-border: rgba(226, 232, 240, 0.8);
+  --background: #f4f7fe;
+  --foreground: #1e293b;
+  --card: #ffffff;
+  --card-border: rgba(226, 232, 240, 0.8);
+  --primary: #4318FF;
+  --primary-glow: rgba(67, 24, 255, 0.2);
+  --accent-1: #00E5FF;
+  --accent-2: #FF00E5;
 }
 
 .dark {
-  --background: #050505;
-  --foreground: #f8fafc;
-  --accent: #3b82f6;
-  --glass: rgba(5, 5, 5, 0.8);
-  --glass-border: rgba(255, 255, 255, 0.08);
+  --background: #0B1437;
+  --foreground: #ffffff;
+  --card: #111C44;
+  --card-border: rgba(255, 255, 255, 0.05);
+  --primary: #7551FF;
+  --primary-glow: rgba(117, 81, 255, 0.3);
+  --accent-1: #00E5FF;
+  --accent-2: #E31A89;
 }
 
 body {
   background-color: var(--background);
   color: var(--foreground);
   font-family: 'Inter', system-ui, sans-serif;
-  letter-spacing: -0.02em;
+  transition: background-color 0.3s ease;
 }
 
-/* Ether Glassmorphism */
-.ether-card {
-  background: var(--glass);
-  backdrop-filter: blur(24px) saturate(180%);
-  -webkit-backdrop-filter: blur(24px) saturate(180%);
-  border: 1px solid var(--glass-border);
-  transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+/* Vibrant SaaS Cards */
+.vibrant-card {
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  box-shadow: 0 18px 40px rgba(112, 144, 176, 0.08);
+  border-radius: 24px;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
-.ether-card:hover {
-  background: rgba(255, 255, 255, 0.01);
-  border-color: rgba(59, 130, 246, 0.4);
-  box-shadow: 0 40px 100px -20px rgba(0, 0, 0, 0.5), 0 0 20px rgba(59, 130, 246, 0.1);
-  transform: translateY(-2px);
+.dark .vibrant-card {
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.4);
 }
 
-/* Holographic Accent */
-.hologram {
-  position: relative;
-  overflow: hidden;
+.vibrant-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 25px 50px rgba(112, 144, 176, 0.15);
+  border-color: var(--primary-glow);
 }
 
-.hologram::after {
-  content: '';
-  position: absolute;
-  top: -100%;
-  left: -100%;
-  width: 300%;
-  height: 300%;
-  background: linear-gradient(45deg,
-      transparent 0%,
-      rgba(59, 130, 246, 0.05) 45%,
-      rgba(168, 85, 247, 0.05) 50%,
-      rgba(59, 130, 246, 0.05) 55%,
-      transparent 100%);
-  animation: hologram-flow 10s linear infinite;
-  pointer-events: none;
+.dark .vibrant-card:hover {
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6), 0 0 20px var(--primary-glow);
 }
 
-@keyframes hologram-flow {
-  0% {
-    transform: translate(-50%, -50%) rotate(0deg);
-  }
-
-  100% {
-    transform: translate(-50%, -50%) rotate(360deg);
-  }
+/* Gradient Texts */
+.text-gradient-primary {
+  @apply bg-clip-text text-transparent;
+  background-image: linear-gradient(135deg, var(--primary) 0%, var(--accent-1) 100%);
 }
 
-/* Text Gradient */
-.text-ethereal {
-  @apply bg-clip-text text-transparent bg-gradient-to-br from-white via-slate-400 to-slate-800;
+.text-gradient-warm {
+  @apply bg-clip-text text-transparent;
+  background-image: linear-gradient(135deg, #FF9000 0%, #FF2525 100%);
+}
+
+/* Stunning Gradients for Stats */
+.bg-gradient-stat-1 {
+  background: linear-gradient(135deg, #868CFF 0%, #4318FF 100%);
+}
+
+.bg-gradient-stat-2 {
+  background: linear-gradient(135deg, #00E5FF 0%, #0075FF 100%);
+}
+
+.bg-gradient-stat-3 {
+  background: linear-gradient(135deg, #FF7D00 0%, #FF2A2A 100%);
 }
 
 .custom-scrollbar::-webkit-scrollbar {
-  width: 3px;
+  width: 6px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--primary);
   border-radius: 10px;
 }

@@ -3,7 +3,7 @@ import AddTaskForm from '@/components/AddTaskForm';
 import KanbanBoard from '@/components/KanbanBoard';
 import SearchFilterBar from '@/components/SearchFilterBar';
 import DashboardStats from '@/components/DashboardStats';
-import { Terminal, Command, Zap, Ship, Sparkles, LayoutPanelTop, Fingerprint } from 'lucide-react';
+import { Rocket, Lightbulb, User } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
 
@@ -14,108 +14,68 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
     const tasks = await getTasks(q, priority);
 
     return (
-        <main className="min-h-screen bg-[#050505] text-white selection:bg-blue-500 selection:text-white pb-60 relative overflow-hidden">
+        <main className="min-h-screen text-slate-800 dark:text-white selection:bg-[#4318FF] selection:text-white pb-40">
 
-            {/* Ethereal Background Canvas */}
-            <div className="fixed inset-0 pointer-events-none -z-10">
-                <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-blue-500/[0.03] rounded-full blur-[160px] animate-pulse" />
-                <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-indigo-500/[0.03] rounded-full blur-[160px] animate-pulse" />
-                <div className="absolute top-[30%] left-[30%] w-[1px] h-[400px] bg-gradient-to-b from-transparent via-blue-500/10 to-transparent rotate-12" />
-            </div>
-
-            {/* Navigation: Obsidian Glass */}
-            <nav className="fixed top-8 inset-x-0 mx-auto max-w-7xl px-8 z-[1000] animate-in slide-in-from-top-10 duration-1000">
-                <div className="luxury-glass h-20 rounded-[2.5rem] flex items-center justify-between px-10 border-white/[0.03]">
-                    <div className="flex items-center gap-5">
-                        <div className="w-12 h-12 bg-white rounded-3xl flex items-center justify-center shadow-[0_0_30px_rgba(255,255,255,0.1)] transition-all hover:rotate-12 hover:scale-105">
-                            <Fingerprint className="w-6 h-6 text-black" />
+            {/* Vibrant Header Navbar */}
+            <nav className="fixed top-0 inset-x-0 z-[1000] bg-white/80 dark:bg-[#0B1437]/80 backdrop-blur-xl border-b border-slate-200 dark:border-white/5">
+                <div className="max-w-[1400px] mx-auto px-6 h-20 flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-gradient-stat-1 rounded-xl flex items-center justify-center shadow-lg shadow-[#4318FF]/30">
+                            <Rocket className="w-5 h-5 text-white" />
                         </div>
-                        <div className="flex flex-col">
-                            <h1 className="text-sm font-black tracking-[0.6em] uppercase text-white leading-none mb-1.5 italic">MASTER</h1>
-                            <span className="text-[8px] font-black uppercase tracking-[0.3em] text-blue-500/80">Quantum Intelligence</span>
-                        </div>
+                        <h1 className="text-2xl font-black tracking-tight"><span className="text-gradient-primary">Task</span>Flow</h1>
                     </div>
 
-                    <div className="flex items-center gap-10">
-                        <div className="hidden md:flex items-center gap-8 text-[9px] font-black uppercase tracking-[0.2em] text-white/30">
-                            <a href="#" className="hover:text-white transition-all">Matrix</a>
-                            <a href="#" className="hover:text-white transition-all">Vault</a>
-                            <a href="#" className="hover:text-white transition-all">Labs</a>
+                    <div className="flex items-center gap-4">
+                        <div className="hidden md:flex items-center gap-8 text-sm font-bold text-slate-500 dark:text-slate-400 mr-4">
+                            <a href="#" className="hover:text-[#4318FF] transition-colors">Dashboard</a>
+                            <a href="#" className="hover:text-[#4318FF] transition-colors">Analytics</a>
                         </div>
-                        <div className="flex items-center gap-5">
-                            <div className="w-[1px] h-6 bg-white/5" />
-                            <div className="flex items-center gap-3 px-6 py-3 bg-blue-500/10 border border-blue-500/20 text-blue-500 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] hover:bg-blue-500 hover:text-white transition-all cursor-pointer shadow-lg shadow-blue-500/10">
-                                <Zap className="w-3.5 h-3.5 fill-current" />
-                                Optimize
-                            </div>
+                        <div className="w-10 h-10 rounded-full bg-indigo-100 dark:bg-indigo-900/40 flex items-center justify-center text-[#4318FF] dark:text-indigo-400 cursor-pointer">
+                            <User className="w-5 h-5" />
                         </div>
                     </div>
                 </div>
             </nav>
 
-            <div className="max-w-7xl mx-auto px-8 pt-44">
+            <div className="max-w-[1400px] mx-auto px-6 pt-36">
 
-                {/* Hero Header: 2026 Minimalist Scale */}
-                <div className="max-w-4xl mb-32">
-                    <div className="flex items-center gap-3 mb-10">
-                        <div className="px-5 py-2.5 bg-white/5 border border-white/5 rounded-full text-[10px] font-black uppercase tracking-[0.3em] text-white/40 flex items-center gap-3">
-                            <Sparkles className="w-3.5 h-3.5 text-blue-500 animate-pulse" />
-                            Synchronized with Gemini 2.5
-                        </div>
+                {/* Colorful Hero Greeting */}
+                <div className="flex items-center justify-between mb-8">
+                    <div>
+                        <h2 className="text-4xl md:text-5xl font-black mb-2">
+                            Good Morning, <label className="text-gradient-primary">Idan!</label>
+                        </h2>
+                        <p className="text-slate-500 font-medium">Here is what's happening with your tasks today.</p>
                     </div>
-                    <h2 className="text-8xl md:text-[10rem] font-black text-white tracking-tighter mb-10 leading-[0.75] uppercase italic">
-                        The Future<br />
-                        <span className="text-blue-500 shadow-[0_0_40px_rgba(59,130,246,0.1)]">Flow.</span>
-                    </h2>
-                    <p className="text-lg md:text-xl text-slate-500 font-medium max-w-2xl leading-relaxed tracking-tight">
-                        A workspace architected for pure velocity. Orchestrate your roadmap with holographic precision and AI-driven insights.
-                    </p>
+                    <div className="hidden lg:flex items-center gap-2 px-4 py-2 bg-[#4318FF]/10 text-[#4318FF] rounded-xl font-bold text-sm">
+                        <Lightbulb className="w-4 h-4" />
+                        AI is active and monitoring
+                    </div>
                 </div>
 
-                {/* Dashboard: Bento Matrix */}
-                <div className="mb-32">
-                    <DashboardStats tasks={tasks} />
-                </div>
+                <DashboardStats tasks={tasks} />
 
-                <div className="grid lg:grid-cols-12 gap-16 items-start">
-                    <div className="lg:col-span-8 space-y-20">
+                {/* Main Content Layout */}
+                <div className="grid lg:grid-cols-12 gap-8 items-start">
 
-                        {/* Unified Search Matrix */}
-                        <div className="flex flex-col gap-6">
-                            <div className="flex items-center gap-3 pl-2">
-                                <Command className="w-4 h-4 text-blue-500" />
-                                <h2 className="text-[10px] font-black text-white/40 uppercase tracking-[0.4em]">Search Interface</h2>
-                            </div>
-                            <div className="luxury-glass p-2 border-white/[0.03] rounded-[2rem]">
-                                <SearchFilterBar />
-                            </div>
+                    <div className="lg:col-span-9 space-y-6">
+
+                        <div className="flex items-center justify-between">
+                            <h3 className="text-2xl font-black text-slate-800 dark:text-white">Active Board</h3>
+                            <SearchFilterBar />
                         </div>
 
-                        {/* Integrated Board */}
+                        {/* Vibrant Board */}
                         <KanbanBoard tasks={tasks} />
                     </div>
 
-                    <div className="lg:col-span-4 sticky top-36">
-                        <div className="flex items-center gap-3 pl-2 mb-6">
-                            <LayoutPanelTop className="w-4 h-4 text-indigo-500" />
-                            <h2 className="text-[10px] font-black text-white/40 uppercase tracking-[0.4em]">Mission Draft</h2>
-                        </div>
+                    <div className="lg:col-span-3 sticky top-28">
+                        <h3 className="text-2xl font-black text-slate-800 dark:text-white mb-6">Create New</h3>
                         <AddTaskForm />
                     </div>
                 </div>
             </div>
-
-            <footer className="mt-60 border-t border-white/[0.02] py-20 bg-black">
-                <div className="max-w-7xl mx-auto px-10 flex flex-col items-center">
-                    <Ship className="w-10 h-10 text-white/5 mb-10" />
-                    <div className="flex justify-center gap-16 mb-12 text-white/10">
-                        <span className="text-[10px] font-black uppercase tracking-[1em]">Identity</span>
-                        <span className="text-[10px] font-black uppercase tracking-[1em]">Security</span>
-                        <span className="text-[10px] font-black uppercase tracking-[1em]">Nodes</span>
-                    </div>
-                    <p className="text-[8px] font-black uppercase tracking-[1em] text-white/5">Architected by Antigravity AI • 2026 Universe Edition</p>
-                </div>
-            </footer>
 
         </main>
     );

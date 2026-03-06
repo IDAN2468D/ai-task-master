@@ -1,12 +1,11 @@
 'use client';
 
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, BarChart, Bar, XAxis, YAxis } from 'recharts';
-import { Target, CheckCircle, Clock, Zap, Activity, Info } from 'lucide-react';
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
+import { LayoutDashboard, CheckCircle2, Flame, Target } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface Task {
     status: 'Todo' | 'InProgress' | 'Done';
-    priority: 'Low' | 'Medium' | 'High';
 }
 
 export default function DashboardStats({ tasks }: { tasks: Task[] }) {
@@ -17,91 +16,82 @@ export default function DashboardStats({ tasks }: { tasks: Task[] }) {
     };
 
     const chartData = [
-        { name: 'To Do', value: stats.Todo, color: '#6366f1' },
-        { name: 'In Progress', value: stats.InProgress, color: '#3b82f6' },
-        { name: 'Done', value: stats.Done, color: '#10b981' },
+        { name: 'To Do', value: stats.Todo, color: '#4318FF' },
+        { name: 'Active', value: stats.InProgress, color: '#00E5FF' },
+        { name: 'Done', value: stats.Done, color: '#FF7D00' },
     ];
 
-    const total = tasks.length;
-    const completionRate = total > 0 ? Math.round((stats.Done / total) * 100) : 0;
-
     return (
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-5 mb-16 max-w-7xl mx-auto px-4">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 w-full mb-12">
 
-            {/* Hero Metric Bento */}
+            {/* Mini Stat Cards */}
+            <div className="md:col-span-8 grid grid-cols-1 sm:grid-cols-3 gap-6">
+                <StatCard
+                    title="Tasks Pending"
+                    value={stats.Todo}
+                    icon={<LayoutDashboard className="w-8 h-8 text-white relative z-10" />}
+                    bgClass="bg-gradient-stat-1"
+                />
+                <StatCard
+                    title="In Motion"
+                    value={stats.InProgress}
+                    icon={<Flame className="w-8 h-8 text-white relative z-10" />}
+                    bgClass="bg-gradient-stat-2"
+                />
+                <StatCard
+                    title="Total Wins"
+                    value={stats.Done}
+                    icon={<CheckCircle2 className="w-8 h-8 text-white relative z-10" />}
+                    bgClass="bg-gradient-stat-3"
+                />
+            </div>
+
+            {/* Chart Card */}
             <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="md:col-span-8 bento-item bg-slate-900/40 relative overflow-hidden flex flex-col justify-between"
+                initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+                className="md:col-span-4 vibrant-card p-6 flex items-center justify-between"
             >
-                <div className="absolute top-0 right-0 p-8 text-blue-500/10 pointer-events-none">
-                    <Activity className="w-40 h-40 rotate-12" />
-                </div>
-
-                <div>
-                    <div className="flex items-center gap-2 mb-4">
-                        <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
-                        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-blue-500">Real-time Analytics</span>
+                <div className="flex flex-col gap-4 w-1/2">
+                    <h3 className="text-sm font-bold text-slate-500 dark:text-slate-400">Distribution</h3>
+                    <p className="text-3xl font-black text-slate-800 dark:text-white">{tasks.length} <span className="text-lg text-slate-400">total</span></p>
+                    <div className="flex flex-col gap-2 mt-2">
+                        {chartData.map(item => (
+                            <div key={item.name} className="flex items-center gap-2">
+                                <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: item.color }} />
+                                <span className="text-xs font-bold text-slate-600 dark:text-slate-300">{item.name}</span>
+                            </div>
+                        ))}
                     </div>
-                    <h3 className="text-4xl md:text-5xl font-black text-white tracking-tighter mb-2">Workspace<br /><span className="text-blue-500/80">Velocity.</span></h3>
-                    <p className="text-slate-500 text-sm font-medium">Your current productivity flow based on task completion.</p>
                 </div>
-
-                <div className="grid grid-cols-3 gap-8 mt-10">
-                    {[
-                        { label: 'Completion', value: `${completionRate}%`, icon: Zap },
-                        { label: 'Active Focus', value: stats.InProgress, icon: Clock },
-                        { label: 'Finalized', value: stats.Done, icon: CheckCircle }
-                    ].map(item => (
-                        <div key={item.label}>
-                            <p className="text-[10px] font-black uppercase text-slate-500 tracking-tighter mb-1 flex items-center gap-1.5">
-                                <item.icon className="w-3 h-3" /> {item.label}
-                            </p>
-                            <p className="text-2xl font-black text-white tabular-nums">{item.value}</p>
-                        </div>
-                    ))}
-                </div>
-            </motion.div>
-
-            {/* Chart Bento */}
-            <motion.div
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.2 }}
-                className="md:col-span-4 bento-item bg-slate-900/40 flex flex-col items-center justify-center min-h-[300px]"
-            >
-                <div className="w-full h-48 opacity-80">
+                <div className="w-1/2 h-32 relative">
                     <ResponsiveContainer width="100%" height="100%">
                         <PieChart>
-                            <Pie
-                                data={chartData}
-                                innerRadius={65}
-                                outerRadius={85}
-                                paddingAngle={10}
-                                dataKey="value"
-                                stroke="none"
-                            >
-                                {chartData.map((entry, index) => (
-                                    <Cell key={`cell-${index}`} fill={entry.color} />
-                                ))}
+                            <Pie data={chartData} innerRadius={35} outerRadius={50} paddingAngle={5} dataKey="value" stroke="none">
+                                {chartData.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.color} />)}
                             </Pie>
                             <Tooltip
-                                contentStyle={{ background: '#0f172a', border: '1px solid #1e293b', borderRadius: '12px' }}
-                                itemStyle={{ color: '#fff', fontSize: '10px', fontWeight: 'bold' }}
+                                contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 10px 30px rgba(0,0,0,0.1)' }}
+                                itemStyle={{ color: '#000', fontWeight: 'bold' }}
                             />
                         </PieChart>
                     </ResponsiveContainer>
                 </div>
-                <div className="flex justify-center gap-4 mt-6">
-                    {chartData.map(item => (
-                        <div key={item.name} className="flex items-center gap-2">
-                            <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: item.color }} />
-                            <span className="text-[8px] font-black text-slate-500 uppercase">{item.name}</span>
-                        </div>
-                    ))}
-                </div>
             </motion.div>
-
         </div>
+    );
+}
+
+function StatCard({ title, value, icon, bgClass }: { title: string, value: number, icon: any, bgClass: string }) {
+    return (
+        <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="vibrant-card p-6 flex items-center gap-5">
+            <div className={`w-16 h-16 rounded-full flex items-center justify-center relative overflow-hidden ${bgClass} shadow-lg`}>
+                {icon}
+                <div className="absolute top-0 right-0 w-8 h-8 bg-white/20 rounded-full blur-md" />
+            </div>
+            <div>
+                <p className="text-sm font-bold text-slate-400 mb-1">{title}</p>
+                <h4 className="text-4xl font-black text-slate-800 dark:text-white tabular-nums">{value}</h4>
+            </div>
+        </motion.div>
     );
 }
