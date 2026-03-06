@@ -4,6 +4,7 @@ import KanbanBoard from '@/components/KanbanBoard';
 import SearchFilterBar from '@/components/SearchFilterBar';
 import DashboardStats from '@/components/DashboardStats';
 import { Rocket, Lightbulb, User } from 'lucide-react';
+import Link from 'next/link';
 
 export const dynamic = 'force-dynamic';
 
@@ -28,8 +29,8 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
 
                     <div className="flex items-center gap-4">
                         <div className="hidden md:flex items-center gap-8 text-sm font-bold text-slate-500 dark:text-slate-400 mr-4">
-                            <a href="#" className="hover:text-[#4318FF] transition-colors">Dashboard</a>
-                            <a href="#" className="hover:text-[#4318FF] transition-colors">Analytics</a>
+                            <Link href="/" className="text-[#4318FF] transition-colors">Dashboard</Link>
+                            <Link href="/analytics" className="hover:text-[#4318FF] transition-colors">Analytics</Link>
                         </div>
                         <div className="w-10 h-10 rounded-full bg-indigo-100 dark:bg-indigo-900/40 flex items-center justify-center text-[#4318FF] dark:text-indigo-400 cursor-pointer">
                             <User className="w-5 h-5" />
