@@ -1,16 +1,32 @@
 import { Resend } from 'resend';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Lazy initialization — only create the Resend client when actually needed
+let resend: Resend | null = null;
+
+function getResend(): Resend | null {
+    if (!process.env.RESEND_API_KEY || process.env.RESEND_API_KEY === 'your_resend_api_key_here') {
+        return null;
+    }
+    if (!resend) {
+        resend = new Resend(process.env.RESEND_API_KEY);
+    }
+    return resend;
+}
 
 // ========================
 // LOGIN NOTIFICATION EMAIL
 // ========================
 export async function sendLoginEmail(userName: string, userEmail: string) {
     try {
+        const client = getResend();
+        if (!client) {
+            console.log('⚠️ Resend API key not configured — skipping login email');
+            return;
+        }
         const now = new Date();
         const loginTime = now.toLocaleString('he-IL', { timeZone: 'Asia/Jerusalem' });
 
-        await resend.emails.send({
+        await client.emails.send({
             from: 'TaskFlow <onboarding@resend.dev>',
             to: userEmail,
             subject: '🔐 New Login to TaskFlow',
@@ -64,6 +80,11 @@ export async function sendTaskCreatedEmail(
     category: string
 ) {
     try {
+        const client = getResend();
+        if (!client) {
+            console.log('⚠️ Resend API key not configured — skipping task email');
+            return;
+        }
         const priorityColors: Record<string, string> = {
             High: '#ef4444',
             Medium: '#f59e0b',
@@ -72,7 +93,7 @@ export async function sendTaskCreatedEmail(
 
         const priorityColor = priorityColors[priority] || '#4318FF';
 
-        await resend.emails.send({
+        await client.emails.send({
             from: 'TaskFlow <onboarding@resend.dev>',
             to: userEmail,
             subject: `✅ New Task Created: "${taskTitle}"`,

@@ -3,10 +3,10 @@
 import { updateTaskStatus } from '@/actions/taskActions';
 import TaskItem from './TaskItem';
 import { useState, useEffect } from 'react';
-import { DndContext, DragOverlay, closestCorners, KeyboardSensor, PointerSensor, useSensor, useSensors, DragStartEvent, DragOverEvent, DragEndEvent } from '@dnd-kit/core';
+import { DndContext, DragOverlay, closestCorners, KeyboardSensor, PointerSensor, useSensor, useSensors, DragStartEvent, DragOverEvent, DragEndEvent, useDroppable } from '@dnd-kit/core';
 import { SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { motion } from 'framer-motion';
-import { Layers, Activity, Inbox, Workflow, Archive } from 'lucide-react';
+import { Inbox, Workflow, Archive } from 'lucide-react';
 
 interface Task {
     _id: string;
@@ -76,35 +76,7 @@ export default function KanbanBoard({ tasks: initialTasks }: { tasks: Task[] }) 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
                 {columns.map((col) => {
                     const colTasks = tasks.filter((t) => t.status === col.id);
-
-                    return (
-                        <div key={col.id} id={col.id} className={`flex flex-col h-full min-h-[600px] rounded-3xl p-4 md:p-6 transition-all border ${col.bg} ${col.border}`}>
-
-                            <div className="flex items-center justify-between mb-8">
-                                <div className="flex items-center gap-3">
-                                    <div className={`p-2 rounded-xl bg-white dark:bg-[#111C44] shadow-sm ${col.color}`}>
-                                        <col.icon className="w-5 h-5" />
-                                    </div>
-                                    <h3 className="text-sm font-black text-slate-800 dark:text-white uppercase tracking-wider">{col.title}</h3>
-                                </div>
-                                <span className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-black shadow-inner bg-white dark:bg-[#0B1437] ${col.color}`}>
-                                    {colTasks.length}
-                                </span>
-                            </div>
-
-                            <div className="flex-1 space-y-4">
-                                <SortableContext items={colTasks.map(t => t._id)} strategy={verticalListSortingStrategy}>
-                                    {colTasks.map((task) => <TaskItem key={task._id} task={task} />)}
-                                    {colTasks.length === 0 && (
-                                        <div className="h-40 flex flex-col items-center justify-center gap-2 text-center border-2 border-dashed border-[#4318FF]/20 rounded-2xl bg-white/50 dark:bg-black/20">
-                                            <p className="text-xs font-bold text-slate-400">Empty List</p>
-                                        </div>
-                                    )}
-                                </SortableContext>
-                            </div>
-
-                        </div>
-                    );
+                    return <KanbanColumn key={col.id} col={col} tasks={colTasks} />;
                 })}
             </div>
 
@@ -112,5 +84,36 @@ export default function KanbanBoard({ tasks: initialTasks }: { tasks: Task[] }) 
                 {activeTask ? <div className="opacity-90 shadow-[0_30px_60px_rgba(67,24,255,0.3)]"><TaskItem task={activeTask} /></div> : null}
             </DragOverlay>
         </DndContext>
+    );
+}
+
+function KanbanColumn({ col, tasks }: { col: any, tasks: Task[] }) {
+    const { setNodeRef } = useDroppable({ id: col.id });
+
+    return (
+        <div ref={setNodeRef} className={`flex flex-col h-full min-h-[600px] rounded-3xl p-4 md:p-6 transition-all border ${col.bg} ${col.border}`}>
+            <div className="flex items-center justify-between mb-8">
+                <div className="flex items-center gap-3">
+                    <div className={`p-2 rounded-xl bg-white dark:bg-[#111C44] shadow-sm ${col.color}`}>
+                        <col.icon className="w-5 h-5" />
+                    </div>
+                    <h3 className="text-sm font-black text-slate-800 dark:text-white uppercase tracking-wider">{col.title}</h3>
+                </div>
+                <span className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-black shadow-inner bg-white dark:bg-[#0B1437] ${col.color}`}>
+                    {tasks.length}
+                </span>
+            </div>
+
+            <div className="flex-1 space-y-4">
+                <SortableContext items={tasks.map(t => t._id)} strategy={verticalListSortingStrategy}>
+                    {tasks.map((task) => <TaskItem key={task._id} task={task} />)}
+                    {tasks.length === 0 && (
+                        <div className="h-40 flex flex-col items-center justify-center gap-2 text-center border-2 border-dashed border-[#4318FF]/20 rounded-2xl bg-white/50 dark:bg-black/20">
+                            <p className="text-xs font-bold text-slate-400">Empty List</p>
+                        </div>
+                    )}
+                </SortableContext>
+            </div>
+        </div>
     );
 }

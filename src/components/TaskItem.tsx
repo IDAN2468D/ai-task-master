@@ -15,6 +15,7 @@ export default function TaskItem({ task }: { task: Task }) {
     const [isAIOptimizing, startOptimize] = useTransition();
     const [isAnalyzing, startAnalysis] = useTransition();
     const [isAIGenerating, startGen] = useTransition();
+    const [isDeleting, startDelete] = useTransition();
     const [showSubtasks, setShowSubtasks] = useState(false);
     const [aiAdvice, setAiAdvice] = useState<string | null>(null);
     const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: task._id });
@@ -78,10 +79,13 @@ export default function TaskItem({ task }: { task: Task }) {
                     <button onClick={() => startOptimize(async () => await optimizeTaskTitle(task._id, task.title))} disabled={isAIOptimizing} className="p-1.5 text-blue-500 hover:bg-blue-50 rounded-lg" title="Optimize Title">
                         <FastForward className="w-4 h-4" />
                     </button>
-                    <button onClick={() => startGen(async () => { await generateSubtasksWithAI(task._id, task.title); setShowSubtasks(true); })} disabled={isAIGenerating} className="p-1.5 text-purple-500 hover:bg-purple-50 rounded-lg" title="Generate Subtasks">
+                    <button onClick={() => startGen(async () => { await generateSubtasksWithAI(task._id, task.title); setShowSubtasks(true); })} disabled={isAIGenerating} className="p-1.5 text-purple-500 hover:bg-purple-100 dark:hover:bg-purple-900/40 rounded-lg transition-colors" title="Generate Subtasks">
                         <Sparkles className="w-4 h-4" />
                     </button>
-                    <button onClick={() => startAnalysis(async () => setAiAdvice(await smartBreakdown(task._id) || ""))} disabled={isAnalyzing} className="p-1.5 text-orange-500 hover:bg-orange-50 rounded-lg" title="AI Advice">
+                    <button onClick={() => startDelete(async () => await deleteTask(task._id))} disabled={isDeleting} className="p-1.5 text-red-500 hover:bg-red-100 dark:hover:bg-red-900/40 rounded-lg transition-colors" title="Delete Task">
+                        {isDeleting ? <div className="w-4 h-4 border-2 border-red-500/30 border-t-red-500 rounded-full animate-spin" /> : <Trash2 className="w-4 h-4" />}
+                    </button>
+                    <button onClick={() => startAnalysis(async () => setAiAdvice(await smartBreakdown(task._id) || ""))} disabled={isAnalyzing} className="p-1.5 text-orange-500 hover:bg-orange-100 dark:hover:bg-orange-900/40 rounded-lg transition-colors" title="AI Advice">
                         <BrainCircuit className="w-4 h-4" />
                     </button>
                 </div>

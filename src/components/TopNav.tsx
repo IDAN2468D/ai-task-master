@@ -25,7 +25,7 @@ export default function TopNav() {
 
     const links = [
         { href: '/', label: 'Home' },
-        { href: 'http://localhost:3002/dashboard', label: 'Dashboard' },
+        { href: '/dashboard', label: 'Dashboard' },
         { href: '/analytics', label: 'Analytics' }
     ];
 

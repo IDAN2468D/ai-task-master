@@ -1,14 +1,21 @@
 'use client';
 
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
-import { LayoutDashboard, CheckCircle2, Flame, Target } from 'lucide-react';
+import { LayoutDashboard, CheckCircle2, Flame } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useEffect, useState } from 'react';
 
 interface Task {
     status: 'Todo' | 'InProgress' | 'Done';
 }
 
 export default function DashboardStats({ tasks }: { tasks: Task[] }) {
+    const [isMounted, setIsMounted] = useState(false);
+
+    useEffect(() => {
+        setIsMounted(true);
+    }, []);
+
     const stats = {
         Todo: tasks.filter(t => t.status === 'Todo').length,
         InProgress: tasks.filter(t => t.status === 'InProgress').length,
@@ -64,17 +71,21 @@ export default function DashboardStats({ tasks }: { tasks: Task[] }) {
                     </div>
                 </div>
                 <div className="w-1/2 h-32 relative">
-                    <ResponsiveContainer width="100%" height="100%">
-                        <PieChart>
-                            <Pie data={chartData} innerRadius={35} outerRadius={50} paddingAngle={5} dataKey="value" stroke="none">
-                                {chartData.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.color} />)}
-                            </Pie>
-                            <Tooltip
-                                contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 10px 30px rgba(0,0,0,0.1)' }}
-                                itemStyle={{ color: '#000', fontWeight: 'bold' }}
-                            />
-                        </PieChart>
-                    </ResponsiveContainer>
+                    {isMounted ? (
+                        <ResponsiveContainer width="100%" height="100%">
+                            <PieChart>
+                                <Pie data={chartData} innerRadius={35} outerRadius={50} paddingAngle={5} dataKey="value" stroke="none">
+                                    {chartData.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.color} />)}
+                                </Pie>
+                                <Tooltip
+                                    contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 10px 30px rgba(0,0,0,0.1)' }}
+                                    itemStyle={{ color: '#000', fontWeight: 'bold' }}
+                                />
+                            </PieChart>
+                        </ResponsiveContainer>
+                    ) : (
+                        <div className="w-full h-full bg-slate-100 dark:bg-slate-800 rounded-full animate-pulse" />
+                    )}
                 </div>
             </motion.div>
         </div>
