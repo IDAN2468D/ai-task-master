@@ -26,22 +26,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="he" dir="rtl" suppressHydrationWarning>
-      <head>
-        {/* Prevent flash of wrong theme - runs before React hydration */}
-        <script dangerouslySetInnerHTML={{
-          __html: `
-          try {
-            if (localStorage.getItem('theme') === 'light') {
-              document.documentElement.classList.remove('dark');
-            } else {
-              document.documentElement.classList.add('dark');
-            }
-          } catch(e) {}
-        `}} />
-      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-slate-50 dark:bg-[#0B1437] transition-colors`}
       >
+        {/* Prevent flash of wrong theme - runs before React hydration */}
+        <script dangerouslySetInnerHTML={{
+          __html: `try{if(localStorage.getItem('theme')==='light'){document.documentElement.classList.remove('dark')}else{document.documentElement.classList.add('dark')}}catch(e){}`
+        }} />
         <TopNav />
         {children}
 

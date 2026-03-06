@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect } from 'react';
-import { motion } from 'framer-motion';
 import { AlertTriangle, RefreshCw, Home } from 'lucide-react';
 import Link from 'next/link';
 
@@ -22,11 +21,7 @@ export default function Error({
             <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#FF2A2A]/10 blur-[150px] rounded-full pointer-events-none" />
             <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-[#4318FF]/10 blur-[120px] rounded-full pointer-events-none" />
 
-            <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="text-center max-w-md relative z-10"
-            >
+            <div className="text-center max-w-md relative z-10">
                 <div className="w-24 h-24 bg-red-100 dark:bg-red-900/30 rounded-3xl flex items-center justify-center mx-auto mb-8 shadow-xl shadow-red-500/20">
                     <AlertTriangle className="w-12 h-12 text-red-500" />
                 </div>
@@ -39,7 +34,7 @@ export default function Error({
                 <div className="flex gap-4 justify-center">
                     <button
                         onClick={reset}
-                        className="flex items-center gap-2 px-6 py-3 bg-gradient-stat-1 text-white font-black uppercase tracking-wider text-[11px] rounded-xl hover:shadow-[0_10px_30px_rgba(67,24,255,0.3)] hover:-translate-y-1 transition-all"
+                        className="flex items-center gap-2 px-6 py-3 bg-[#4318FF] text-white font-black uppercase tracking-wider text-[11px] rounded-xl hover:shadow-lg hover:-translate-y-1 transition-all"
                     >
                         <RefreshCw className="w-4 h-4" />
                         נסה שוב
@@ -52,7 +47,7 @@ export default function Error({
                         חזרה הביתה
                     </Link>
                 </div>
-            </motion.div>
+            </div>
         </main>
     );
 }
