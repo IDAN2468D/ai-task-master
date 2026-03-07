@@ -121,7 +121,7 @@ export default function ProfileClient({ user }: { user: { name: string, email: s
                         {activeTab === 'ai' && <AITuningSettings />}
                         {activeTab === 'notifications' && <NotificationsSettings />}
                         {activeTab === 'security' && <SecuritySettings user={user} />}
-                        {activeTab === 'billing' && <BillingSettings />}
+                        {activeTab === 'billing' && <BillingSettings user={user} />}
                     </motion.div>
                 </div>
             </div>
@@ -804,7 +804,7 @@ function SecuritySettings({ user }: { user: { name: string; email: string } }) {
 // ═══════════════════════════════════════════
 // 6. BILLING SETTINGS (NEW)
 // ═══════════════════════════════════════════
-function BillingSettings() {
+function BillingSettings({ user }: { user: { name: string; email: string } }) {
     const [selectedPlan, setSelectedPlan] = useState('pro');
 
     const plans = [
