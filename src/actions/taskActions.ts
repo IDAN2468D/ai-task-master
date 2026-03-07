@@ -47,10 +47,12 @@ export async function createSmartTask(formData: FormData) {
     let priority = 'Medium';
     let category = 'אישי';
 
+    let energyLevel = 'Medium';
+
     if (useAI) {
       const prompt = `Analyze this task title: "${title}". 
-            Guess the best priority (High, Medium, Low) and category (עבודה, אישי, דחוף, בריאות, פיננסים).
-            Return ONLY a valid JSON object like this: {"priority": "High", "category": "עבודה"}`;
+            Guess the best priority (High, Medium, Low), category (עבודה, אישי, דחוף, בריאות, פיננסים), and required energy level (Low, Medium, High).
+            Return ONLY a valid JSON object like this: {"priority": "High", "category": "עבודה", "energyLevel": "High"}`;
 
       const result = await model.generateContent(prompt);
       const response = await result.response;
@@ -58,6 +60,7 @@ export async function createSmartTask(formData: FormData) {
         const aiData = JSON.parse(response.text().replace(/```json|```/g, '').trim());
         priority = aiData.priority || 'Medium';
         category = aiData.category || 'אישי';
+        energyLevel = aiData.energyLevel || 'Medium';
       } catch (e) {
         console.warn("AI Smart classification failed, using defaults");
       }
@@ -70,6 +73,7 @@ export async function createSmartTask(formData: FormData) {
       title: title.trim(),
       category,
       priority,
+      energyLevel,
       status: 'Todo',
       subtasks: [],
     };
@@ -353,5 +357,93 @@ export async function createRecurringFromTask(taskId: string) {
     }
   } catch (error) {
     console.error('Error creating recurring task:', error);
+  }
+}
+
+/**
+ * AI Task Clustering: Group related tasks into projects
+ */
+export async function autoClusterTasks() {
+  try {
+    await connectDB();
+    const tasks = await Task.find({ status: { $ne: 'Done' } }).lean();
+    if (tasks.length < 3) return;
+
+    const taskList = tasks.map((t: any) => ({ id: t._id, title: t.title }));
+    const prompt = `Here is a list of tasks: ${JSON.stringify(taskList)}. 
+    Group them into logical projects/clusters based on their meaning. 
+    Return ONLY a JSON array of objects like this: [{"projectId": "Project Name", "taskIds": ["id1", "id2"]}]
+    Limit to 3 clusters max. Use Hebrew for project names.`;
+
+    const result = await model.generateContent(prompt);
+    const clusters = JSON.parse(result.response.text().replace(/```json|```/g, '').trim());
+
+    if (Array.isArray(clusters)) {
+      for (const cluster of clusters) {
+        await Task.updateMany(
+          { _id: { $in: cluster.taskIds } },
+          { projectId: cluster.projectId }
+        );
+      }
+    }
+    revalidatePath('/');
+    return { success: true };
+  } catch (error) {
+    console.error('Error in clustering:', error);
+    return { success: false };
+  }
+}
+
+/**
+ * AI Energy Analysis: Recommends tasks based on time of day / user energy
+ */
+export async function getEnergyInsights() {
+  try {
+    const hour = new Date().getHours();
+    const isMorning = hour >= 5 && hour < 12;
+    const isAfternoon = hour >= 12 && hour < 18;
+
+    await connectDB();
+    const tasks = await Task.find({ status: { $ne: 'Done' } }).lean();
+
+    let recommendation = "";
+    if (isMorning) {
+      const deepWorkTasks = tasks.filter((t: any) => t.energyLevel === 'High');
+      recommendation = deepWorkTasks.length > 0
+        ? `בוקר טוב! זה הזמן ל-Deep Work. המשימות ${deepWorkTasks.slice(0, 2).map((t: any) => t.title).join(', ')} דורשות ריכוז גבוה.`
+        : "בוקר טוב! רמת האנרגיה שלך בשיא, אולי כדאי להוסיף משימה מאתגרת?";
+    } else if (isAfternoon) {
+      recommendation = "צהריים טובים. מומלץ להתמקד במשימות Low Energy כמו אדמיניסטרציה או תכתובות.";
+    } else {
+      recommendation = "ערב טוב. זמן מצוין לתכנון המשימות של מחר או סגירת קצוות קטנים.";
+    }
+
+    return recommendation;
+  } catch (error) {
+    return "שמור על קצב עבודה קבוע!";
+  }
+}
+
+/**
+ * AI Bottleneck Detector
+ */
+export async function getBottleneckAlerts() {
+  try {
+    await connectDB();
+    const tasks = await Task.find({ status: { $ne: 'Done' } }).lean();
+
+    const highPriority = tasks.filter((t: any) => t.priority === 'High');
+    if (highPriority.length > 5) {
+      return `אזהרת עומס: יש לך ${highPriority.length} משימות בעדיפות גבוהה! שקול לדחות חלק מהן כדי למנוע שחיקה.`;
+    }
+
+    const overdue = tasks.filter((t: any) => t.dueDate && new Date(t.dueDate) < new Date());
+    if (overdue.length > 0) {
+      return `שים לב: יש לך ${overdue.length} משימות בפיגור. כדאי לטפל בהן קודם.`;
+    }
+
+    return null;
+  } catch (error) {
+    return null;
   }
 }

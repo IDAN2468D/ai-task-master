@@ -11,7 +11,7 @@ import dynamic from 'next/dynamic';
 const TaskDetailModal = dynamic(() => import('./TaskDetailModal'), { ssr: false });
 
 interface Task {
-    _id: string; title: string; status: 'Todo' | 'InProgress' | 'Done'; priority: 'Low' | 'Medium' | 'High'; category: string; dueDate?: string; subtasks: any[]; tags?: { name: string; color: string }[]; description?: string; createdAt: string;
+    _id: string; title: string; status: 'Todo' | 'InProgress' | 'Done'; priority: 'Low' | 'Medium' | 'High'; category: string; dueDate?: string; subtasks: any[]; tags?: { name: string; color: string }[]; description?: string; createdAt: string; energyLevel?: string; projectId?: string;
 }
 
 export default function TaskItem({ task }: { task: Task }) {
@@ -58,6 +58,18 @@ export default function TaskItem({ task }: { task: Task }) {
                                 {tag.name}
                             </span>
                         ))}
+                        {task.projectId && (
+                            <span className="px-2 py-1 bg-emerald-100 dark:bg-emerald-900/50 text-emerald-600 dark:text-emerald-300 rounded-lg text-[8px] font-black uppercase">
+                                📁 {task.projectId}
+                            </span>
+                        )}
+                        {task.energyLevel && (
+                            <span className={`px-2 py-1 rounded-lg text-[8px] font-black uppercase ${task.energyLevel === 'High' ? 'bg-orange-100 text-orange-600' :
+                                    task.energyLevel === 'Medium' ? 'bg-blue-100 text-blue-600' : 'bg-slate-100 text-slate-600'
+                                }`}>
+                                ⚡ {task.energyLevel}
+                            </span>
+                        )}
                         {(task.tags?.length || 0) > 2 && (
                             <span className="text-[8px] font-bold text-slate-400">+{(task.tags?.length || 0) - 2}</span>
                         )}

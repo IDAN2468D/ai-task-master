@@ -7,7 +7,7 @@ import KanbanBoard from '@/components/KanbanBoard';
 import DashboardStats from '@/components/DashboardStats';
 import AddTaskForm from '@/components/AddTaskForm';
 import SearchFilterBar from '@/components/SearchFilterBar';
-import { LazyFocusMode, LazyTaskExport, LazyStreakTracker, LazyAchievementBadges, LazyGoalsTracker, LazyWellnessWidget, LazySmartReminders } from '@/components/LazyClientWrappers';
+import { LazyFocusMode, LazyTaskExport, LazyStreakTracker, LazyAchievementBadges, LazyGoalsTracker, LazyWellnessWidget, LazySmartReminders, LazySmartAIPanel } from '@/components/LazyClientWrappers';
 
 export const dynamic = 'force-dynamic';
 
@@ -52,6 +52,9 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
                         </div>
                     </div>
                 </div>
+
+                {/* Smart AI Intelligence Panel */}
+                <LazySmartAIPanel tasks={tasks} />
 
                 {/* Smart Reminders */}
                 <LazySmartReminders tasks={tasks} />

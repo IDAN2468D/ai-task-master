@@ -10,6 +10,7 @@ const AchievementBadges = dynamic(() => import('./AchievementBadges'), { ssr: fa
 const GoalsTracker = dynamic(() => import('./GoalsTracker'), { ssr: false });
 const WellnessWidget = dynamic(() => import('./WellnessWidget'), { ssr: false });
 const SmartReminders = dynamic(() => import('./SmartReminders'), { ssr: false });
+const SmartAIPanel = dynamic(() => import('./SmartAIPanel'), { ssr: false });
 
 interface Task {
     _id: string;
@@ -50,4 +51,8 @@ export function LazyWellnessWidget() {
 
 export function LazySmartReminders({ tasks }: { tasks: Task[] }) {
     return <SmartReminders tasks={tasks} />;
+}
+
+export function LazySmartAIPanel({ tasks }: { tasks: any[] }) {
+    return <SmartAIPanel tasks={tasks} />;
 }

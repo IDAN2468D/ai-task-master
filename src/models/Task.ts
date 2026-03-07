@@ -23,6 +23,9 @@ export interface ITask extends Document {
     dueDate?: Date;
     subtasks: ISubtask[];
     tags: ITag[];
+    energyLevel?: 'Low' | 'Medium' | 'High'; // AI-driven energy requirement
+    estimatedHours?: number;
+    projectId?: string; // For automated clustering
     recurring?: {
         enabled: boolean;
         frequency: 'daily' | 'weekly' | 'monthly';
@@ -83,6 +86,19 @@ const TaskSchema: Schema<ITask> = new Schema({
         nextDue: { type: Date },
     },
     userId: {
+        type: String,
+        required: false,
+    },
+    energyLevel: {
+        type: String,
+        enum: ['Low', 'Medium', 'High'],
+        default: 'Medium',
+    },
+    estimatedHours: {
+        type: Number,
+        default: 1,
+    },
+    projectId: {
         type: String,
         required: false,
     },
