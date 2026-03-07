@@ -158,9 +158,45 @@ function AccountSettings({ user }: { user: { name: string, email: string, image?
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
+            // Validate file size (e.g., max 5MB for the original)
+            if (file.size > 5 * 1024 * 1024) {
+                alert('הקובץ גדול מדי. נא לבחור תמונה קטנה מ-5MB.');
+                return;
+            }
+
             const reader = new FileReader();
             reader.onloadend = () => {
-                setImage(reader.result as string);
+                const img = new Image();
+                img.onload = () => {
+                    // Create canvas for compression
+                    const canvas = document.createElement('canvas');
+                    let width = img.width;
+                    let height = img.height;
+
+                    // Resize to max 400px (plenty for a profile pic)
+                    const MAX_SIZE = 400;
+                    if (width > height) {
+                        if (width > MAX_SIZE) {
+                            height *= MAX_SIZE / width;
+                            width = MAX_SIZE;
+                        }
+                    } else {
+                        if (height > MAX_SIZE) {
+                            width *= MAX_SIZE / height;
+                            height = MAX_SIZE;
+                        }
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx?.drawImage(img, 0, 0, width, height);
+
+                    // Compress to JPEG with 0.7 quality
+                    const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
+                    setImage(compressedBase64);
+                };
+                img.src = reader.result as string;
             };
             reader.readAsDataURL(file);
         }
