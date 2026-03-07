@@ -44,8 +44,9 @@ export default function TaskExport({ tasks }: { tasks: Task[] }) {
 
         if (result.success) {
             setStatus({ type: 'success', message: 'נשמר בהצלחה ב-Google Drive!' });
-            // Optionally open the file link
-            // window.open(result.link, '_blank');
+            if (result.link) {
+                window.open(result.link, '_blank');
+            }
         } else {
             setStatus({ type: 'error', message: result.error || 'שגיאה בשמירה ל-Drive' });
         }
