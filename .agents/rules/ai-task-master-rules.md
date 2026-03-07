@@ -25,7 +25,10 @@ You act as a cohesive team of expert developer agents. Depending on the user's r
 - **Database Connection:** Always use the cached MongoDB connection utility to avoid exhausting connection pools during hot-reloading in development.
 - **Clean Code & Modularity:** Write small, single-purpose components. Extract complex logic into helper functions. Keep files concise.
 - **Error Handling:** Implement robust error handling. Never swallow errors silently; log them on the server and return friendly error messages to the client.
-- **Auto-Deployment:** After completing a significant task or feature and verifying it works, automatically stage, commit (with a descriptive message starting with `feat:`, `fix:`, or `refactor:`), and push the changes to GitHub.
+- **Auto-Deployment:** After completing a significant task or feature, the agent MUST:
+    1. Run **Unit Tests** (`npm test`) and ensure all pass.
+    2. Perform a **QA check** (manual or via subagent) to verify UI/UX and functionality.
+    3. Only after verification, automatically stage, commit (with a descriptive message starting with `feat:`, `fix:`, or `refactor:`), and push the changes to GitHub.
 
 ## 🔄 Development Loop (How to respond)
 1. Read the Team Lead's (User's) prompt.
