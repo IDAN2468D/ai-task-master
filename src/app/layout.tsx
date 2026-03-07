@@ -22,7 +22,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="he" dir="rtl">
+    <html lang="he" dir="rtl" suppressHydrationWarning>
       <body className={`${rubik.variable} font-sans antialiased bg-slate-50 dark:bg-[#0B1437]`}>
         <ClientOnly>
           <TopNav />

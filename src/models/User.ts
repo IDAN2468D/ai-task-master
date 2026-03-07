@@ -4,6 +4,11 @@ export interface IUser extends Document {
     name: string;
     email: string;
     password: string;
+    googleTokens?: {
+        accessToken: string;
+        refreshToken: string;
+        expiryDate: number;
+    };
     createdAt: Date;
 }
 
@@ -26,6 +31,11 @@ const UserSchema: Schema<IUser> = new Schema({
         type: String,
         required: [true, 'Please provide a password.'],
         minlength: 6,
+    },
+    googleTokens: {
+        accessToken: String,
+        refreshToken: String,
+        expiryDate: Number,
     },
     createdAt: {
         type: Date,

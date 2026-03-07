@@ -7,10 +7,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 export default function WellnessWidget() {
     const [isOpen, setIsOpen] = useState(false);
     const [breathPhase, setBreathPhase] = useState<'in' | 'hold' | 'out' | 'idle'>('idle');
-    const [breathCount, setBreathCount] = useState(0);
+    const [, setBreathCount] = useState(0);
     const [activeMinutes, setActiveMinutes] = useState(0);
     const [showReminder, setShowReminder] = useState(false);
-    const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
     // Track active minutes
     useEffect(() => {

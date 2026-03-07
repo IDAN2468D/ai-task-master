@@ -1,6 +1,6 @@
 'use client';
 
-import { useTransition, useState } from 'react';
+import { useTransition } from 'react';
 import {
     createSmartTask,
     updateTaskStatus,
@@ -82,7 +82,7 @@ export function useTaskFlow() {
             try {
                 const result = await smartBreakdown(id);
                 return result || "ניתוח ה-AI הושלם.";
-            } catch (error) {
+            } catch (_error) {
                 addToast("נכשלו ניתוח המשימה ע״י AI", 'error');
                 return "";
             }

@@ -5,12 +5,13 @@ import {
     Globe, Monitor, Smartphone, Moon, Sun, Palette, Languages, Clock, Calendar,
     BellRing, BellOff, MessageSquare, Zap, AlertTriangle, Trophy,
     Lock, Key, Eye, EyeOff, Fingerprint, ShieldCheck, History, Trash2,
-    Crown, Star, Rocket, Check, ArrowLeft, Download, BarChart3, Heart
+    Crown, Star, Rocket, Check, ArrowLeft, Download, BarChart3, Heart, HardDrive
 } from 'lucide-react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import { logoutUser } from '@/actions/authActions';
+import { disconnectGoogleDrive, isGoogleConnected, getGoogleAuthUrl } from '@/actions/googleDriveActions';
 
 // ─── Toggle Switch Component ───
 function Toggle({ enabled, onToggle, size = 'md' }: { enabled: boolean; onToggle: () => void; size?: 'md' | 'sm' }) {
@@ -132,12 +133,48 @@ export default function ProfileClient({ user }: { user: { name: string, email: s
 // 1. ACCOUNT SETTINGS (existing)
 // ═══════════════════════════════════════════
 function AccountSettings({ user }: { user: { name: string, email: string } }) {
+    const [isDriveConnected, setIsDriveConnected] = useState(false);
     const firstName = user.name.split(' ')[0] || user.name;
     const lastName = user.name.split(' ').slice(1).join(' ') || '';
+
+    useEffect(() => {
+        isGoogleConnected().then(setIsDriveConnected);
+    }, []);
+
+    const handleToggleDrive = async () => {
+        if (isDriveConnected) {
+            await disconnectGoogleDrive();
+            setIsDriveConnected(false);
+        } else {
+            const url = await getGoogleAuthUrl();
+            window.location.href = url;
+        }
+    };
 
     return (
         <div className="space-y-10 relative z-10">
             <SectionHeader title="פרופיל ציבורי" subtitle="זה יוצג בסביבת העבודה שלך." />
+
+            {/* Google Drive Status */}
+            <div className="p-6 bg-[#4318FF]/5 border border-[#4318FF]/20 rounded-3xl flex items-center justify-between gap-6 mb-8">
+                <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-white dark:bg-[#111C44] rounded-2xl flex items-center justify-center shadow-sm">
+                        <HardDrive className={`w-6 h-6 ${isDriveConnected ? 'text-[#4318FF]' : 'text-slate-400'}`} />
+                    </div>
+                    <div>
+                        <h4 className="text-sm font-black text-slate-800 dark:text-white">חיבור ל-Google Drive</h4>
+                        <p className="text-[11px] font-bold text-slate-500">
+                            {isDriveConnected ? 'מחובר - ניתן לייצא משימות ישירות לענן' : 'לא מחובר - חבר כדי לגבות ולייצא משימות'}
+                        </p>
+                    </div>
+                </div>
+                <button
+                    onClick={handleToggleDrive}
+                    className={`px-5 py-2.5 rounded-xl font-bold text-xs transition-all ${isDriveConnected ? 'bg-red-50 text-red-600 border border-red-200 hover:bg-red-100' : 'bg-[#4318FF] text-white shadow-lg shadow-[#4318FF]/20 hover:-translate-y-0.5'}`}
+                >
+                    {isDriveConnected ? 'נתק חיבור' : 'חבר עכשיו'}
+                </button>
+            </div>
 
             <div className="flex items-center gap-8">
                 <div className="w-24 h-24 rounded-3xl bg-gradient-stat-2 flex items-center justify-center text-3xl font-black text-white shadow-xl shadow-[#00E5FF]/30 relative group cursor-pointer">
