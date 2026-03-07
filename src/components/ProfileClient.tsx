@@ -828,6 +828,29 @@ function BillingSettings() {
         },
     ];
 
+    const handleDownloadInvoice = (invoiceId: string, date: string, amount: string) => {
+        const content = `
+TAASKFLOW INVOICE
+-----------------
+Invoice Number: ${invoiceId}
+Billing Date: ${date}
+Amount Paid: ${amount}
+Status: PAID
+        
+Thank you for using TaskFlow Pro!
+        `.trim();
+
+        const blob = new Blob([content], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `Invoice-${invoiceId}.txt`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    };
+
     return (
         <div className="space-y-8 relative z-10">
             <SectionHeader title="חיוב ותוכנית" subtitle="נהל את המנוי שלך ובחר את התוכנית המתאימה." />
@@ -928,7 +951,10 @@ function BillingSettings() {
                         <History className="w-3 h-3" /> היסטוריית חיובים
                     </p>
                     <button
-                        onClick={() => alert('מפיק קובץ להורדה...')}
+                        onClick={() => {
+                            alert('מוריד דוח שנתי...');
+                            handleDownloadInvoice('ANNUAL-2026', '01/01/2026', '₪348.00');
+                        }}
                         className="text-xs font-bold text-[#4318FF] hover:underline flex items-center gap-1"
                     >
                         <Download className="w-3 h-3" /> הורד הכל
@@ -952,8 +978,8 @@ function BillingSettings() {
                                 <span className="text-sm font-black text-slate-800 dark:text-white">{bill.amount}</span>
                                 <span className="text-[10px] font-black px-2 py-0.5 bg-emerald-500/10 text-emerald-600 rounded-md">{bill.status}</span>
                                 <button
-                                    onClick={() => alert('מוריד חשבונית...')}
-                                    className="text-[#4318FF] hover:bg-[#4318FF]/10 p-1.5 rounded-lg transition-colors"
+                                    onClick={() => handleDownloadInvoice(bill.invoice, bill.date, bill.amount)}
+                                    className="text-[#4318FF] hover:bg-[#4318FF]/10 p-1.5 rounded-lg transition-colors border-none"
                                 >
                                     <Download className="w-3 h-3" />
                                 </button>
