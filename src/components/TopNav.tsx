@@ -3,15 +3,24 @@
 import { Rocket, User, Menu, X, ArrowLeft, LogOut } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { logoutUser } from '@/actions/authActions';
+import { logoutUser, getCurrentUser } from '@/actions/authActions';
 import DarkModeToggle from './DarkModeToggle';
 import ThemeSwitcher from './ThemeSwitcher';
 
 export default function TopNav() {
     const pathname = usePathname();
     const [isOpen, setIsOpen] = useState(false);
+    const [user, setUser] = useState<{ name: string, image?: string } | null>(null);
+
+    useEffect(() => {
+        const fetchUser = async () => {
+            const u = await getCurrentUser();
+            setUser(u);
+        };
+        fetchUser();
+    }, [pathname]);
 
     // Hide nav on auth pages and profile page
     const hiddenPages = ['/login', '/register', '/profile'];
@@ -63,8 +72,12 @@ export default function TopNav() {
                         <DarkModeToggle />
 
                         {/* Desktop: Profile icon */}
-                        <Link href="/profile" className="hidden md:flex w-10 h-10 rounded-full bg-indigo-100 dark:bg-indigo-900/40 items-center justify-center text-[#4318FF] dark:text-indigo-400 cursor-pointer shadow-[0_0_15px_rgba(67,24,255,0.2)] transition-transform hover:scale-105">
-                            <User className="w-5 h-5" />
+                        <Link href="/profile" className="hidden md:flex w-10 h-10 rounded-full bg-indigo-100 dark:bg-indigo-900/40 items-center justify-center text-[#4318FF] dark:text-indigo-400 cursor-pointer shadow-[0_0_15px_rgba(67,24,255,0.2)] transition-transform hover:scale-105 overflow-hidden">
+                            {user?.image ? (
+                                <img src={user.image} alt={user.name} className="w-full h-full object-cover" />
+                            ) : (
+                                <User className="w-5 h-5" />
+                            )}
                         </Link>
 
                         {/* Mobile: Hamburger only */}
@@ -104,7 +117,13 @@ export default function TopNav() {
                                 onClick={() => setIsOpen(false)}
                                 className="flex items-center justify-center gap-3 text-2xl font-black text-slate-800 dark:text-white hover:text-[#4318FF] transition-colors"
                             >
-                                <User className="w-6 h-6 text-[#4318FF]" />
+                                <div className="w-10 h-10 rounded-full bg-indigo-100 dark:bg-indigo-900/40 flex items-center justify-center overflow-hidden">
+                                    {user?.image ? (
+                                        <img src={user.image} alt={user.name} className="w-full h-full object-cover" />
+                                    ) : (
+                                        <User className="w-6 h-6 text-[#4318FF]" />
+                                    )}
+                                </div>
                                 הפרופיל שלי <ArrowLeft className="w-5 h-5 text-slate-400" />
                             </Link>
                             <form action={logoutUser}>

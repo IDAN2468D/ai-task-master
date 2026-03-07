@@ -9,6 +9,7 @@ export interface IUser extends Document {
         refreshToken: string;
         expiryDate: number;
     };
+    image?: string;
     createdAt: Date;
 }
 
@@ -31,6 +32,10 @@ const UserSchema: Schema<IUser> = new Schema({
         type: String,
         required: [true, 'Please provide a password.'],
         minlength: 6,
+    },
+    image: {
+        type: String,
+        required: false,
     },
     googleTokens: {
         accessToken: String,

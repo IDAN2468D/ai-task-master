@@ -59,6 +59,7 @@ export async function registerUser(formData: FormData) {
             userId: user._id.toString(),
             name: user.name,
             email: user.email,
+            image: user.image || null,
         }), {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
@@ -105,6 +106,7 @@ export async function loginUser(formData: FormData) {
             userId: user._id.toString(),
             name: user.name,
             email: user.email,
+            image: user.image || null,
         }), {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
@@ -146,8 +148,49 @@ export async function getCurrentUser() {
         }
 
         const session = JSON.parse(sessionCookie.value);
-        return session as { userId: string; name: string; email: string };
+        return session as { userId: string; name: string; email: string; image?: string };
     } catch {
         return null;
+    }
+}
+// ========================
+// UPDATE PROFILE
+// ========================
+export async function updateProfile(formData: FormData) {
+    const name = formData.get('name') as string;
+    const image = formData.get('image') as string; // Expecting base64 string or URL
+
+    try {
+        const session = await getCurrentUser();
+        if (!session) return { error: 'Not authenticated' };
+
+        await connectDB();
+        const user = await User.findById(session.userId);
+        if (!user) return { error: 'User not found' };
+
+        if (name) user.name = name;
+        if (image !== undefined) user.image = image;
+
+        await user.save();
+
+        // Update session cookie
+        const cookieStore = await cookies();
+        cookieStore.set('session', JSON.stringify({
+            userId: user._id.toString(),
+            name: user.name,
+            email: user.email,
+            image: user.image || null,
+        }), {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax',
+            maxAge: 60 * 60 * 24 * 7,
+            path: '/',
+        });
+
+        return { success: true };
+    } catch (err: any) {
+        console.error('Update profile error:', err);
+        return { error: 'Failed to update profile.' };
     }
 }

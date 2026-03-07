@@ -10,7 +10,7 @@ import {
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
-import { logoutUser } from '@/actions/authActions';
+import { logoutUser, updateProfile } from '@/actions/authActions';
 import { disconnectGoogleDrive, isGoogleConnected, getGoogleAuthUrl } from '@/actions/googleDriveActions';
 
 // ─── Toggle Switch Component ───
@@ -57,7 +57,7 @@ function SettingRow({ icon: Icon, iconColor, title, subtitle, children }: {
     );
 }
 
-export default function ProfileClient({ user }: { user: { name: string, email: string } }) {
+export default function ProfileClient({ user }: { user: { name: string, email: string, image?: string } }) {
     const [activeTab, setActiveTab] = useState('account');
 
     const tabs = [
@@ -132,10 +132,14 @@ export default function ProfileClient({ user }: { user: { name: string, email: s
 // ═══════════════════════════════════════════
 // 1. ACCOUNT SETTINGS (existing)
 // ═══════════════════════════════════════════
-function AccountSettings({ user }: { user: { name: string, email: string } }) {
+function AccountSettings({ user }: { user: { name: string, email: string, image?: string } }) {
     const [isDriveConnected, setIsDriveConnected] = useState(false);
-    const firstName = user.name.split(' ')[0] || user.name;
-    const lastName = user.name.split(' ').slice(1).join(' ') || '';
+    const [name, setName] = useState(user.name);
+    const [image, setImage] = useState(user.image || '');
+    const [isSaving, setIsSaving] = useState(false);
+
+    const firstName = name.split(' ')[0] || '';
+    const lastName = name.split(' ').slice(1).join(' ') || '';
 
     useEffect(() => {
         isGoogleConnected().then(setIsDriveConnected);
@@ -149,6 +153,32 @@ function AccountSettings({ user }: { user: { name: string, email: string } }) {
             const url = await getGoogleAuthUrl();
             window.location.href = url;
         }
+    };
+
+    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setImage(reader.result as string);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const handleSaveProfile = async () => {
+        setIsSaving(true);
+        const formData = new FormData();
+        formData.append('name', name);
+        formData.append('image', image);
+
+        const result = await updateProfile(formData);
+        if (result.success) {
+            alert('הפרופיל עודכן בהצלחה! ✨');
+        } else {
+            alert('שגיאה בעדכון הפרופיל: ' + result.error);
+        }
+        setIsSaving(false);
     };
 
     return (
@@ -177,39 +207,82 @@ function AccountSettings({ user }: { user: { name: string, email: string } }) {
             </div>
 
             <div className="flex items-center gap-8">
-                <div className="w-24 h-24 rounded-3xl bg-gradient-stat-2 flex items-center justify-center text-3xl font-black text-white shadow-xl shadow-[#00E5FF]/30 relative group cursor-pointer">
-                    {user.name.charAt(0)}
+                <input type="file" id="profile-image" hidden accept="image/*" onChange={handleImageChange} />
+                <div
+                    onClick={() => document.getElementById('profile-image')?.click()}
+                    className="w-24 h-24 rounded-3xl bg-gradient-stat-2 flex items-center justify-center text-3xl font-black text-white shadow-xl shadow-[#00E5FF]/30 relative group cursor-pointer overflow-hidden"
+                >
+                    {image ? (
+                        <img src={image} alt={name} className="w-full h-full object-cover" />
+                    ) : (
+                        user.name.charAt(0)
+                    )}
                     <div className="absolute inset-0 bg-black/40 rounded-3xl opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
                         <User className="w-8 h-8 text-white" />
                     </div>
                 </div>
                 <div className="flex gap-3">
-                    <button className="px-6 py-2.5 bg-[#4318FF] text-white font-bold text-sm rounded-xl hover:shadow-[0_10px_20px_rgba(67,24,255,0.3)] hover:-translate-y-0.5 transition-all">שנה תמונה</button>
-                    <button className="px-6 py-2.5 bg-slate-100 dark:bg-[#111C44] text-slate-700 dark:text-slate-300 font-bold text-sm rounded-xl hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors">הסר</button>
+                    <button
+                        onClick={() => document.getElementById('profile-image')?.click()}
+                        className="px-6 py-2.5 bg-[#4318FF] text-white font-bold text-sm rounded-xl hover:shadow-[0_10px_20px_rgba(67,24,255,0.3)] hover:-translate-y-0.5 transition-all"
+                    >
+                        שנה תמונה
+                    </button>
+                    <button
+                        onClick={() => setImage('')}
+                        className="px-6 py-2.5 bg-slate-100 dark:bg-[#111C44] text-slate-700 dark:text-slate-300 font-bold text-sm rounded-xl hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors"
+                    >
+                        הסר
+                    </button>
                 </div>
             </div>
 
             <div className="grid md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                     <label className="text-[11px] font-black uppercase tracking-widest text-slate-500 mr-1">שם פרטי</label>
-                    <input type="text" defaultValue={firstName} className="w-full px-5 py-4 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-white/10 rounded-2xl focus:border-[#4318FF] text-slate-800 dark:text-white font-bold text-sm focus:outline-none transition-colors shadow-inner" />
+                    <input
+                        type="text"
+                        value={firstName}
+                        onChange={(e) => {
+                            const newFirstName = e.target.value;
+                            setName(`${newFirstName} ${lastName}`);
+                        }}
+                        className="w-full px-5 py-4 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-white/10 rounded-2xl focus:border-[#4318FF] text-slate-800 dark:text-white font-bold text-sm focus:outline-none transition-colors shadow-inner"
+                    />
                 </div>
                 <div className="space-y-2">
                     <label className="text-[11px] font-black uppercase tracking-widest text-slate-500 mr-1">שם משפחה</label>
-                    <input type="text" defaultValue={lastName} className="w-full px-5 py-4 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-white/10 rounded-2xl focus:border-[#4318FF] text-slate-800 dark:text-white font-bold text-sm focus:outline-none transition-colors shadow-inner" />
+                    <input
+                        type="text"
+                        value={lastName}
+                        onChange={(e) => {
+                            const newLastName = e.target.value;
+                            setName(`${firstName} ${newLastName}`);
+                        }}
+                        className="w-full px-5 py-4 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-white/10 rounded-2xl focus:border-[#4318FF] text-slate-800 dark:text-white font-bold text-sm focus:outline-none transition-colors shadow-inner"
+                    />
                 </div>
                 <div className="space-y-2 md:col-span-2">
                     <label className="text-[11px] font-black uppercase tracking-widest text-slate-500 mr-1">חיבור אימייל</label>
                     <div className="relative">
                         <Mail className="absolute right-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-                        <input type="email" defaultValue={user.email} className="w-full pr-12 pl-5 py-4 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-white/10 rounded-2xl focus:border-[#4318FF] text-slate-800 dark:text-white font-bold text-sm focus:outline-none transition-colors shadow-inner" />
+                        <input type="email" value={user.email} disabled className="w-full pr-12 pl-5 py-4 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-white/10 rounded-2xl text-slate-400 font-bold text-sm focus:outline-none transition-colors shadow-inner grayscale" />
                     </div>
                 </div>
             </div>
 
             <div className="pt-6 border-t border-slate-100 dark:border-white/5 flex justify-start">
-                <button className="px-8 py-3.5 bg-gradient-stat-1 text-white font-black uppercase tracking-wider text-[11px] rounded-xl hover:shadow-[0_15px_30px_rgba(67,24,255,0.3)] hover:-translate-y-1 transition-all flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4" /> שמור שינויים
+                <button
+                    onClick={handleSaveProfile}
+                    disabled={isSaving}
+                    className="px-8 py-3.5 bg-gradient-stat-1 text-white font-black uppercase tracking-wider text-[11px] rounded-xl hover:shadow-[0_15px_30px_rgba(67,24,255,0.3)] hover:-translate-y-1 transition-all flex items-center gap-2 disabled:opacity-50"
+                >
+                    {isSaving ? (
+                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    ) : (
+                        <CheckCircle2 className="w-4 h-4" />
+                    )}
+                    שמור שינויים
                 </button>
             </div>
         </div>
