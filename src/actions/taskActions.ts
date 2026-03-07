@@ -447,3 +447,15 @@ export async function getBottleneckAlerts() {
     return null;
   }
 }
+
+export async function updateTaskDate(taskId: string, newDate: string | null) {
+  try {
+    await connectDB();
+    await Task.findByIdAndUpdate(taskId, { dueDate: newDate ? new Date(newDate) : null });
+    revalidatePath('/');
+    revalidatePath('/calendar');
+  } catch (error) {
+    console.error('Error updating task date:', error);
+    throw new Error('Failed to update task date');
+  }
+}
