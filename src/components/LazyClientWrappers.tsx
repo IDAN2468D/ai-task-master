@@ -3,14 +3,18 @@
 import dynamic from 'next/dynamic';
 
 // Lazy load these components - they use browser APIs and framer-motion
+const SmartReminders = dynamic(() => import('./SmartReminders'), { ssr: false });
+const SmartAIPanel = dynamic(() => import('./SmartAIPanel'), { ssr: false });
+const KanbanBoard = dynamic(() => import('./KanbanBoard'), { ssr: false });
+const DashboardStats = dynamic(() => import('./DashboardStats'), { ssr: false });
+const SearchFilterBar = dynamic(() => import('./SearchFilterBar'), { ssr: false });
+const AddTaskForm = dynamic(() => import('./AddTaskForm'), { ssr: false });
 const StreakTracker = dynamic(() => import('./StreakTracker'), { ssr: false });
 const FocusMode = dynamic(() => import('./FocusMode'), { ssr: false });
 const TaskExport = dynamic(() => import('./TaskExport'), { ssr: false });
 const AchievementBadges = dynamic(() => import('./AchievementBadges'), { ssr: false });
 const GoalsTracker = dynamic(() => import('./GoalsTracker'), { ssr: false });
 const WellnessWidget = dynamic(() => import('./WellnessWidget'), { ssr: false });
-const SmartReminders = dynamic(() => import('./SmartReminders'), { ssr: false });
-const SmartAIPanel = dynamic(() => import('./SmartAIPanel'), { ssr: false });
 
 interface Task {
     _id: string;
@@ -55,4 +59,20 @@ export function LazySmartReminders({ tasks }: { tasks: Task[] }) {
 
 export function LazySmartAIPanel({ tasks }: { tasks: any[] }) {
     return <SmartAIPanel tasks={tasks} />;
+}
+
+export function LazyKanbanBoard({ tasks }: { tasks: any[] }) {
+    return <KanbanBoard tasks={tasks} />;
+}
+
+export function LazyDashboardStats({ tasks }: { tasks: any[] }) {
+    return <DashboardStats tasks={tasks} />;
+}
+
+export function LazySearchFilterBar() {
+    return <SearchFilterBar />;
+}
+
+export function LazyAddTaskForm() {
+    return <AddTaskForm />;
 }

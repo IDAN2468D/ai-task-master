@@ -1,18 +1,14 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Rubik } from "next/font/google";
 import "./globals.css";
 import TopNav from "@/components/TopNav";
 import GlobalFloatingWidgets from "@/components/GlobalFloatingWidgets";
 import ClientOnly from "@/components/ClientOnly";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+const rubik = Rubik({
+  subsets: ["latin", "hebrew"],
+  variable: "--font-rubik",
+  display: 'swap',
 });
 
 export const metadata: Metadata = {
@@ -27,7 +23,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="he" dir="rtl">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-slate-50 dark:bg-[#0B1437]`}>
+      <body className={`${rubik.variable} font-sans antialiased bg-slate-50 dark:bg-[#0B1437]`}>
         <ClientOnly>
           <TopNav />
           <GlobalFloatingWidgets />

@@ -3,11 +3,20 @@ import { getCurrentUser } from '@/actions/authActions';
 import { Lightbulb } from 'lucide-react';
 import { redirect } from 'next/navigation';
 import { Suspense } from 'react';
-import KanbanBoard from '@/components/KanbanBoard';
-import DashboardStats from '@/components/DashboardStats';
-import AddTaskForm from '@/components/AddTaskForm';
-import SearchFilterBar from '@/components/SearchFilterBar';
-import { LazyFocusMode, LazyTaskExport, LazyStreakTracker, LazyAchievementBadges, LazyGoalsTracker, LazyWellnessWidget, LazySmartReminders, LazySmartAIPanel } from '@/components/LazyClientWrappers';
+import {
+    LazyFocusMode,
+    LazyTaskExport,
+    LazyStreakTracker,
+    LazyAchievementBadges,
+    LazyGoalsTracker,
+    LazyWellnessWidget,
+    LazySmartReminders,
+    LazySmartAIPanel,
+    LazyKanbanBoard,
+    LazyDashboardStats,
+    LazySearchFilterBar,
+    LazyAddTaskForm
+} from '@/components/LazyClientWrappers';
 
 export const dynamic = 'force-dynamic';
 
@@ -67,7 +76,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
                         <div className="md:col-span-4 vibrant-card p-6 h-28 animate-pulse bg-slate-100 dark:bg-slate-800 rounded-2xl" />
                     </div>
                 }>
-                    <DashboardStats tasks={tasks} />
+                    <LazyDashboardStats tasks={tasks} />
                 </Suspense>
 
                 {/* Main Content Layout */}
@@ -77,7 +86,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
 
                         <div className="flex items-center justify-between">
                             <h3 className="text-2xl font-black text-slate-800 dark:text-white">לוח פעיל</h3>
-                            <SearchFilterBar />
+                            <LazySearchFilterBar />
                         </div>
 
                         {/* Vibrant Board */}
@@ -89,18 +98,17 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
                                 </div>
                             </div>
                         }>
-                            <KanbanBoard tasks={tasks} />
+                            <LazyKanbanBoard tasks={tasks} />
                         </Suspense>
                     </div>
 
                     <div className="lg:col-span-3 sticky top-28 space-y-6">
                         <h3 className="text-2xl font-black text-slate-800 dark:text-white">יצירה חדשה</h3>
-                        <AddTaskForm />
+                        <LazyAddTaskForm />
                         <LazyStreakTracker />
                     </div>
                 </div>
             </div>
-
         </main>
     );
 }
