@@ -1,41 +1,37 @@
 'use client';
 
-import { useFormStatus } from 'react-dom';
-import { createSmartTask } from '@/actions/taskActions';
 import { useRef, useState } from 'react';
 import { PlusCircle, Loader2, Sparkles, Calendar, Zap } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useTaskFlow } from '@/hooks/useTaskFlow';
 
-function SubmitButton({ useAI }: { useAI: boolean }) {
-    const { pending } = useFormStatus();
-
+function SubmitButton({ useAI, isPending }: { useAI: boolean, isPending: boolean }) {
     return (
         <button
             type="submit"
-            disabled={pending}
+            disabled={isPending}
             className={`group relative flex items-center justify-center gap-2 w-full py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] text-white overflow-hidden transition-all duration-300 shadow-xl
-        ${pending ? 'bg-slate-300 shadow-none cursor-not-allowed' : 'bg-gradient-stat-1 hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(67,24,255,0.3)]'}`}
+        ${isPending ? 'bg-slate-300 shadow-none cursor-not-allowed' : 'bg-gradient-stat-1 hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(67,24,255,0.3)]'}`}
         >
-            {pending ? (
+            {isPending ? (
                 <Loader2 className="w-5 h-5 animate-spin" />
             ) : (
                 useAI ? <Sparkles className="w-5 h-5 animate-pulse" /> : <PlusCircle className="w-5 h-5" />
             )}
-            <span className="text-sm">{pending ? 'יוצר...' : (useAI ? 'יצירה חכמה AI' : 'הוסף משימה')}</span>
+            <span className="text-sm">{isPending ? 'יוצר...' : (useAI ? 'יצירה חכמה AI' : 'הוסף משימה')}</span>
         </button>
     );
 }
 
 export default function AddTaskForm() {
+    const { createTask, isPending } = useTaskFlow();
     const formRef = useRef<HTMLFormElement>(null);
     const [useAI, setUseAI] = useState(true);
 
     const clientAction = async (formData: FormData) => {
-        try {
-            formData.append('useAI', useAI.toString());
-            await createSmartTask(formData);
-            formRef.current?.reset();
-        } catch (err) { alert('נכשל ביצירת המשימה.'); }
+        formData.append('useAI', useAI.toString());
+        await createTask(formData);
+        formRef.current?.reset();
     };
 
     return (
@@ -108,7 +104,7 @@ export default function AddTaskForm() {
                     </div>
                 </div>
 
-                <SubmitButton useAI={useAI} />
+                <SubmitButton useAI={useAI} isPending={isPending} />
             </form>
         </motion.div>
     );
