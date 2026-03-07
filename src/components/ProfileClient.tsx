@@ -14,6 +14,8 @@ import { useState, useEffect } from 'react';
 import { logoutUser, updateProfile } from '@/actions/authActions';
 import { disconnectGoogleDrive, isGoogleConnected, getGoogleAuthUrl } from '@/actions/googleDriveActions';
 
+import { useRouter } from 'next/navigation';
+
 // ─── Toggle Switch Component ───
 function Toggle({ enabled, onToggle, size = 'md' }: { enabled: boolean; onToggle: () => void; size?: 'md' | 'sm' }) {
     const sizes = {
@@ -60,6 +62,7 @@ function SettingRow({ icon: Icon, iconColor, title, subtitle, children }: {
 
 export default function ProfileClient({ user }: { user: { name: string, email: string, image?: string } }) {
     const [activeTab, setActiveTab] = useState('account');
+    const router = useRouter();
 
     const tabs = [
         { id: 'account', label: 'הפרופיל שלי', icon: User },
@@ -117,7 +120,7 @@ export default function ProfileClient({ user }: { user: { name: string, email: s
                         transition={{ duration: 0.3 }}
                         className="vibrant-card p-8 md:p-10 min-h-[600px] relative overflow-hidden"
                     >
-                        {activeTab === 'account' && <AccountSettings user={user} />}
+                        {activeTab === 'account' && <AccountSettings user={user} router={router} />}
                         {activeTab === 'preferences' && <PreferencesSettings />}
                         {activeTab === 'ai' && <AITuningSettings />}
                         {activeTab === 'notifications' && <NotificationsSettings />}
@@ -133,7 +136,7 @@ export default function ProfileClient({ user }: { user: { name: string, email: s
 // ═══════════════════════════════════════════
 // 1. ACCOUNT SETTINGS (existing)
 // ═══════════════════════════════════════════
-function AccountSettings({ user }: { user: { name: string, email: string, image?: string } }) {
+function AccountSettings({ user, router }: { user: { name: string, email: string, image?: string }, router: any }) {
     const [isDriveConnected, setIsDriveConnected] = useState(false);
     const [name, setName] = useState(user.name);
     const [image, setImage] = useState(user.image || '');
@@ -212,6 +215,7 @@ function AccountSettings({ user }: { user: { name: string, email: string, image?
         const result = await updateProfile(formData);
         if (result.success) {
             alert('הפרופיל עודכן בהצלחה! ✨');
+            router.refresh(); // Ensure the layout/server component reloads the new user data
         } else {
             alert('שגיאה בעדכון הפרופיל: ' + result.error);
         }
