@@ -5,8 +5,9 @@ import {
     Globe, Monitor, Smartphone, Moon, Sun, Palette, Languages, Clock, Calendar,
     BellRing, BellOff, MessageSquare, Zap, AlertTriangle, Trophy,
     Lock, Key, Eye, EyeOff, Fingerprint, ShieldCheck, History, Trash2,
-    Crown, Star, Rocket, Check, ArrowLeft, Download, BarChart3, Heart, HardDrive
+    Crown, Star, Rocket, Check, ArrowLeft, Download, BarChart3, Heart, HardDrive, X
 } from 'lucide-react';
+import { AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
@@ -806,6 +807,33 @@ function SecuritySettings({ user }: { user: { name: string; email: string } }) {
 // ═══════════════════════════════════════════
 function BillingSettings({ user }: { user: { name: string; email: string } }) {
     const [selectedPlan, setSelectedPlan] = useState('pro');
+    const [isChangingCard, setIsChangingCard] = useState(false);
+    const [cardInfo, setCardInfo] = useState({
+        last4: '4242',
+        expiry: '12/2027',
+        brand: 'VISA'
+    });
+    const [newCardData, setNewCardData] = useState({
+        number: '',
+        expiry: '',
+        cvv: ''
+    });
+
+    const handleUpdateCard = (e: React.FormEvent) => {
+        e.preventDefault();
+        // Simulation of card update
+        if (newCardData.number.length < 16) {
+            alert('נא להזין מספר כרטיס תקין');
+            return;
+        }
+        setCardInfo({
+            last4: newCardData.number.slice(-4),
+            expiry: newCardData.expiry,
+            brand: 'VISA' // Simplification for demo
+        });
+        setIsChangingCard(false);
+        alert('כרטיס האשראי עודכן בהצלחה! 💳');
+    };
 
     const plans = [
         {
@@ -949,20 +977,100 @@ https://ai-task-master-1i6f.onrender.com/support
                 </p>
                 <div className="p-5 bg-slate-50 dark:bg-slate-900/50 rounded-2xl border border-slate-200 dark:border-white/10 flex items-center justify-between">
                     <div className="flex items-center gap-4">
-                        <div className="w-14 h-10 bg-gradient-to-r from-blue-600 to-blue-800 rounded-lg flex items-center justify-center text-white font-black text-xs">VISA</div>
+                        <div className="w-14 h-10 bg-gradient-to-r from-blue-600 to-blue-800 rounded-lg flex items-center justify-center text-white font-black text-xs">{cardInfo.brand}</div>
                         <div>
-                            <p className="text-sm font-bold text-slate-800 dark:text-white">•••• •••• •••• 4242</p>
-                            <p className="text-[11px] font-bold text-slate-500">תוקף 12/2027</p>
+                            <p className="text-sm font-bold text-slate-800 dark:text-white">•••• •••• •••• {cardInfo.last4}</p>
+                            <p className="text-[11px] font-bold text-slate-500">תוקף {cardInfo.expiry}</p>
                         </div>
                     </div>
                     <button
-                        onClick={() => alert('אמצעי תשלום יעודכן בקרוב.')}
+                        onClick={() => setIsChangingCard(true)}
                         className="px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-xl text-xs font-black hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
                     >
                         שנה כרטיס
                     </button>
                 </div>
             </div>
+
+            {/* Change Card Modal */}
+            <AnimatePresence>
+                {isChangingCard && (
+                    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            onClick={() => setIsChangingCard(false)}
+                            className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
+                        />
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                            className="relative w-full max-w-md bg-white dark:bg-[#111C44] rounded-3xl shadow-2xl border border-slate-200 dark:border-white/10 overflow-hidden"
+                            dir="rtl"
+                        >
+                            <div className="p-8">
+                                <div className="flex items-center justify-between mb-6">
+                                    <h3 className="text-xl font-black text-slate-800 dark:text-white">עדכון אמצעי תשלום</h3>
+                                    <button onClick={() => setIsChangingCard(false)} className="p-2 hover:bg-slate-100 dark:hover:bg-white/5 rounded-xl transition-colors">
+                                        <X className="w-5 h-5 text-slate-400" />
+                                    </button>
+                                </div>
+
+                                <form onSubmit={handleUpdateCard} className="space-y-4">
+                                    <div className="space-y-1.5">
+                                        <label className="text-[11px] font-black uppercase text-slate-500 mr-1">מספר כרטיס</label>
+                                        <div className="relative">
+                                            <CreditCard className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                                            <input
+                                                type="text"
+                                                maxLength={16}
+                                                placeholder="0000 0000 0000 0000"
+                                                className="w-full pr-11 py-3.5 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-white/10 rounded-xl text-sm font-bold focus:outline-none focus:border-[#4318FF] transition-colors"
+                                                onChange={(e) => setNewCardData({ ...newCardData, number: e.target.value.replace(/\D/g, '') })}
+                                                required
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="space-y-1.5">
+                                            <label className="text-[11px] font-black uppercase text-slate-500 mr-1">תוקף (MM/YY)</label>
+                                            <input
+                                                type="text"
+                                                placeholder="MM/YY"
+                                                maxLength={5}
+                                                className="w-full px-4 py-3.5 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-white/10 rounded-xl text-sm font-bold focus:outline-none focus:border-[#4318FF] transition-colors"
+                                                onChange={(e) => setNewCardData({ ...newCardData, expiry: e.target.value })}
+                                                required
+                                            />
+                                        </div>
+                                        <div className="space-y-1.5">
+                                            <label className="text-[11px] font-black uppercase text-slate-500 mr-1">CVV</label>
+                                            <input
+                                                type="password"
+                                                placeholder="•••"
+                                                maxLength={3}
+                                                className="w-full px-4 py-3.5 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-white/10 rounded-xl text-sm font-bold focus:outline-none focus:border-[#4318FF] transition-colors"
+                                                onChange={(e) => setNewCardData({ ...newCardData, cvv: e.target.value })}
+                                                required
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <button
+                                        type="submit"
+                                        className="w-full mt-4 py-4 bg-gradient-to-r from-[#4318FF] to-[#7C3AED] text-white font-black rounded-2xl shadow-xl shadow-[#4318FF]/20 hover:-translate-y-1 transition-all"
+                                    >
+                                        עדכן כרטיס
+                                    </button>
+                                </form>
+                            </div>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
 
             {/* Billing History */}
             <div>
