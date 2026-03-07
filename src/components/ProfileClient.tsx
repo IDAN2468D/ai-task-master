@@ -829,26 +829,46 @@ function BillingSettings() {
     ];
 
     const handleDownloadInvoice = (invoiceId: string, date: string, amount: string) => {
+        // More professional invoice text
         const content = `
-TAASKFLOW INVOICE
------------------
-Invoice Number: ${invoiceId}
-Billing Date: ${date}
-Amount Paid: ${amount}
-Status: PAID
-        
-Thank you for using TaskFlow Pro!
-        `.trim();
+╔══════════════════════════════════════════════════════╗
+║                TASKFLOW - INVOICE                    ║
+╚══════════════════════════════════════════════════════╝
 
-        const blob = new Blob([content], { type: 'text/plain' });
+Invoice ID:    ${invoiceId}
+Dated:         ${date}
+Amount:        ${amount}
+Status:        PAID (COMPLETED)
+
+--------------------------------------------------------
+User:          ${user.name}
+Email:         ${user.email}
+Plan:          Pro Edition
+--------------------------------------------------------
+
+Thank you for being part of the TaskFlow family!
+For any queries, please visit: 
+https://ai-task-master-1i6f.onrender.com/support
+
+════════════════════════════════════════════════════════
+`.trim();
+
+        const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
         const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
+        const a = document.body.appendChild(document.createElement('a'));
         a.href = url;
         a.download = `Invoice-${invoiceId}.txt`;
-        document.body.appendChild(a);
+        a.style.display = 'none';
         a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
+
+        // Cleanup with delay to ensure download starts
+        setTimeout(() => {
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }, 100);
+
+        // Feedback
+        console.log(`Download triggered for ${invoiceId}`);
     };
 
     return (
@@ -952,7 +972,6 @@ Thank you for using TaskFlow Pro!
                     </p>
                     <button
                         onClick={() => {
-                            alert('מוריד דוח שנתי...');
                             handleDownloadInvoice('ANNUAL-2026', '01/01/2026', '₪348.00');
                         }}
                         className="text-xs font-bold text-[#4318FF] hover:underline flex items-center gap-1"
