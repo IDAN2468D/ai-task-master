@@ -31,6 +31,8 @@ export interface ITask extends Document {
         frequency: 'daily' | 'weekly' | 'monthly';
         nextDue?: Date;
     };
+    googleEventId?: string;
+    googleCalendarLink?: string;
     userId?: string;
     createdAt: Date;
 }
@@ -99,6 +101,14 @@ const TaskSchema: Schema<ITask> = new Schema({
         default: 1,
     },
     projectId: {
+        type: String,
+        required: false,
+    },
+    googleEventId: {
+        type: String,
+        required: false,
+    },
+    googleCalendarLink: {
         type: String,
         required: false,
     },

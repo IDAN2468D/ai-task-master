@@ -12,6 +12,7 @@ import {
     autoClusterTasks,
     smartBreakdown
 } from '@/actions/taskActions';
+import { syncTaskToCalendar } from '@/actions/googleCalendarActions';
 import { useToast } from '@/components/ToastNotifications';
 
 /**
@@ -77,6 +78,9 @@ export function useTaskFlow() {
         // Advanced AI Actions
         clusterTasks: () =>
             performAction(autoClusterTasks, [], "המשימות אורגנו מחדש לפרויקטים ע״י AI. 📂"),
+
+        syncToCalendar: (id: string, title: string) =>
+            performAction(syncTaskToCalendar, [id], `המשימה \"${title}\" סונכרנה ליומן Google! 📅`),
 
         getAnalysis: async (id: string): Promise<string> => {
             try {

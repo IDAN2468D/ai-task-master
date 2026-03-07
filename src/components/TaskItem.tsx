@@ -1,6 +1,6 @@
 'use client';
 
-import { Trash2, GripHorizontal, CheckSquare, Square, Sparkles, BrainCircuit, FastForward, Clock, Eye } from 'lucide-react';
+import { Trash2, GripHorizontal, CheckSquare, Square, Sparkles, BrainCircuit, FastForward, Clock, Eye, Calendar } from 'lucide-react';
 import { useState } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -15,7 +15,7 @@ interface Task {
 }
 
 export default function TaskItem({ task }: { task: Task }) {
-    const { isPending, removeTask, optimizeTitle, generateSubtasks, toggleSub, getAnalysis } = useTaskFlow();
+    const { isPending, removeTask, optimizeTitle, generateSubtasks, toggleSub, getAnalysis, syncToCalendar } = useTaskFlow();
     const [showSubtasks, setShowSubtasks] = useState(false);
     const [aiAdvice, setAiAdvice] = useState<string | null>(null);
     const [showDetail, setShowDetail] = useState(false);
@@ -124,6 +124,16 @@ export default function TaskItem({ task }: { task: Task }) {
                         <button onClick={handleAnalysis} disabled={isPending} className="p-1.5 text-orange-500 hover:bg-orange-100 dark:hover:bg-orange-900/40 rounded-lg transition-colors" title="עצת AI">
                             <BrainCircuit className="w-4 h-4" />
                         </button>
+                        {task.dueDate && (
+                            <button
+                                onClick={() => syncToCalendar(task._id, task.title)}
+                                disabled={isPending}
+                                className="p-1.5 text-emerald-500 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 rounded-lg transition-colors"
+                                title="סנכרן ליומן"
+                            >
+                                <Calendar className="w-4 h-4" />
+                            </button>
+                        )}
                     </div>
                     {task.dueDate && <div className="text-[10px] font-bold text-amber-500 flex items-center gap-1 bg-amber-50 dark:bg-amber-500/10 px-2 py-1 rounded-md"><Clock className="w-3 h-3" /> {new Date(task.dueDate).toLocaleDateString('he-IL')}</div>}
                 </div>
