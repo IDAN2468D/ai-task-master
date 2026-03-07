@@ -354,6 +354,7 @@ function PreferencesSettings() {
         localStorage.setItem('taskflow-preferences', JSON.stringify({
             language, dateFormat, startOfWeek, compactMode, animations, soundEffects, defaultView, defaultPriority
         }));
+        alert('ההעדפות נשמרו בהצלחה! ✨');
     };
 
     return (
@@ -456,6 +457,15 @@ function AITuningSettings() {
     const [autoSubtasks, setAutoSubtasks] = useState(true);
     const [personality, setPersonality] = useState('professional');
     const [dailySummary, setDailySummary] = useState(false);
+    const [isSaving, setIsSaving] = useState(false);
+
+    const handleSave = () => {
+        setIsSaving(true);
+        setTimeout(() => {
+            alert('הגדרות ה-AI עודכנו בהצלחה! 🧠');
+            setIsSaving(false);
+        }, 500);
+    };
 
     return (
         <div className="space-y-8 relative z-10">
@@ -503,6 +513,21 @@ function AITuningSettings() {
                 <input type="password" defaultValue="************************" readOnly className="w-full px-5 py-4 bg-slate-50 dark:bg-[#0B1437]/50 border border-slate-200 dark:border-white/10 rounded-2xl text-slate-500 font-mono text-sm focus:outline-none shadow-inner opacity-70" />
                 <p className="text-[10px] font-bold text-[#FF00E5] pr-1">מפתח ה-API מנוהל דרך משתני סביבה מאובטחים (.env).</p>
             </div>
+
+            <div className="pt-6 border-t border-slate-100 dark:border-white/5 flex justify-start">
+                <button
+                    onClick={handleSave}
+                    disabled={isSaving}
+                    className="px-8 py-3.5 bg-gradient-stat-2 text-white font-black uppercase tracking-wider text-[11px] rounded-xl hover:shadow-[0_15px_30px_rgba(0,229,255,0.3)] hover:-translate-y-1 transition-all flex items-center gap-2 disabled:opacity-50"
+                >
+                    {isSaving ? (
+                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    ) : (
+                        <CheckCircle2 className="w-4 h-4" />
+                    )}
+                    שמור הגדרות AI
+                </button>
+            </div>
         </div>
     );
 }
@@ -522,6 +547,15 @@ function NotificationsSettings() {
     const [reminderTime, setReminderTime] = useState('09:00');
     const [quietStart, setQuietStart] = useState('22:00');
     const [quietEnd, setQuietEnd] = useState('08:00');
+    const [isSaving, setIsSaving] = useState(false);
+
+    const handleSave = () => {
+        setIsSaving(true);
+        setTimeout(() => {
+            alert('הגדרות ההתראות נשמרו! 🔔');
+            setIsSaving(false);
+        }, 500);
+    };
 
     return (
         <div className="space-y-8 relative z-10">
@@ -614,8 +648,17 @@ function NotificationsSettings() {
             </div>
 
             <div className="pt-6 border-t border-slate-100 dark:border-white/5 flex justify-start">
-                <button className="px-8 py-3.5 bg-gradient-stat-1 text-white font-black uppercase tracking-wider text-[11px] rounded-xl hover:shadow-[0_15px_30px_rgba(67,24,255,0.3)] hover:-translate-y-1 transition-all flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4" /> שמור הגדרות
+                <button
+                    onClick={handleSave}
+                    disabled={isSaving}
+                    className="px-8 py-3.5 bg-gradient-stat-1 text-white font-black uppercase tracking-wider text-[11px] rounded-xl hover:shadow-[0_15px_30px_rgba(67,24,255,0.3)] hover:-translate-y-1 transition-all flex items-center gap-2 disabled:opacity-50"
+                >
+                    {isSaving ? (
+                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    ) : (
+                        <CheckCircle2 className="w-4 h-4" />
+                    )}
+                    שמור הגדרות
                 </button>
             </div>
         </div>
@@ -670,7 +713,10 @@ function SecuritySettings({ user }: { user: { name: string; email: string } }) {
                             </button>
                         </div>
                     </div>
-                    <button className="px-6 py-3 bg-[#4318FF] text-white font-black uppercase tracking-wider text-[10px] rounded-xl hover:shadow-lg transition-all flex items-center gap-2">
+                    <button
+                        onClick={() => alert('הסיסמה עודכנה בהצלחה! (סימולציה)')}
+                        className="px-6 py-3 bg-[#4318FF] text-white font-black uppercase tracking-wider text-[10px] rounded-xl hover:shadow-lg transition-all flex items-center gap-2"
+                    >
                         <Key className="w-3 h-3" /> עדכן סיסמה
                     </button>
                 </div>
@@ -721,7 +767,10 @@ function SecuritySettings({ user }: { user: { name: string; email: string } }) {
                                 </div>
                             </div>
                             {!entry.current && (
-                                <button className="text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 p-2 rounded-lg transition-colors" title="סיים סשן">
+                                <button
+                                    onClick={() => alert('סשן נסגר בהצלחה.')}
+                                    className="text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 p-2 rounded-lg transition-colors" title="סיים סשן"
+                                >
                                     <LogOut className="w-4 h-4" />
                                 </button>
                             )}
@@ -740,7 +789,10 @@ function SecuritySettings({ user }: { user: { name: string; email: string } }) {
                         <h4 className="text-sm font-black text-red-600 dark:text-red-400">מחיקת חשבון</h4>
                         <p className="text-[11px] font-bold text-red-500/70">מחיקה זו היא בלתי הפיכה. כל הנתונים שלך יימחקו לצמיתות.</p>
                     </div>
-                    <button className="px-5 py-2.5 bg-red-500 text-white font-black uppercase tracking-wider text-[10px] rounded-xl hover:bg-red-600 transition-colors flex items-center gap-2 flex-shrink-0">
+                    <button
+                        onClick={() => alert('פעולה זו חסומה בגרסת ההדגמה.')}
+                        className="px-5 py-2.5 bg-red-500 text-white font-black uppercase tracking-wider text-[10px] rounded-xl hover:bg-red-600 transition-colors flex items-center gap-2 flex-shrink-0"
+                    >
                         <Trash2 className="w-3 h-3" /> מחק חשבון
                     </button>
                 </div>
@@ -860,7 +912,10 @@ function BillingSettings() {
                             <p className="text-[11px] font-bold text-slate-500">תוקף 12/2027</p>
                         </div>
                     </div>
-                    <button className="px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-xl text-xs font-black hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
+                    <button
+                        onClick={() => alert('אמצעי תשלום יעודכן בקרוב.')}
+                        className="px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-xl text-xs font-black hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                    >
                         שנה כרטיס
                     </button>
                 </div>
@@ -872,7 +927,10 @@ function BillingSettings() {
                     <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
                         <History className="w-3 h-3" /> היסטוריית חיובים
                     </p>
-                    <button className="text-xs font-bold text-[#4318FF] hover:underline flex items-center gap-1">
+                    <button
+                        onClick={() => alert('מפיק קובץ להורדה...')}
+                        className="text-xs font-bold text-[#4318FF] hover:underline flex items-center gap-1"
+                    >
                         <Download className="w-3 h-3" /> הורד הכל
                     </button>
                 </div>
@@ -893,7 +951,10 @@ function BillingSettings() {
                             <div className="flex items-center gap-4">
                                 <span className="text-sm font-black text-slate-800 dark:text-white">{bill.amount}</span>
                                 <span className="text-[10px] font-black px-2 py-0.5 bg-emerald-500/10 text-emerald-600 rounded-md">{bill.status}</span>
-                                <button className="text-[#4318FF] hover:bg-[#4318FF]/10 p-1.5 rounded-lg transition-colors">
+                                <button
+                                    onClick={() => alert('מוריד חשבונית...')}
+                                    className="text-[#4318FF] hover:bg-[#4318FF]/10 p-1.5 rounded-lg transition-colors"
+                                >
                                     <Download className="w-3 h-3" />
                                 </button>
                             </div>
