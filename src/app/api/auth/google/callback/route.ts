@@ -9,18 +9,20 @@ export async function GET(request: NextRequest) {
     const code = searchParams.get('code');
     const error = searchParams.get('error');
 
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3001';
+
     if (error) {
-        return NextResponse.redirect(new URL('/profile?error=' + error, request.url));
+        return NextResponse.redirect(new URL('/profile?error=' + error, baseUrl));
     }
 
     if (!code) {
-        return NextResponse.redirect(new URL('/profile?error=No code provided', request.url));
+        return NextResponse.redirect(new URL('/profile?error=No code provided', baseUrl));
     }
 
     try {
         const session = await getCurrentUser();
         if (!session) {
-            return NextResponse.redirect(new URL('/login', request.url));
+            return NextResponse.redirect(new URL('/login', baseUrl));
         }
 
         // Exchange code for tokens
@@ -48,9 +50,9 @@ export async function GET(request: NextRequest) {
         });
 
         // Redirect back to profile or home
-        return NextResponse.redirect(new URL('/profile?success=google_connected', request.url));
+        return NextResponse.redirect(new URL('/profile?success=google_connected', baseUrl));
     } catch (err: any) {
         console.error('OAuth Callback Error:', err);
-        return NextResponse.redirect(new URL('/profile?error=failed_to_exchange_token', request.url));
+        return NextResponse.redirect(new URL('/profile?error=failed_to_exchange_token', baseUrl));
     }
 }
