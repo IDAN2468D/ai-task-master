@@ -34,6 +34,8 @@ export interface ITask extends Document {
     googleEventId?: string;
     googleCalendarLink?: string;
     userId?: string;
+    links: { url: string, summary?: string }[];
+    xpAwarded: boolean;
     createdAt: Date;
 }
 
@@ -108,9 +110,15 @@ const TaskSchema: Schema<ITask> = new Schema({
         type: String,
         required: false,
     },
-    googleCalendarLink: {
-        type: String,
-        required: false,
+    links: [
+        {
+            url: { type: String, required: true },
+            summary: { type: String, required: false },
+        }
+    ],
+    xpAwarded: {
+        type: Boolean,
+        default: false,
     },
     createdAt: {
         type: Date,

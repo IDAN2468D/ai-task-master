@@ -8,18 +8,25 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { logoutUser, getCurrentUser } from '@/actions/authActions';
 import DarkModeToggle from './DarkModeToggle';
 import ThemeSwitcher from './ThemeSwitcher';
+import UserStats from './UserStats';
+import { getUserStats } from '@/actions/gamificationActions';
 
 export default function TopNav() {
     const pathname = usePathname();
     const [isOpen, setIsOpen] = useState(false);
     const [user, setUser] = useState<{ name: string, image?: string } | null>(null);
+    const [stats, setStats] = useState<{ xp: number, level: number, currency: number } | null>(null);
 
     useEffect(() => {
-        const fetchUser = async () => {
-            const u = await getCurrentUser();
+        const fetchData = async () => {
+            const [u, s] = await Promise.all([
+                getCurrentUser(),
+                getUserStats()
+            ]);
             setUser(u);
+            setStats(s);
         };
-        fetchUser();
+        fetchData();
     }, [pathname]);
 
     // Hide nav on auth pages and profile page
@@ -64,6 +71,13 @@ export default function TopNav() {
                                 </Link>
                             ))}
                         </div>
+
+                        {/* Gamification Stats */}
+                        {stats && (
+                            <div className="hidden sm:block">
+                                <UserStats xp={stats.xp} level={stats.level} currency={stats.currency} />
+                            </div>
+                        )}
 
                         {/* Theme Switcher */}
                         <ThemeSwitcher />

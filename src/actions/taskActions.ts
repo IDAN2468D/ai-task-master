@@ -6,6 +6,7 @@ import Task, { ITask } from '@/models/Task';
 import { model } from '@/lib/gemini';
 import { getCurrentUser } from '@/actions/authActions';
 import { sendTaskCreatedEmail } from '@/lib/email';
+import { awardTaskCompletion } from '@/actions/gamificationActions';
 
 export async function getTasks(searchQuery?: string, filterPriority?: string) {
   try {
@@ -100,6 +101,15 @@ export async function updateTaskStatus(taskId: string, newStatus: string) {
   try {
     await connectDB();
     await Task.findByIdAndUpdate(taskId, { status: newStatus });
+
+    // Gamification Hook: Award XP if task is marked as Done
+    if (newStatus === 'Done') {
+      const result = await awardTaskCompletion(taskId);
+      // We don't necessarily need to slow down the UI for this, 
+      // as the UserStats will re-fetch on pathname change/revalidation.
+      console.log('Gamification Result:', result);
+    }
+
     revalidatePath('/');
   } catch (error) {
     console.error('Error updating task status:', error);

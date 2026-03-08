@@ -577,7 +577,22 @@ function NotificationsSettings() {
                     </SettingRow>
 
                     <SettingRow icon={Smartphone} iconColor="#00E5FF" title="דחיפות Push" subtitle="התראות מיידיות בדפדפן (דורש אישור)">
-                        <Toggle enabled={pushNotifs} onToggle={() => setPushNotifs(!pushNotifs)} />
+                        <Toggle enabled={pushNotifs} onToggle={async () => {
+                            if (!pushNotifs) {
+                                const permission = await Notification.requestPermission();
+                                if (permission === 'granted') {
+                                    setPushNotifs(true);
+                                    new Notification("AI-Task-Master", {
+                                        body: "ההתראות הופעלו בהצלחה! 🚀",
+                                        icon: "/icon.png"
+                                    });
+                                } else {
+                                    alert('יש לאשר התראות בהגדרות הדפדפן כדי להפעיל פיצ׳ר זה.');
+                                }
+                            } else {
+                                setPushNotifs(false);
+                            }
+                        }} />
                     </SettingRow>
                 </div>
             </div>

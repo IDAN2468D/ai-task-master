@@ -10,6 +10,10 @@ export interface IUser extends Document {
         expiryDate: number;
     };
     image?: string;
+    xp: number;
+    level: number;
+    currency: number;
+    unlockedItems: string[];
     createdAt: Date;
 }
 
@@ -37,6 +41,10 @@ const UserSchema: Schema<IUser> = new Schema({
         type: String,
         required: false,
     },
+    xp: { type: Number, default: 0 },
+    level: { type: Number, default: 1 },
+    currency: { type: Number, default: 0 },
+    unlockedItems: { type: [String], default: [] },
     googleTokens: {
         accessToken: String,
         refreshToken: String,
