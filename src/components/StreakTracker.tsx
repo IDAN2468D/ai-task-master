@@ -74,8 +74,8 @@ export default function StreakTracker() {
             {/* Streak Number */}
             <div className="text-center mb-6">
                 <div className="flex items-baseline justify-center gap-2">
-                    <span className="text-6xl font-black text-gradient-warm tabular-nums">{streak}</span>
-                    <span className="text-lg font-black text-slate-400">ימים</span>
+                    <span className="text-5xl md:text-6xl font-black text-gradient-warm tabular-nums">{streak}</span>
+                    <span className="text-sm md:text-lg font-black text-slate-400">ימים</span>
                 </div>
                 <div className="flex items-center justify-center gap-1 mt-2">
                     <TrendingUp className="w-3 h-3 text-emerald-500" />
@@ -97,10 +97,10 @@ export default function StreakTracker() {
                         <div key={i} className="flex flex-col items-center gap-2">
                             <div
                                 className={`w-8 h-8 rounded-full flex items-center justify-center transition-all ${isToday
-                                        ? 'bg-[#FF7D00] text-white shadow-lg shadow-[#FF7D00]/30 scale-110'
-                                        : isPast
-                                            ? 'bg-[#FF7D00]/20 text-[#FF7D00]'
-                                            : 'bg-slate-100 dark:bg-slate-800 text-slate-400'
+                                    ? 'bg-[#FF7D00] text-white shadow-lg shadow-[#FF7D00]/30 scale-110'
+                                    : isPast
+                                        ? 'bg-[#FF7D00]/20 text-[#FF7D00]'
+                                        : 'bg-slate-100 dark:bg-slate-800 text-slate-400'
                                     }`}
                             >
                                 {isToday ? <Flame className="w-4 h-4" /> : <Calendar className="w-3 h-3" />}

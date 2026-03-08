@@ -39,7 +39,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
     return (
         <main className="min-h-screen text-slate-800 dark:text-white selection:bg-[#4318FF] selection:text-white pb-40">
 
-            <div className="max-w-[1400px] mx-auto px-6 pt-36">
+            <div className="max-w-[1400px] mx-auto px-6 pt-32 md:pt-40">
 
                 {/* Colorful Hero Greeting */}
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
@@ -82,16 +82,18 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
                 {/* Main Content Layout */}
                 <div className="grid lg:grid-cols-12 gap-8 items-start">
 
-                    <div className="lg:col-span-3 lg:order-last sticky top-28 space-y-6">
-                        <h3 className="text-2xl font-black text-slate-800 dark:text-white mt-10 lg:mt-0">יצירה חדשה</h3>
+                    <div className="lg:col-span-3 lg:order-last lg:sticky lg:top-32 space-y-6">
+                        <h3 className="text-2xl font-black text-slate-800 dark:text-white mt-12 lg:mt-0">יצירה חדשה</h3>
                         <LazyAddTaskForm />
                         <LazyStreakTracker />
                     </div>
 
                     <div className="lg:col-span-9 space-y-6">
-                        <div className="flex items-center justify-between">
+                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mt-12 lg:mt-0">
                             <h3 className="text-2xl font-black text-slate-800 dark:text-white">לוח פעיל</h3>
-                            <LazySearchFilterBar />
+                            <div className="w-full md:w-auto">
+                                <LazySearchFilterBar />
+                            </div>
                         </div>
 
                         {/* Vibrant Board */}
