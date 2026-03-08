@@ -11,11 +11,14 @@ const rubik = Rubik({
   display: 'swap',
 });
 
+export const viewport = {
+  themeColor: "#4318FF",
+};
+
 export const metadata: Metadata = {
   title: "AI Task Master - מנהל משימות חכם",
   description: "מערכת ניהול משימות חכמה מבוססת בינה מלאכותית",
   manifest: "/manifest.json",
-  themeColor: "#4318FF",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
