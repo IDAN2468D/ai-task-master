@@ -3,7 +3,7 @@
 import { updateTaskStatus } from '@/actions/taskActions';
 import TaskItem from './TaskItem';
 import { useState, useEffect } from 'react';
-import { DndContext, DragOverlay, closestCorners, KeyboardSensor, PointerSensor, useSensor, useSensors, DragStartEvent, DragOverEvent, DragEndEvent, useDroppable } from '@dnd-kit/core';
+import { DndContext, DragOverlay, rectIntersection, KeyboardSensor, PointerSensor, useSensor, useSensors, DragStartEvent, DragOverEvent, DragEndEvent, useDroppable } from '@dnd-kit/core';
 import { SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { motion } from 'framer-motion';
 import { Inbox, Workflow, Archive, Sparkles } from 'lucide-react';
@@ -76,10 +76,29 @@ export default function KanbanBoard({ tasks: initialTasks }: { tasks: Task[] }) 
     };
 
     const handleDragEnd = async (e: DragEndEvent) => {
+        const { active, over } = e;
         setActiveTask(null);
-        if (!e.over) return;
-        const fin = tasks.find(t => t._id === e.active.id);
-        if (fin) await updateTaskStatus(e.active.id as string, fin.status);
+        if (!over) return;
+
+        let newStatus: Task['status'] | null = null;
+
+        // Case 1: Dropped over a column
+        const isCol = columns.find(c => c.id === over.id);
+        if (isCol) {
+            newStatus = over.id as any;
+        } else {
+            // Case 2: Dropped over another task
+            const oTask = tasks.find(t => t._id === over.id);
+            if (oTask) {
+                newStatus = oTask.status;
+            }
+        }
+
+        if (newStatus) {
+            // Optimistically update local state if needed (already handled by onDragOver mostly)
+            // But let's be sure the DB gets the right one
+            await updateTaskStatus(active.id as string, newStatus);
+        }
     };
 
     if (!isMounted) return <div className="h-96 flex items-center justify-center font-bold text-blue-500 animate-pulse">טוען לוח...</div>;
@@ -102,7 +121,7 @@ export default function KanbanBoard({ tasks: initialTasks }: { tasks: Task[] }) 
                 </button>
             </div>
 
-            <DndContext sensors={sensors} collisionDetection={closestCorners} onDragStart={handleDragStart} onDragOver={handleDragOver} onDragEnd={handleDragEnd}>
+            <DndContext sensors={sensors} collisionDetection={rectIntersection} onDragStart={handleDragStart} onDragOver={handleDragOver} onDragEnd={handleDragEnd}>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8 w-full">
                     {columns.map((col) => {
                         const colTasks = tasks.filter((t) => t.status === col.id);
