@@ -65,7 +65,7 @@ export default function TopNav() {
                                 <Link
                                     key={link.href}
                                     href={link.href}
-                                    className={`transition-colors ${isActive(link.href) ? 'text-[#4318FF] dark:text-[#00E5FF]' : 'text-slate-500 dark:text-slate-400 hover:text-[#4318FF] dark:hover:text-[#00E5FF]'}`}
+                                    className={`transition-colors ${isActive(link.href) ? 'text-[var(--primary)] dark:text-[var(--accent-1)]' : 'text-slate-500 dark:text-slate-400 hover:text-[var(--primary)] dark:hover:text-[var(--accent-1)]'}`}
                                 >
                                     {link.label}
                                 </Link>
@@ -86,7 +86,7 @@ export default function TopNav() {
                         <DarkModeToggle />
 
                         {/* Desktop: Profile icon */}
-                        <Link href="/profile" className="hidden md:flex w-10 h-10 rounded-full bg-indigo-100 dark:bg-indigo-900/40 items-center justify-center text-[#4318FF] dark:text-indigo-400 cursor-pointer shadow-[0_0_15px_rgba(67,24,255,0.2)] transition-transform hover:scale-105 overflow-hidden">
+                        <Link href="/profile" className="hidden md:flex w-10 h-10 rounded-full bg-indigo-100 dark:bg-indigo-900/40 items-center justify-center text-[var(--primary)] dark:text-indigo-400 cursor-pointer shadow-[0_0_15px_var(--primary-glow)] transition-transform hover:scale-105 overflow-hidden">
                             {user?.image ? (
                                 <img src={user.image} alt={user.name} className="w-full h-full object-cover" />
                             ) : (
@@ -135,7 +135,7 @@ export default function TopNav() {
                                     {user?.image ? (
                                         <img src={user.image} alt={user.name} className="w-full h-full object-cover" />
                                     ) : (
-                                        <User className="w-6 h-6 text-[#4318FF]" />
+                                        <User className="w-6 h-6 text-[var(--primary)]" />
                                     )}
                                 </div>
                                 הפרופיל שלי <ArrowLeft className="w-5 h-5 text-slate-400" />

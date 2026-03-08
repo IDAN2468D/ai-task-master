@@ -24,7 +24,7 @@ function Toggle({ enabled, onToggle, size = 'md' }: { enabled: boolean; onToggle
     };
     const s = sizes[size];
     return (
-        <button onClick={onToggle} className={`${s.track} rounded-full p-1 cursor-pointer flex transition-colors duration-300 shadow-inner ${enabled ? 'bg-[#4318FF] justify-start shadow-[#4318FF]/20' : 'bg-slate-200 dark:bg-slate-700 justify-end'}`}>
+        <button onClick={onToggle} className={`${s.track} rounded-full p-1 cursor-pointer flex transition-colors duration-300 shadow-inner ${enabled ? 'bg-[var(--primary)] justify-start shadow-[var(--primary)]/20' : 'bg-slate-200 dark:bg-slate-700 justify-end'}`}>
             <motion.div layout className={`${s.knob} bg-white rounded-full shadow-md`} />
         </button>
     );
@@ -103,7 +103,7 @@ export default function ProfileClient({ user }: { user: { name: string, email: s
                         <button
                             key={tab.id}
                             onClick={() => setActiveTab(tab.id)}
-                            className={`w-full flex items-center gap-3 px-5 py-4 rounded-2xl font-bold text-sm transition-all duration-300 ${activeTab === tab.id ? 'bg-[#4318FF] text-white shadow-lg shadow-[#4318FF]/30 -translate-x-2' : 'text-slate-500 dark:text-slate-400 hover:bg-white dark:hover:bg-[#111C44] hover:text-slate-800 dark:hover:text-white'}`}
+                            className={`w-full flex items-center gap-3 px-5 py-4 rounded-2xl font-bold text-sm transition-all duration-300 ${activeTab === tab.id ? 'bg-[var(--primary)] text-white shadow-lg shadow-[var(--primary)]/30 -translate-x-2' : 'text-slate-500 dark:text-slate-400 hover:bg-white dark:hover:bg-[#111C44] hover:text-slate-800 dark:hover:text-white'}`}
                         >
                             <tab.icon className={`w-5 h-5 ${activeTab === tab.id ? 'text-white' : 'text-slate-400 dark:text-slate-500'}`} />
                             {tab.label}
@@ -227,10 +227,10 @@ function AccountSettings({ user, router }: { user: { name: string, email: string
             <SectionHeader title="פרופיל ציבורי" subtitle="זה יוצג בסביבת העבודה שלך." />
 
             {/* Google Drive Status */}
-            <div className="p-6 bg-[#4318FF]/5 border border-[#4318FF]/20 rounded-3xl flex items-center justify-between gap-6 mb-8">
+            <div className="p-6 bg-[var(--primary)]/5 border border-[var(--primary)]/20 rounded-3xl flex items-center justify-between gap-6 mb-8">
                 <div className="flex items-center gap-4">
                     <div className="w-12 h-12 bg-white dark:bg-[#111C44] rounded-2xl flex items-center justify-center shadow-sm">
-                        <HardDrive className={`w-6 h-6 ${isDriveConnected ? 'text-[#4318FF]' : 'text-slate-400'}`} />
+                        <HardDrive className={`w-6 h-6 ${isDriveConnected ? 'text-[var(--primary)]' : 'text-slate-400'}`} />
                     </div>
                     <div>
                         <h4 className="text-sm font-black text-slate-800 dark:text-white">חיבור ל-Google Drive</h4>
@@ -241,7 +241,7 @@ function AccountSettings({ user, router }: { user: { name: string, email: string
                 </div>
                 <button
                     onClick={handleToggleDrive}
-                    className={`px-5 py-2.5 rounded-xl font-bold text-xs transition-all ${isDriveConnected ? 'bg-red-50 text-red-600 border border-red-200 hover:bg-red-100' : 'bg-[#4318FF] text-white shadow-lg shadow-[#4318FF]/20 hover:-translate-y-0.5'}`}
+                    className={`px-5 py-2.5 rounded-xl font-bold text-xs transition-all ${isDriveConnected ? 'bg-red-50 text-red-600 border border-red-200 hover:bg-red-100' : 'bg-[var(--primary)] text-white shadow-lg shadow-[var(--primary)]/20 hover:-translate-y-0.5'}`}
                 >
                     {isDriveConnected ? 'נתק חיבור' : 'חבר עכשיו'}
                 </button>
@@ -265,7 +265,7 @@ function AccountSettings({ user, router }: { user: { name: string, email: string
                 <div className="flex gap-3">
                     <button
                         onClick={() => document.getElementById('profile-image')?.click()}
-                        className="px-6 py-2.5 bg-[#4318FF] text-white font-bold text-sm rounded-xl hover:shadow-[0_10px_20px_rgba(67,24,255,0.3)] hover:-translate-y-0.5 transition-all"
+                        className="px-6 py-2.5 bg-[var(--primary)] text-white font-bold text-sm rounded-xl hover:shadow-[0_10px_20px_rgba(67,24,255,0.3)] hover:-translate-y-0.5 transition-all"
                     >
                         שנה תמונה
                     </button>
@@ -288,7 +288,7 @@ function AccountSettings({ user, router }: { user: { name: string, email: string
                             const newFirstName = e.target.value;
                             setName(`${newFirstName} ${lastName}`);
                         }}
-                        className="w-full px-5 py-4 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-white/10 rounded-2xl focus:border-[#4318FF] text-slate-800 dark:text-white font-bold text-sm focus:outline-none transition-colors shadow-inner"
+                        className="w-full px-5 py-4 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-white/10 rounded-2xl focus:border-[var(--primary)] text-slate-800 dark:text-white font-bold text-sm focus:outline-none transition-colors shadow-inner"
                     />
                 </div>
                 <div className="space-y-2">
@@ -300,7 +300,7 @@ function AccountSettings({ user, router }: { user: { name: string, email: string
                             const newLastName = e.target.value;
                             setName(`${firstName} ${newLastName}`);
                         }}
-                        className="w-full px-5 py-4 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-white/10 rounded-2xl focus:border-[#4318FF] text-slate-800 dark:text-white font-bold text-sm focus:outline-none transition-colors shadow-inner"
+                        className="w-full px-5 py-4 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-white/10 rounded-2xl focus:border-[var(--primary)] text-slate-800 dark:text-white font-bold text-sm focus:outline-none transition-colors shadow-inner"
                     />
                 </div>
                 <div className="space-y-2 md:col-span-2">
@@ -372,9 +372,9 @@ function PreferencesSettings() {
                     <Palette className="w-3 h-3" /> מראה וממשק
                 </p>
                 <div className="space-y-3">
-                    <SettingRow icon={Monitor} iconColor="#4318FF" title="תצוגה ברירת מחדל" subtitle="איך לוח הבקרה יוצג">
+                    <SettingRow icon={Monitor} iconColor="var(--primary)" title="תצוגה ברירת מחדל" subtitle="איך לוח הבקרה יוצג">
                         <select value={defaultView} onChange={e => setDefaultView(e.target.value)}
-                            className="px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-white/10 rounded-xl text-sm font-bold text-slate-800 dark:text-white focus:outline-none focus:border-[#4318FF]">
+                            className="px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-white/10 rounded-xl text-sm font-bold text-slate-800 dark:text-white focus:outline-none focus:border-[var(--primary)]">
                             <option value="kanban">לוח קנבאן</option>
                             <option value="list">רשימה</option>
                             <option value="calendar">לוח שנה</option>
@@ -403,7 +403,7 @@ function PreferencesSettings() {
                 <div className="space-y-3">
                     <SettingRow icon={Languages} iconColor="#10B981" title="שפת ממשק" subtitle="שפת התצוגה של האפליקציה">
                         <select value={language} onChange={e => setLanguage(e.target.value)}
-                            className="px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-white/10 rounded-xl text-sm font-bold text-slate-800 dark:text-white focus:outline-none focus:border-[#4318FF]">
+                            className="px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-white/10 rounded-xl text-sm font-bold text-slate-800 dark:text-white focus:outline-none focus:border-[var(--primary)]">
                             <option value="he">עברית 🇮🇱</option>
                             <option value="en">English 🇺🇸</option>
                         </select>
@@ -411,7 +411,7 @@ function PreferencesSettings() {
 
                     <SettingRow icon={Calendar} iconColor="#EC4899" title="פורמט תאריך" subtitle="אופן הצגת התאריכים">
                         <select value={dateFormat} onChange={e => setDateFormat(e.target.value)}
-                            className="px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-white/10 rounded-xl text-sm font-bold text-slate-800 dark:text-white focus:outline-none focus:border-[#4318FF]">
+                            className="px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-white/10 rounded-xl text-sm font-bold text-slate-800 dark:text-white focus:outline-none focus:border-[var(--primary)]">
                             <option value="dd/mm/yyyy">DD/MM/YYYY</option>
                             <option value="mm/dd/yyyy">MM/DD/YYYY</option>
                             <option value="yyyy-mm-dd">YYYY-MM-DD</option>
@@ -420,7 +420,7 @@ function PreferencesSettings() {
 
                     <SettingRow icon={Clock} iconColor="#F59E0B" title="תחילת השבוע" subtitle="היום הראשון בלוח השנה">
                         <select value={startOfWeek} onChange={e => setStartOfWeek(e.target.value)}
-                            className="px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-white/10 rounded-xl text-sm font-bold text-slate-800 dark:text-white focus:outline-none focus:border-[#4318FF]">
+                            className="px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-white/10 rounded-xl text-sm font-bold text-slate-800 dark:text-white focus:outline-none focus:border-[var(--primary)]">
                             <option value="sunday">ראשון</option>
                             <option value="monday">שני</option>
                         </select>
@@ -436,7 +436,7 @@ function PreferencesSettings() {
                 <div className="space-y-3">
                     <SettingRow icon={AlertTriangle} iconColor="#EF4444" title="עדיפות ברירת מחדל" subtitle="עדיפות אוטומטית למשימות חדשות">
                         <select value={defaultPriority} onChange={e => setDefaultPriority(e.target.value)}
-                            className="px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-white/10 rounded-xl text-sm font-bold text-slate-800 dark:text-white focus:outline-none focus:border-[#4318FF]">
+                            className="px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-white/10 rounded-xl text-sm font-bold text-slate-800 dark:text-white focus:outline-none focus:border-[var(--primary)]">
                             <option value="Low">נמוכה</option>
                             <option value="Medium">בינונית</option>
                             <option value="High">גבוהה</option>
@@ -485,7 +485,7 @@ function AITuningSettings() {
                         <Toggle enabled={autoClassify} onToggle={() => setAutoClassify(!autoClassify)} />
                     </SettingRow>
 
-                    <SettingRow icon={Zap} iconColor="#4318FF" title="יצירת תתי-משימות אוטומטית" subtitle="AI יפרק משימות מורכבות לצעדים">
+                    <SettingRow icon={Zap} iconColor="var(--primary)" title="יצירת תתי-משימות אוטומטית" subtitle="AI יפרק משימות מורכבות לצעדים">
                         <Toggle enabled={autoSubtasks} onToggle={() => setAutoSubtasks(!autoSubtasks)} />
                     </SettingRow>
 
@@ -499,7 +499,7 @@ function AITuningSettings() {
                 <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4">טון פרסונה של עוזר AI</p>
                 <div className="grid grid-cols-3 gap-4">
                     {[
-                        { id: 'professional', emoji: '👔', label: 'מקצועי', color: '#4318FF' },
+                        { id: 'professional', emoji: '👔', label: 'מקצועי', color: 'var(--primary)' },
                         { id: 'direct', emoji: '⚡', label: 'ישיר ותמציתי', color: '#FF7D00' },
                         { id: 'friendly', emoji: '🌈', label: 'ידידותי ומוטיבציוני', color: '#00E5FF' },
                     ].map(p => (
@@ -572,7 +572,7 @@ function NotificationsSettings() {
                     <BellRing className="w-3 h-3" /> ערוצי התראות
                 </p>
                 <div className="space-y-3">
-                    <SettingRow icon={Mail} iconColor="#4318FF" title="התראות אימייל" subtitle="קבלת עדכונים ישירות למייל">
+                    <SettingRow icon={Mail} iconColor="var(--primary)" title="התראות אימייל" subtitle="קבלת עדכונים ישירות למייל">
                         <Toggle enabled={emailNotifs} onToggle={() => setEmailNotifs(!emailNotifs)} />
                     </SettingRow>
 
@@ -635,9 +635,9 @@ function NotificationsSettings() {
                     <Clock className="w-3 h-3" /> תזמון
                 </p>
                 <div className="space-y-3">
-                    <SettingRow icon={BellRing} iconColor="#4318FF" title="שעת תזכורת יומית" subtitle="מתי לשלוח את הסיכום היומי">
+                    <SettingRow icon={BellRing} iconColor="var(--primary)" title="שעת תזכורת יומית" subtitle="מתי לשלוח את הסיכום היומי">
                         <input type="time" value={reminderTime} onChange={e => setReminderTime(e.target.value)}
-                            className="px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-white/10 rounded-xl text-sm font-bold text-slate-800 dark:text-white focus:outline-none focus:border-[#4318FF] [color-scheme:light] dark:[color-scheme:dark]" />
+                            className="px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-white/10 rounded-xl text-sm font-bold text-slate-800 dark:text-white focus:outline-none focus:border-[var(--primary)] [color-scheme:light] dark:[color-scheme:dark]" />
                     </SettingRow>
 
                     <div className="p-5 bg-slate-50 dark:bg-slate-900/50 rounded-2xl border border-slate-200 dark:border-white/10">
@@ -654,13 +654,13 @@ function NotificationsSettings() {
                             <div className="flex-1 space-y-1">
                                 <label className="text-[10px] font-bold text-slate-400">מ-</label>
                                 <input type="time" value={quietStart} onChange={e => setQuietStart(e.target.value)}
-                                    className="w-full px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-white/10 rounded-xl text-sm font-bold text-slate-800 dark:text-white focus:outline-none focus:border-[#4318FF] [color-scheme:light] dark:[color-scheme:dark]" />
+                                    className="w-full px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-white/10 rounded-xl text-sm font-bold text-slate-800 dark:text-white focus:outline-none focus:border-[var(--primary)] [color-scheme:light] dark:[color-scheme:dark]" />
                             </div>
                             <span className="text-slate-400 font-bold mt-4">→</span>
                             <div className="flex-1 space-y-1">
                                 <label className="text-[10px] font-bold text-slate-400">עד-</label>
                                 <input type="time" value={quietEnd} onChange={e => setQuietEnd(e.target.value)}
-                                    className="w-full px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-white/10 rounded-xl text-sm font-bold text-slate-800 dark:text-white focus:outline-none focus:border-[#4318FF] [color-scheme:light] dark:[color-scheme:dark]" />
+                                    className="w-full px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-white/10 rounded-xl text-sm font-bold text-slate-800 dark:text-white focus:outline-none focus:border-[var(--primary)] [color-scheme:light] dark:[color-scheme:dark]" />
                             </div>
                         </div>
                     </div>
@@ -716,7 +716,7 @@ function SecuritySettings({ user }: { user: { name: string; email: string } }) {
                         <div className="relative">
                             <Lock className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                             <input type={showCurrentPw ? 'text' : 'password'} placeholder="••••••••"
-                                className="w-full pr-11 pl-11 py-3.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-white/10 rounded-xl text-sm font-bold text-slate-800 dark:text-white focus:outline-none focus:border-[#4318FF]" />
+                                className="w-full pr-11 pl-11 py-3.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-white/10 rounded-xl text-sm font-bold text-slate-800 dark:text-white focus:outline-none focus:border-[var(--primary)]" />
                             <button onClick={() => setShowCurrentPw(!showCurrentPw)} className="absolute left-4 top-1/2 -translate-y-1/2">
                                 {showCurrentPw ? <EyeOff className="w-4 h-4 text-slate-400" /> : <Eye className="w-4 h-4 text-slate-400" />}
                             </button>
@@ -727,7 +727,7 @@ function SecuritySettings({ user }: { user: { name: string; email: string } }) {
                         <div className="relative">
                             <Lock className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                             <input type={showNewPw ? 'text' : 'password'} placeholder="לפחות 8 תווים"
-                                className="w-full pr-11 pl-11 py-3.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-white/10 rounded-xl text-sm font-bold text-slate-800 dark:text-white focus:outline-none focus:border-[#4318FF]" />
+                                className="w-full pr-11 pl-11 py-3.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-white/10 rounded-xl text-sm font-bold text-slate-800 dark:text-white focus:outline-none focus:border-[var(--primary)]" />
                             <button onClick={() => setShowNewPw(!showNewPw)} className="absolute left-4 top-1/2 -translate-y-1/2">
                                 {showNewPw ? <EyeOff className="w-4 h-4 text-slate-400" /> : <Eye className="w-4 h-4 text-slate-400" />}
                             </button>
@@ -735,7 +735,7 @@ function SecuritySettings({ user }: { user: { name: string; email: string } }) {
                     </div>
                     <button
                         onClick={() => alert('הסיסמה עודכנה בהצלחה! (סימולציה)')}
-                        className="px-6 py-3 bg-[#4318FF] text-white font-black uppercase tracking-wider text-[10px] rounded-xl hover:shadow-lg transition-all flex items-center gap-2"
+                        className="px-6 py-3 bg-[var(--primary)] text-white font-black uppercase tracking-wider text-[10px] rounded-xl hover:shadow-lg transition-all flex items-center gap-2"
                     >
                         <Key className="w-3 h-3" /> עדכן סיסמה
                     </button>
@@ -748,7 +748,7 @@ function SecuritySettings({ user }: { user: { name: string; email: string } }) {
                     <ShieldCheck className="w-3 h-3" /> אפשרויות אבטחה
                 </p>
                 <div className="space-y-3">
-                    <SettingRow icon={Fingerprint} iconColor="#4318FF" title="אימות דו-שלבי (2FA)" subtitle="הוסף שכבת אבטחה עם קוד חד-פעמי">
+                    <SettingRow icon={Fingerprint} iconColor="var(--primary)" title="אימות דו-שלבי (2FA)" subtitle="הוסף שכבת אבטחה עם קוד חד-פעמי">
                         <Toggle enabled={twoFactor} onToggle={() => setTwoFactor(!twoFactor)} />
                     </SettingRow>
 
@@ -758,7 +758,7 @@ function SecuritySettings({ user }: { user: { name: string; email: string } }) {
 
                     <SettingRow icon={Clock} iconColor="#F59E0B" title="פקיעת סשן" subtitle="מתי לנתק אוטומטית (דקות)">
                         <select value={sessionTimeout} onChange={e => setSessionTimeout(e.target.value)}
-                            className="px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-white/10 rounded-xl text-sm font-bold text-slate-800 dark:text-white focus:outline-none focus:border-[#4318FF]">
+                            className="px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-white/10 rounded-xl text-sm font-bold text-slate-800 dark:text-white focus:outline-none focus:border-[var(--primary)]">
                             <option value="15">15 דקות</option>
                             <option value="30">30 דקות</option>
                             <option value="60">שעה</option>
@@ -863,7 +863,7 @@ function BillingSettings({ user }: { user: { name: string; email: string } }) {
         },
         {
             id: 'pro', name: 'Pro', price: '₪29', period: 'לחודש', popular: true,
-            color: '#4318FF', icon: Rocket,
+            color: 'var(--primary)', icon: Rocket,
             features: ['משימות ללא הגבלה', 'AI Companion מלא', 'אנליטיקס מתקדם', 'לוח שנה חכם', 'תזכורות חכמות', 'הישגים ותגים', 'ערכות נושא', 'ייצוא CSV + JSON'],
             limitations: [],
         },
@@ -923,7 +923,7 @@ https://ai-task-master-1i6f.onrender.com/support
             <SectionHeader title="חיוב ותוכנית" subtitle="נהל את המנוי שלך ובחר את התוכנית המתאימה." />
 
             {/* Current Plan Banner */}
-            <div className="p-6 bg-gradient-to-r from-[#4318FF] to-[#7C3AED] rounded-2xl text-white relative overflow-hidden">
+            <div className="p-6 bg-gradient-to-r from-[var(--primary)] to-[#7C3AED] rounded-2xl text-white relative overflow-hidden">
                 <div className="absolute top-0 left-0 w-40 h-40 bg-white/10 blur-3xl rounded-full -ml-20 -mt-20" />
                 <div className="relative z-10 flex items-center justify-between">
                     <div>
@@ -953,7 +953,7 @@ https://ai-task-master-1i6f.onrender.com/support
                                 backgroundColor: selectedPlan === plan.id ? plan.color + '08' : undefined,
                             }}>
                             {plan.popular && (
-                                <span className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-[#4318FF] text-white text-[9px] font-black uppercase tracking-wider rounded-full">הכי פופולרי</span>
+                                <span className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-[var(--primary)] text-white text-[9px] font-black uppercase tracking-wider rounded-full">הכי פופולרי</span>
                             )}
 
                             <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-4" style={{ backgroundColor: plan.color + '15' }}>
@@ -1046,7 +1046,7 @@ https://ai-task-master-1i6f.onrender.com/support
                                                 type="text"
                                                 maxLength={16}
                                                 placeholder="0000 0000 0000 0000"
-                                                className="w-full pr-11 py-3.5 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-white/10 rounded-xl text-sm font-bold focus:outline-none focus:border-[#4318FF] transition-colors"
+                                                className="w-full pr-11 py-3.5 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-white/10 rounded-xl text-sm font-bold focus:outline-none focus:border-[var(--primary)] transition-colors"
                                                 onChange={(e) => setNewCardData({ ...newCardData, number: e.target.value.replace(/\D/g, '') })}
                                                 required
                                             />
@@ -1060,7 +1060,7 @@ https://ai-task-master-1i6f.onrender.com/support
                                                 type="text"
                                                 placeholder="MM/YY"
                                                 maxLength={5}
-                                                className="w-full px-4 py-3.5 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-white/10 rounded-xl text-sm font-bold focus:outline-none focus:border-[#4318FF] transition-colors"
+                                                className="w-full px-4 py-3.5 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-white/10 rounded-xl text-sm font-bold focus:outline-none focus:border-[var(--primary)] transition-colors"
                                                 onChange={(e) => setNewCardData({ ...newCardData, expiry: e.target.value })}
                                                 required
                                             />
@@ -1071,7 +1071,7 @@ https://ai-task-master-1i6f.onrender.com/support
                                                 type="password"
                                                 placeholder="•••"
                                                 maxLength={3}
-                                                className="w-full px-4 py-3.5 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-white/10 rounded-xl text-sm font-bold focus:outline-none focus:border-[#4318FF] transition-colors"
+                                                className="w-full px-4 py-3.5 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-white/10 rounded-xl text-sm font-bold focus:outline-none focus:border-[var(--primary)] transition-colors"
                                                 onChange={(e) => setNewCardData({ ...newCardData, cvv: e.target.value })}
                                                 required
                                             />
@@ -1080,7 +1080,7 @@ https://ai-task-master-1i6f.onrender.com/support
 
                                     <button
                                         type="submit"
-                                        className="w-full mt-4 py-4 bg-gradient-to-r from-[#4318FF] to-[#7C3AED] text-white font-black rounded-2xl shadow-xl shadow-[#4318FF]/20 hover:-translate-y-1 transition-all"
+                                        className="w-full mt-4 py-4 bg-gradient-to-r from-[var(--primary)] to-[#7C3AED] text-white font-black rounded-2xl shadow-xl shadow-[var(--primary)]/20 hover:-translate-y-1 transition-all"
                                     >
                                         עדכן כרטיס
                                     </button>
@@ -1101,7 +1101,7 @@ https://ai-task-master-1i6f.onrender.com/support
                         onClick={() => {
                             handleDownloadInvoice('ANNUAL-2026', '01/01/2026', '₪348.00');
                         }}
-                        className="text-xs font-bold text-[#4318FF] hover:underline flex items-center gap-1"
+                        className="text-xs font-bold text-[var(--primary)] hover:underline flex items-center gap-1"
                     >
                         <Download className="w-3 h-3" /> הורד הכל
                     </button>
@@ -1125,7 +1125,7 @@ https://ai-task-master-1i6f.onrender.com/support
                                 <span className="text-[10px] font-black px-2 py-0.5 bg-emerald-500/10 text-emerald-600 rounded-md">{bill.status}</span>
                                 <button
                                     onClick={() => handleDownloadInvoice(bill.invoice, bill.date, bill.amount)}
-                                    className="text-[#4318FF] hover:bg-[#4318FF]/10 p-1.5 rounded-lg transition-colors border-none"
+                                    className="text-[var(--primary)] hover:bg-[var(--primary)]/10 p-1.5 rounded-lg transition-colors border-none"
                                 >
                                     <Download className="w-3 h-3" />
                                 </button>

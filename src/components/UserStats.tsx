@@ -26,7 +26,7 @@ export default function UserStats({ xp, level, currency }: UserStatsProps) {
                         initial={{ width: 0 }}
                         animate={{ width: `${progress}%` }}
                         transition={{ duration: 1, ease: "easeOut" }}
-                        className="h-full bg-gradient-to-r from-[#4318FF] to-[#00E5FF] rounded-full"
+                        className="h-full bg-gradient-to-r from-[var(--primary)] to-[var(--accent-1)] rounded-full"
                     />
                 </div>
             </div>
