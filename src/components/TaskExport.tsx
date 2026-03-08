@@ -104,32 +104,32 @@ export default function TaskExport({ tasks }: { tasks: Task[] }) {
         <div className="flex items-center gap-2 relative">
             <button
                 onClick={exportCSV}
-                className="flex-shrink-0 flex items-center gap-2.5 px-5 py-3 md:py-2.5 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-2xl font-black text-xs md:text-sm border border-emerald-500/10 dark:border-emerald-500/20 shadow-sm transition-all hover:bg-emerald-500/20 active:scale-95"
+                className="flex-shrink-0 flex items-center gap-3 px-6 py-4 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-2xl font-black text-[10px] md:text-xs border border-emerald-500/10 dark:border-emerald-500/20 shadow-sm transition-all hover:bg-emerald-500/20 active:scale-95 uppercase tracking-widest"
                 title="ייצוא ל-CSV"
             >
-                <FileSpreadsheet className="w-4 h-4" />
-                <span className="whitespace-nowrap">CSV</span>
+                <FileSpreadsheet className="w-5 h-5" />
+                <span>CSV</span>
             </button>
             <button
                 onClick={exportJSON}
-                className="flex-shrink-0 flex items-center gap-2.5 px-5 py-3 md:py-2.5 bg-blue-500/10 text-blue-600 dark:text-blue-400 rounded-2xl font-black text-xs md:text-sm border border-blue-500/10 dark:border-blue-500/20 shadow-sm transition-all hover:bg-blue-500/20 active:scale-95"
+                className="flex-shrink-0 flex items-center gap-3 px-6 py-4 bg-blue-500/10 text-blue-600 dark:text-blue-400 rounded-2xl font-black text-[10px] md:text-xs border border-blue-500/10 dark:border-blue-500/20 shadow-sm transition-all hover:bg-blue-500/20 active:scale-95 uppercase tracking-widest"
                 title="ייצוא ל-JSON"
             >
-                <FileText className="w-4 h-4" />
-                <span className="whitespace-nowrap">JSON</span>
+                <FileText className="w-5 h-5" />
+                <span>JSON</span>
             </button>
             <button
                 onClick={handleGoogleDriveExport}
                 disabled={isSaving}
-                className={`flex-shrink-0 flex items-center gap-2.5 px-5 py-3 md:py-2.5 ${isConnected ? 'bg-[var(--primary)]/10 text-[var(--primary)]' : 'bg-slate-100 dark:bg-white/5 text-slate-500'} rounded-2xl font-black text-xs md:text-sm border ${isConnected ? 'border-[var(--primary)]/10 dark:border-[var(--primary)]/20 shadow-sm' : 'border-slate-200 dark:border-white/5'} transition-all hover:bg-indigo-500/20 disabled:opacity-50 active:scale-95`}
+                className={`flex-shrink-0 flex items-center gap-3 px-6 py-4 ${isConnected ? 'bg-[var(--primary)]/10 text-[var(--primary)]' : 'bg-slate-100 dark:bg-white/5 text-slate-500'} rounded-2xl font-black text-[10px] md:text-xs border ${isConnected ? 'border-[var(--primary)]/10 dark:border-[var(--primary)]/20 shadow-sm' : 'border-slate-200 dark:border-white/5'} transition-all hover:bg-indigo-500/20 disabled:opacity-50 active:scale-95 uppercase tracking-widest`}
                 title={isConnected ? "שמור ב-Google Drive" : "חבר את Google Drive"}
             >
                 {isSaving ? (
-                    <div className="w-4 h-4 border-2 border-[var(--primary)]/30 border-t-[var(--primary)] rounded-full animate-spin" />
+                    <div className="w-5 h-5 border-2 border-[var(--primary)]/30 border-t-[var(--primary)] rounded-full animate-spin" />
                 ) : (
-                    <HardDrive className="w-4 h-4" />
+                    <HardDrive className="w-5 h-5" />
                 )}
-                <span className="whitespace-nowrap">{isConnected ? 'Drive' : 'Google Drive'}</span>
+                <span>{isConnected ? 'Drive' : 'Connect'}</span>
             </button>
 
             {status && (

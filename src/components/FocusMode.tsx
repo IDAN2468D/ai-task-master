@@ -51,10 +51,10 @@ export default function FocusMode({ tasks }: { tasks: Task[] }) {
         <>
             <button
                 onClick={() => { setIsOpen(true); setCurrentIndex(0); }}
-                className="flex-shrink-0 flex items-center gap-2.5 px-5 py-3 md:py-2.5 bg-[#FF00E5]/10 text-[#FF00E5] rounded-2xl font-black text-xs md:text-sm border border-[#FF00E5]/10 dark:border-[#FF00E5]/20 shadow-sm transition-all hover:bg-[#FF00E5]/20 active:scale-95"
+                className="flex-shrink-0 flex items-center gap-3 px-6 py-4 bg-[#FF00E5]/10 text-[#FF00E5] rounded-2xl font-black text-xs md:text-sm border border-[#FF00E5]/10 dark:border-[#FF00E5]/20 shadow-sm transition-all hover:bg-[#FF00E5]/20 hover:shadow-lg hover:shadow-[#FF00E5]/10 active:scale-95 group/focus"
             >
-                <Focus className="w-4 h-4" />
-                <span className="whitespace-nowrap">מצב פוקוס</span>
+                <Focus className="w-5 h-5 group-hover/focus:rotate-90 transition-transform duration-500" />
+                <span className="whitespace-nowrap uppercase tracking-widest text-[10px] md:text-sm">מצב פוקוס</span>
             </button>
 
             <AnimatePresence>

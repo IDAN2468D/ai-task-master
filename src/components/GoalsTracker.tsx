@@ -72,10 +72,10 @@ export default function GoalsTracker({ completedCount }: { completedCount: numbe
         <>
             <button
                 onClick={() => setIsOpen(true)}
-                className="flex-shrink-0 flex items-center gap-2.5 px-5 py-3 md:py-2.5 bg-purple-500/10 text-purple-600 dark:text-purple-400 rounded-2xl font-black text-xs md:text-sm border border-purple-500/10 dark:border-purple-500/20 shadow-sm transition-all hover:bg-purple-500/20 active:scale-95"
+                className="flex-shrink-0 flex items-center gap-3 px-6 py-4 bg-purple-500/10 text-purple-600 dark:text-purple-400 rounded-2xl font-black text-[10px] md:text-xs border border-purple-500/10 dark:border-purple-500/20 shadow-sm transition-all hover:bg-purple-500/20 active:scale-95 uppercase tracking-widest"
             >
-                <Target className="w-4 h-4" />
-                <span className="whitespace-nowrap">יעדים {goals.length > 0 && `(${achievedCount}/${goals.length})`}</span>
+                <Target className="w-5 h-5" />
+                <span>יעדים {goals.length > 0 && `(${achievedCount}/${goals.length})`}</span>
             </button>
 
             <AnimatePresence>

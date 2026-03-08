@@ -82,10 +82,10 @@ export default function WellnessWidget() {
             {/* Widget Button */}
             <button
                 onClick={() => setIsOpen(true)}
-                className="flex-shrink-0 flex items-center gap-2.5 px-5 py-3 md:py-2.5 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-2xl font-black text-xs md:text-sm border border-emerald-500/10 dark:border-emerald-500/20 shadow-sm transition-all hover:bg-emerald-500/20 active:scale-95"
+                className="flex-shrink-0 flex items-center gap-3 px-6 py-4 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-2xl font-black text-[10px] md:text-xs border border-emerald-500/10 dark:border-emerald-500/20 shadow-sm transition-all hover:bg-emerald-500/20 active:scale-95 uppercase tracking-widest"
             >
-                <Heart className="w-4 h-4" />
-                <span className="whitespace-nowrap">רווחה</span>
+                <Heart className="w-5 h-5" />
+                <span>רווחה</span>
             </button>
 
             {/* Wellness Panel */}
