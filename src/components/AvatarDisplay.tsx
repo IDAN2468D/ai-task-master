@@ -1,6 +1,6 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { User, Shield, Zap, Target, Crown, Sparkles, Star } from 'lucide-react';
 
 interface AvatarDisplayProps {
@@ -111,5 +111,3 @@ export default function AvatarDisplay({ avatar, level, size = 120 }: AvatarDispl
         </div>
     );
 }
-
-import { AnimatePresence } from 'framer-motion';

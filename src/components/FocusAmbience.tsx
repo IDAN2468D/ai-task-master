@@ -5,10 +5,32 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Volume2, VolumeX, CloudRain, TreePine, Headset, Zap, Sparkles } from 'lucide-react';
 
 const AMBIENCE_MODES = [
-    { id: 'rain', name: 'גשם עדין', icon: CloudRain, color: 'text-blue-500', bg: 'bg-blue-500/10' },
-    { id: 'forest', name: 'יער קסום', icon: TreePine, color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
-    { id: 'lofi', name: 'Lo-Fi פוקוס', icon: Headset, color: 'text-purple-500', bg: 'bg-purple-500/10' },
+    {
+        id: 'rain',
+        name: 'גשם עדין',
+        icon: CloudRain,
+        color: 'text-blue-500',
+        bg: 'bg-blue-500/10',
+        url: 'https://actions.google.com/sounds/v1/water/rain_on_roof.ogg'
+    },
+    {
+        id: 'forest',
+        name: 'יער קסום',
+        icon: TreePine,
+        color: 'text-emerald-500',
+        bg: 'bg-emerald-500/10',
+        url: 'https://actions.google.com/sounds/v1/ambiences/forest_ambience.ogg'
+    },
+    {
+        id: 'lofi',
+        name: 'Lo-Fi פוקוס',
+        icon: Headset,
+        color: 'text-purple-500',
+        bg: 'bg-purple-500/10',
+        url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3'
+    },
 ];
+
 
 export default function FocusAmbience() {
     const [isActive, setIsActive] = useState(false);
@@ -18,8 +40,36 @@ export default function FocusAmbience() {
 
     const toggleAmbience = () => {
         setIsActive(!isActive);
-        if (navigator.vibrate) navigator.vibrate(20); // Haptic Feedback
+        if (navigator.vibrate) navigator.vibrate(20);
     };
+
+    useEffect(() => {
+        if (!audioRef.current) {
+            audioRef.current = new Audio();
+            audioRef.current.loop = true;
+        }
+
+        const selectedMode = AMBIENCE_MODES.find(m => m.id === mode);
+        if (selectedMode && audioRef.current.src !== selectedMode.url) {
+            audioRef.current.src = selectedMode.url;
+            if (isActive) audioRef.current.play().catch(e => console.error("Audio error", e));
+        }
+
+        if (isActive) {
+            audioRef.current.play().catch(e => console.error("Audio error", e));
+        } else {
+            audioRef.current.pause();
+        }
+
+        audioRef.current.volume = volume;
+
+        return () => {
+            if (audioRef.current) {
+                audioRef.current.pause();
+            }
+        };
+    }, [isActive, mode, volume]);
+
 
     return (
         <div className="flex flex-col gap-6 p-8 bg-white dark:bg-[#111C44] rounded-[32px] border border-slate-200/50 dark:border-white/5 shadow-2xl overflow-hidden relative">
