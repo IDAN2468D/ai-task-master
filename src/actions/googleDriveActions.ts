@@ -56,6 +56,8 @@ export async function exportTasksToDrive(tasks: any[]) {
 
         // Check if token is expired and refresh if necessary
         oauth2Client.on('tokens', async (tokens) => {
+            if (!user.googleTokens) return;
+
             if (tokens.refresh_token) {
                 user.googleTokens.refreshToken = tokens.refresh_token;
             }
