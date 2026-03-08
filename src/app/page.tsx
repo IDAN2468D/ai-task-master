@@ -42,22 +42,22 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
             <div className="max-w-[1400px] mx-auto px-6 pt-36">
 
                 {/* Colorful Hero Greeting */}
-                <div className="flex items-center justify-between mb-8">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
                     <div>
-                        <h2 className="text-4xl md:text-5xl font-black mb-2">
+                        <h2 className="text-4xl md:text-5xl font-black mb-2 leading-tight">
                             {greeting}, <label className="text-gradient-primary">{user.name}!</label>
                         </h2>
                         <p className="text-slate-500 font-medium">הנה מה שקורה עם המשימות שלך היום.</p>
                     </div>
-                    <div className="hidden lg:flex items-center gap-3">
+                    <div className="flex items-center gap-3 overflow-x-auto pb-6 md:pb-0 px-1 -mx-1 md:mx-0 md:px-0 no-scrollbar w-full md:w-auto mask-fade-right">
                         <LazyFocusMode tasks={tasks} />
                         <LazyTaskExport tasks={tasks} />
                         <LazyAchievementBadges tasks={tasks} />
                         <LazyGoalsTracker completedCount={completedCount} />
                         <LazyWellnessWidget />
-                        <div className="flex items-center gap-2 px-4 py-2 bg-[#4318FF]/10 text-[#4318FF] rounded-xl font-bold text-sm">
+                        <div className="flex-shrink-0 flex items-center gap-2 px-4 py-3 md:py-2.5 bg-[var(--primary)]/10 text-[var(--primary)] rounded-2xl font-black text-xs md:text-sm border border-[var(--primary)]/10 dark:border-[var(--primary)]/20 shadow-sm transition-transform active:scale-95">
                             <Lightbulb className="w-4 h-4" />
-                            AI פעיל ומנטר
+                            <span className="whitespace-nowrap">AI פעיל ומנטר</span>
                         </div>
                     </div>
                 </div>

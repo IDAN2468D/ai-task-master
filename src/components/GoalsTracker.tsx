@@ -70,9 +70,12 @@ export default function GoalsTracker({ completedCount }: { completedCount: numbe
 
     return (
         <>
-            <button onClick={() => setIsOpen(true)} className="flex items-center gap-2 px-4 py-2.5 bg-purple-500/10 text-purple-600 dark:text-purple-400 rounded-xl font-bold text-xs hover:bg-purple-500/20 transition-colors">
+            <button
+                onClick={() => setIsOpen(true)}
+                className="flex-shrink-0 flex items-center gap-2.5 px-5 py-3 md:py-2.5 bg-purple-500/10 text-purple-600 dark:text-purple-400 rounded-2xl font-black text-xs md:text-sm border border-purple-500/10 dark:border-purple-500/20 shadow-sm transition-all hover:bg-purple-500/20 active:scale-95"
+            >
                 <Target className="w-4 h-4" />
-                יעדים {goals.length > 0 && `(${achievedCount}/${goals.length})`}
+                <span className="whitespace-nowrap">יעדים {goals.length > 0 && `(${achievedCount}/${goals.length})`}</span>
             </button>
 
             <AnimatePresence>

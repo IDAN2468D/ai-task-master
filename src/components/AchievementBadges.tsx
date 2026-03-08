@@ -70,9 +70,12 @@ export default function AchievementBadges({ tasks }: { tasks: any[] }) {
     return (
         <>
             {/* Badge Counter Button */}
-            <button onClick={() => setIsOpen(true)} className="flex items-center gap-2 px-4 py-2.5 bg-amber-500/10 text-amber-600 dark:text-amber-400 rounded-xl font-bold text-xs hover:bg-amber-500/20 transition-colors">
+            <button
+                onClick={() => setIsOpen(true)}
+                className="flex-shrink-0 flex items-center gap-2.5 px-5 py-3 md:py-2.5 bg-amber-500/10 text-amber-600 dark:text-amber-400 rounded-2xl font-black text-xs md:text-sm border border-amber-500/10 dark:border-amber-500/20 shadow-sm transition-all hover:bg-amber-500/20 active:scale-95"
+            >
                 <Trophy className="w-4 h-4" />
-                {unlockedCount}/{BADGES.length}
+                <span className="whitespace-nowrap">{unlockedCount}/{BADGES.length} יעדים</span>
             </button>
 
             {/* New Badge Celebration */}

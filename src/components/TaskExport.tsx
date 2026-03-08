@@ -101,50 +101,48 @@ export default function TaskExport({ tasks }: { tasks: Task[] }) {
     };
 
     return (
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col gap-2">
-            <div className="flex items-center gap-2">
-                <button
-                    onClick={exportCSV}
-                    className="flex items-center gap-2 px-4 py-2.5 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-xl font-bold text-xs hover:bg-emerald-500/20 transition-colors"
-                    title="ייצוא ל-CSV"
-                >
-                    <FileSpreadsheet className="w-4 h-4" />
-                    CSV
-                </button>
-                <button
-                    onClick={exportJSON}
-                    className="flex items-center gap-2 px-4 py-2.5 bg-blue-500/10 text-blue-600 dark:text-blue-400 rounded-xl font-bold text-xs hover:bg-blue-500/20 transition-colors"
-                    title="ייצוא ל-JSON"
-                >
-                    <FileText className="w-4 h-4" />
-                    JSON
-                </button>
-                <button
-                    onClick={handleGoogleDriveExport}
-                    disabled={isSaving}
-                    className={`flex items-center gap-2 px-4 py-2.5 ${isConnected ? 'bg-[#4318FF]/10 text-[#4318FF]' : 'bg-slate-100 dark:bg-white/5 text-slate-500'} rounded-xl font-bold text-xs hover:bg-[#4318FF]/20 transition-all disabled:opacity-50`}
-                    title={isConnected ? "שמור ב-Google Drive" : "חבר את Google Drive"}
-                >
-                    {isSaving ? (
-                        <div className="w-4 h-4 border-2 border-[#4318FF]/30 border-t-[#4318FF] rounded-full animate-spin" />
-                    ) : (
-                        <HardDrive className="w-4 h-4" />
-                    )}
-                    {isConnected ? 'Google Drive' : 'חבר Drive'}
-                </button>
-            </div>
+        <div className="flex items-center gap-2 relative">
+            <button
+                onClick={exportCSV}
+                className="flex-shrink-0 flex items-center gap-2.5 px-5 py-3 md:py-2.5 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-2xl font-black text-xs md:text-sm border border-emerald-500/10 dark:border-emerald-500/20 shadow-sm transition-all hover:bg-emerald-500/20 active:scale-95"
+                title="ייצוא ל-CSV"
+            >
+                <FileSpreadsheet className="w-4 h-4" />
+                <span className="whitespace-nowrap">CSV</span>
+            </button>
+            <button
+                onClick={exportJSON}
+                className="flex-shrink-0 flex items-center gap-2.5 px-5 py-3 md:py-2.5 bg-blue-500/10 text-blue-600 dark:text-blue-400 rounded-2xl font-black text-xs md:text-sm border border-blue-500/10 dark:border-blue-500/20 shadow-sm transition-all hover:bg-blue-500/20 active:scale-95"
+                title="ייצוא ל-JSON"
+            >
+                <FileText className="w-4 h-4" />
+                <span className="whitespace-nowrap">JSON</span>
+            </button>
+            <button
+                onClick={handleGoogleDriveExport}
+                disabled={isSaving}
+                className={`flex-shrink-0 flex items-center gap-2.5 px-5 py-3 md:py-2.5 ${isConnected ? 'bg-[var(--primary)]/10 text-[var(--primary)]' : 'bg-slate-100 dark:bg-white/5 text-slate-500'} rounded-2xl font-black text-xs md:text-sm border ${isConnected ? 'border-[var(--primary)]/10 dark:border-[var(--primary)]/20 shadow-sm' : 'border-slate-200 dark:border-white/5'} transition-all hover:bg-indigo-500/20 disabled:opacity-50 active:scale-95`}
+                title={isConnected ? "שמור ב-Google Drive" : "חבר את Google Drive"}
+            >
+                {isSaving ? (
+                    <div className="w-4 h-4 border-2 border-[var(--primary)]/30 border-t-[var(--primary)] rounded-full animate-spin" />
+                ) : (
+                    <HardDrive className="w-4 h-4" />
+                )}
+                <span className="whitespace-nowrap">{isConnected ? 'Drive' : 'Google Drive'}</span>
+            </button>
 
             {status && (
                 <motion.div
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    className={`text-[10px] font-black flex items-center gap-2 px-3 py-1.5 rounded-lg border ${status.type === 'success' ? 'bg-emerald-50 text-emerald-600 border-emerald-200' : 'bg-red-50 text-red-600 border-red-200'}`}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className={`absolute -top-12 right-0 whitespace-nowrap z-50 text-[10px] font-black flex items-center gap-2 px-3 py-2 rounded-xl border shadow-xl ${status.type === 'success' ? 'bg-emerald-500 text-white border-emerald-400' : 'bg-red-500 text-white border-red-400'}`}
                 >
                     {status.type === 'success' ? <CheckCircle2 className="w-3 h-3" /> : <AlertCircle className="w-3 h-3" />}
                     {status.message}
                 </motion.div>
             )}
-        </motion.div>
+        </div>
     );
 }
 

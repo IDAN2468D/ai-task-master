@@ -51,10 +51,10 @@ export default function FocusMode({ tasks }: { tasks: Task[] }) {
         <>
             <button
                 onClick={() => { setIsOpen(true); setCurrentIndex(0); }}
-                className="flex items-center gap-2 px-4 py-2.5 bg-[#FF00E5]/10 text-[#FF00E5] rounded-xl font-bold text-sm hover:bg-[#FF00E5]/20 transition-colors"
+                className="flex-shrink-0 flex items-center gap-2.5 px-5 py-3 md:py-2.5 bg-[#FF00E5]/10 text-[#FF00E5] rounded-2xl font-black text-xs md:text-sm border border-[#FF00E5]/10 dark:border-[#FF00E5]/20 shadow-sm transition-all hover:bg-[#FF00E5]/20 active:scale-95"
             >
                 <Focus className="w-4 h-4" />
-                <span>מצב פוקוס</span>
+                <span className="whitespace-nowrap">מצב פוקוס</span>
             </button>
 
             <AnimatePresence>
@@ -90,8 +90,8 @@ export default function FocusMode({ tasks }: { tasks: Task[] }) {
                                         <div
                                             key={i}
                                             className={`h-1 rounded-full transition-all ${i < currentIndex ? 'w-8 bg-emerald-500' :
-                                                    i === currentIndex ? 'w-12 bg-[#FF00E5]' :
-                                                        'w-8 bg-white/10'
+                                                i === currentIndex ? 'w-12 bg-[#FF00E5]' :
+                                                    'w-8 bg-white/10'
                                                 }`}
                                         />
                                     ))}
@@ -105,8 +105,8 @@ export default function FocusMode({ tasks }: { tasks: Task[] }) {
                             <div className="mb-10">
                                 <div className="flex items-center justify-center gap-3 mb-6">
                                     <span className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider ${currentTask.priority === 'High' ? 'bg-red-500/20 text-red-400' :
-                                            currentTask.priority === 'Medium' ? 'bg-amber-500/20 text-amber-400' :
-                                                'bg-cyan-500/20 text-cyan-400'
+                                        currentTask.priority === 'Medium' ? 'bg-amber-500/20 text-amber-400' :
+                                            'bg-cyan-500/20 text-cyan-400'
                                         }`}>
                                         {currentTask.priority === 'High' ? 'עדיפות גבוהה' :
                                             currentTask.priority === 'Medium' ? 'עדיפות בינונית' : 'עדיפות נמוכה'}

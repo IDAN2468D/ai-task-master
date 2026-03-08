@@ -87,7 +87,7 @@ export default function KanbanBoard({ tasks: initialTasks }: { tasks: Task[] }) 
     return (
         <div className="relative">
             {/* AI Magic Sort Header */}
-            <div className="flex justify-end mb-8">
+            <div className="flex justify-center md:justify-end mb-8">
                 <button
                     onClick={handleMagicSort}
                     disabled={isSorting}
