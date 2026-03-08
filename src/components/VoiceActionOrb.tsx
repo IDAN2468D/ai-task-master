@@ -3,7 +3,7 @@
 import { Mic, MicOff, Check, X, Sparkles, AlertCircle } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { createTaskFromVoice } from '@/actions/taskActions';
+import { handleVoiceCommand } from '@/actions/taskActions';
 
 export default function VoiceActionOrb() {
     const [isListening, setIsListening] = useState(false);
@@ -11,11 +11,10 @@ export default function VoiceActionOrb() {
     const [processing, setProcessing] = useState(false);
     const [success, setSuccess] = useState(false);
     const [error, setError] = useState(false);
-    const [createdTask, setCreatedTask] = useState<string | null>(null);
+    const [responseMsg, setResponseMsg] = useState<string | null>(null);
     const recognitionRef = useRef<any>(null);
 
     const startListening = () => {
-        // Check if Web Speech API is available
         const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
         if (!SpeechRecognition) {
             setError(true);
@@ -44,18 +43,26 @@ export default function VoiceActionOrb() {
 
         recognition.onend = async () => {
             setIsListening(false);
-            if (transcript.trim()) {
+            if (transcript.trim() && transcript !== 'מקשיב...') {
                 setProcessing(true);
                 try {
-                    const result = await createTaskFromVoice(transcript);
+                    const result = await handleVoiceCommand(transcript);
                     if (result.success) {
-                        setCreatedTask(result.title);
+                        const actionMap: any = { CREATE: 'נוצרה משימה:', MOVE: 'הועברה משימה:', DELETE: 'נמחקה משימה:' };
+                        setResponseMsg(`${actionMap[result.action || ''] || ''} ${result.title || ''}`);
                         setSuccess(true);
                         setTimeout(() => {
                             setSuccess(false);
-                            setCreatedTask(null);
+                            setResponseMsg(null);
                             setTranscript('');
-                        }, 3000);
+                        }, 4000);
+                    } else {
+                        setResponseMsg(result.message || 'לא הבנתי...');
+                        setError(true);
+                        setTimeout(() => {
+                            setError(false);
+                            setResponseMsg(null);
+                        }, 4000);
                     }
                 } catch (err) {
                     setError(true);
@@ -118,10 +125,10 @@ export default function VoiceActionOrb() {
 
                         <div className="text-center space-y-2">
                             <h4 className="text-xs font-black uppercase tracking-widest text-[#4318FF] dark:text-[#00E5FF]">
-                                {processing ? 'AI מעבד...' : success ? 'נוצר בהצלחה! ✨' : error ? 'שגיאה' : 'עוזר קולי'}
+                                {processing ? 'AI מעבד...' : success ? 'הצלחתי! ✨' : error ? 'משהו קרה' : 'עוזר קולי'}
                             </h4>
                             <p className="text-sm font-bold text-slate-700 dark:text-slate-300 italic">
-                                {success ? `"${createdTask}"` : error ? 'הדפדפן לא תומך בהקלטה קולית' : `"${transcript}"`}
+                                {success || error ? responseMsg : `"${transcript}"`}
                             </p>
                         </div>
 

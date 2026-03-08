@@ -34,6 +34,7 @@ export interface ITask extends Document {
     googleEventId?: string;
     googleCalendarLink?: string;
     userId?: string;
+    workspaceCode?: string;
     links: { url: string, summary?: string }[];
     xpAwarded: boolean;
     createdAt: Date;
@@ -120,6 +121,10 @@ const TaskSchema: Schema<ITask> = new Schema({
         type: Boolean,
         default: false,
     },
+    workspaceCode: {
+        type: String,
+        required: false,
+    },
     createdAt: {
         type: Date,
         default: Date.now,
@@ -130,6 +135,7 @@ const TaskSchema: Schema<ITask> = new Schema({
 TaskSchema.index({ status: 1, priority: 1 });
 TaskSchema.index({ dueDate: 1 });
 TaskSchema.index({ 'tags.name': 1 });
+TaskSchema.index({ workspaceCode: 1 });
 
 const Task: Model<ITask> = mongoose.models.Task || mongoose.model<ITask>('Task', TaskSchema);
 

@@ -1,6 +1,7 @@
 import { getTasks } from '@/actions/taskActions';
 import { getCurrentUser } from '@/actions/authActions';
-import { Lightbulb, Zap } from 'lucide-react';
+import { Lightbulb, Zap, ShoppingBag } from 'lucide-react';
+import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { Suspense } from 'react';
 import {
@@ -12,6 +13,7 @@ import {
     LazyWellnessWidget,
     LazySmartReminders,
     LazySmartAIPanel,
+    LazyCollaborativeHub,
     LazyKanbanBoard,
     LazyDashboardStats,
     LazySearchFilterBar,
@@ -90,6 +92,11 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
                             <LazyAchievementBadges tasks={tasks} />
                             <LazyGoalsTracker completedCount={completedCount} />
                             <LazyWellnessWidget />
+                            <LazyCollaborativeHub />
+                            <Link href="/store" className="flex-shrink-0 flex items-center gap-3 px-6 py-4 bg-amber-500/10 text-amber-600 dark:text-amber-400 rounded-2xl font-black text-[10px] md:text-xs border border-amber-500/10 dark:border-amber-500/20 shadow-sm transition-all hover:bg-amber-500/20 active:scale-95 uppercase tracking-widest">
+                                <ShoppingBag className="w-5 h-5" />
+                                <span>חנות</span>
+                            </Link>
                             <div className="h-8 w-[1px] bg-slate-200 dark:bg-white/10 mx-2 hidden sm:block" />
                             <LazyTaskExport tasks={tasks} />
                         </div>

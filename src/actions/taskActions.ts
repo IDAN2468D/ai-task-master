@@ -259,41 +259,70 @@ export async function chatWithAI(userMessage: string) {
 /**
  * AI Voice Command: Parse voice input and create a task from it
  */
-export async function createTaskFromVoice(transcript: string) {
+/**
+ * AI Voice Assistant 2.0: Parse voice input for creating, moving, or deleting tasks.
+ */
+export async function handleVoiceCommand(transcript: string) {
   try {
     await connectDB();
+    const tasks = await Task.find({ status: { $ne: 'Done' } }).select('title status').lean();
+    const taskContext = tasks.map((t: any) => ({ id: t._id, title: t.title, status: t.status }));
 
-    const prompt = `The user dictated this task via voice (in Hebrew): "${transcript}"
-    Parse it and extract the task details.
-    Return ONLY a valid JSON object like this:
-    {"title": "cleaned task title in Hebrew", "priority": "High/Medium/Low", "category": "עבודה/אישי/דחוף/בריאות/פיננסים", "dueDate": "YYYY-MM-DD or null"}
+    const prompt = `The user dictated this command via voice (in Hebrew): "${transcript}"
+    Existing tasks: ${JSON.stringify(taskContext)}
     
-    If no due date is mentioned, set dueDate to null.
-    Clean up the title to be professional and concise.`;
+    Determine the user's intent: "CREATE", "MOVE", "DELETE", or "UNKNOWN".
+    - "CREATE": user wants to add a new task.
+    - "MOVE": user wants to change a task status (e.g., move "Project X" to "InProgress").
+    - "DELETE": user wants to remove a task.
+    
+    Return ONLY a valid JSON object:
+    {
+      "intent": "CREATE" | "MOVE" | "DELETE" | "UNKNOWN",
+      "data": {
+        "title": "task title in Hebrew (for CREATE or identifying for MOVE/DELETE)",
+        "priority": "High/Medium/Low (for CREATE)",
+        "category": "category in Hebrew (for CREATE)",
+        "status": "Todo/InProgress/Done (for MOVE)",
+        "taskId": "id from existing tasks (for MOVE/DELETE if identified)"
+      }
+    }
+    
+    Clean up titles and be smart about matching. If intent is MOVE, try to find the taskId in the context.`;
 
     const result = await model.generateContent(prompt);
     const text = result.response.text().replace(/```json|```/g, '').trim();
     const parsed = JSON.parse(text);
 
-    const taskData: any = {
-      title: parsed.title || transcript,
-      category: parsed.category || 'אישי',
-      priority: parsed.priority || 'Medium',
-      status: 'Todo',
-      subtasks: [],
-    };
-
-    if (parsed.dueDate) {
-      taskData.dueDate = new Date(parsed.dueDate);
+    if (parsed.intent === 'CREATE') {
+      const taskData = {
+        title: parsed.data.title || transcript,
+        category: parsed.data.category || 'אישי',
+        priority: parsed.data.priority || 'Medium',
+        status: 'Todo',
+        subtasks: [],
+      };
+      const nt = await Task.create(taskData);
+      revalidatePath('/');
+      return { success: true, action: 'CREATE', title: nt.title };
     }
 
-    await Task.create(taskData);
-    revalidatePath('/');
+    if (parsed.intent === 'MOVE' && parsed.data.taskId) {
+      await Task.findByIdAndUpdate(parsed.data.taskId, { status: parsed.data.status });
+      revalidatePath('/');
+      return { success: true, action: 'MOVE', title: parsed.data.title, status: parsed.data.status };
+    }
 
-    return { success: true, title: taskData.title, priority: taskData.priority, category: taskData.category };
+    if (parsed.intent === 'DELETE' && parsed.data.taskId) {
+      await Task.findByIdAndDelete(parsed.data.taskId);
+      revalidatePath('/');
+      return { success: true, action: 'DELETE', title: parsed.data.title };
+    }
+
+    return { success: false, message: 'לא הצלחתי להבין את הפקודה. נסה שוב - למשל "צור משימה חדשה" או "העבר את משימת X לבוצע"' };
   } catch (error) {
-    console.error('Error creating task from voice:', error);
-    return { success: false, title: transcript, priority: 'Medium', category: 'אישי' };
+    console.error('Error in Voice 2.0:', error);
+    return { success: false, message: 'משהו השתבש בעיבוד הפקודה הקולית.' };
   }
 }
 
@@ -307,6 +336,37 @@ export async function updateTaskDescription(taskId: string, description: string)
   } catch (error) {
     console.error('Error updating description:', error);
     throw new Error('Failed to update description');
+  }
+}
+
+/**
+ * Smart Link Summary: Fetches link content (meta tags) and summarizes using Gemini.
+ */
+export async function addSmartLink(taskId: string, url: string) {
+  try {
+    await connectDB();
+    const res = await fetch(url).then(r => r.text());
+    const titleMatch = res.match(/<title>(.*?)<\/title>/);
+    const title = titleMatch ? titleMatch[1] : url;
+
+    const prompt = `Summarize this website title and URL into a 5-word Hebrew description: Title: "${title}", URL: "${url}". Return ONLY the description.`;
+    const result = await model.generateContent(prompt);
+    const summary = result.response.text().trim();
+
+    await Task.findByIdAndUpdate(taskId, {
+      $push: { links: { url, summary } }
+    });
+
+    revalidatePath('/');
+    return { success: true, summary };
+  } catch (error) {
+    console.error('Error in link summary:', error);
+    // Generic fallback if fetch fails
+    await Task.findByIdAndUpdate(taskId, {
+      $push: { links: { url, summary: 'קישור נוסף' } }
+    });
+    revalidatePath('/');
+    return { success: false };
   }
 }
 

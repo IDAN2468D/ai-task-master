@@ -10,7 +10,8 @@ import {
     toggleSubtask,
     addSubtask,
     autoClusterTasks,
-    smartBreakdown
+    smartBreakdown,
+    addSmartLink
 } from '@/actions/taskActions';
 import { syncTaskToCalendar } from '@/actions/googleCalendarActions';
 import { useToast } from '@/components/ToastNotifications';
@@ -90,6 +91,9 @@ export function useTaskFlow() {
                 addToast("נכשלו ניתוח המשימה ע״י AI", 'error');
                 return "";
             }
-        }
+        },
+
+        addLink: (id: string, url: string) =>
+            performAction(addSmartLink, [id, url], "הקישור נוסף וסוכם ע״י AI! 🔗"),
     };
 }

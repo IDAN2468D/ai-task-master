@@ -44,7 +44,8 @@ export default function TopNav() {
     const links = [
         { href: '/', label: 'ראשי' },
         { href: '/calendar', label: 'לוח שנה' },
-        { href: '/analytics', label: 'אנליטיקס' }
+        { href: '/analytics', label: 'אנליטיקס' },
+        { href: '/store', label: 'חנות' }
     ];
 
     return (

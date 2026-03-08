@@ -15,6 +15,7 @@ const TaskExport = dynamic(() => import('./TaskExport'), { ssr: false });
 const AchievementBadges = dynamic(() => import('./AchievementBadges'), { ssr: false });
 const GoalsTracker = dynamic(() => import('./GoalsTracker'), { ssr: false });
 const WellnessWidget = dynamic(() => import('./WellnessWidget'), { ssr: false });
+const CollaborativeHub = dynamic(() => import('./CollaborativeHub'), { ssr: false });
 
 interface Task {
     _id: string;
@@ -75,4 +76,8 @@ export function LazySearchFilterBar() {
 
 export function LazyAddTaskForm() {
     return <AddTaskForm />;
+}
+
+export function LazyCollaborativeHub() {
+    return <CollaborativeHub />;
 }
