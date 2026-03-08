@@ -87,7 +87,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
 
                         <div className="h-12 w-[1px] bg-slate-200 dark:bg-white/10 mx-2 hidden lg:block" />
 
-                        <div className="flex flex-wrap items-center gap-3 flex-1 relative">
+                        <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 flex-1 relative min-w-0">
                             <LazyFocusMode tasks={tasks} />
                             <LazyAchievementBadges tasks={tasks} />
                             <LazyGoalsTracker completedCount={completedCount} />
@@ -97,7 +97,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
                                 <ShoppingBag className="w-5 h-5" />
                                 <span>חנות</span>
                             </Link>
-                            <div className="h-8 w-[1px] bg-slate-200 dark:bg-white/10 mx-2 hidden sm:block" />
+                            <div className="h-8 w-[1px] bg-slate-200 dark:bg-white/10 mx-1 hidden xl:block" />
                             <LazyTaskExport tasks={tasks} />
                         </div>
 
