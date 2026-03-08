@@ -45,7 +45,7 @@ function SettingRow({ icon: Icon, iconColor, title, subtitle, children }: {
     icon: any; iconColor: string; title: string; subtitle: string; children: React.ReactNode;
 }) {
     return (
-        <div className="p-5 bg-slate-50 dark:bg-slate-900/50 rounded-2xl border border-slate-200 dark:border-white/10 flex items-center justify-between gap-4">
+        <div className="p-4 md:p-5 bg-slate-50 dark:bg-slate-900/50 rounded-2xl border border-slate-200 dark:border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-center gap-4 flex-1 min-w-0">
                 <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ backgroundColor: iconColor + '15' }}>
                     <Icon className="w-5 h-5" style={{ color: iconColor }} />
@@ -74,7 +74,7 @@ export default function ProfileClient({ user }: { user: { name: string, email: s
     ];
 
     return (
-        <div className="max-w-[1400px] mx-auto px-6 pt-16">
+        <div className="max-w-[1400px] mx-auto px-6 pt-32 md:pt-40">
             {/* Header */}
             <div className="mb-12 relative flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div>
@@ -97,16 +97,18 @@ export default function ProfileClient({ user }: { user: { name: string, email: s
             </div>
 
             <div className="grid lg:grid-cols-12 gap-8 items-start">
-                {/* Sidebar Tabs */}
-                <div className="lg:col-span-3 space-y-2">
+                {/* Sidebar Tabs - Horizontal on Mobile, Vertical on Desktop */}
+                <div className="lg:col-span-3 flex flex-row lg:flex-col items-center gap-3 overflow-x-auto lg:overflow-visible pb-4 lg:pb-0 no-scrollbar mask-fade-right lg:mask-none -mx-2 px-2 lg:mx-0 lg:px-0">
                     {tabs.map(tab => (
                         <button
                             key={tab.id}
                             onClick={() => setActiveTab(tab.id)}
-                            className={`w-full flex items-center gap-3 px-5 py-4 rounded-2xl font-bold text-sm transition-all duration-300 ${activeTab === tab.id ? 'bg-[var(--primary)] text-white shadow-lg shadow-[var(--primary)]/30 -translate-x-2' : 'text-slate-500 dark:text-slate-400 hover:bg-white dark:hover:bg-[#111C44] hover:text-slate-800 dark:hover:text-white'}`}
+                            className={`flex-shrink-0 flex items-center gap-3 px-5 py-4 lg:py-5 rounded-[22px] font-black text-sm transition-all duration-300 border ${activeTab === tab.id
+                                ? 'bg-[var(--primary)] text-white shadow-xl shadow-[var(--primary)]/20 border-transparent lg:-translate-x-2'
+                                : 'text-slate-500 dark:text-slate-400 bg-white/50 dark:bg-[#111C44]/50 border-slate-100 dark:border-white/5 hover:border-[var(--primary)]/30'}`}
                         >
                             <tab.icon className={`w-5 h-5 ${activeTab === tab.id ? 'text-white' : 'text-slate-400 dark:text-slate-500'}`} />
-                            {tab.label}
+                            <span className="whitespace-nowrap">{tab.label}</span>
                         </button>
                     ))}
                 </div>
@@ -118,7 +120,7 @@ export default function ProfileClient({ user }: { user: { name: string, email: s
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.3 }}
-                        className="vibrant-card p-8 md:p-10 min-h-[600px] relative overflow-hidden"
+                        className="vibrant-card p-6 md:p-10 min-h-[500px] md:min-h-[600px] relative overflow-hidden"
                     >
                         {activeTab === 'account' && <AccountSettings user={user} router={router} />}
                         {activeTab === 'preferences' && <PreferencesSettings />}
@@ -227,51 +229,51 @@ function AccountSettings({ user, router }: { user: { name: string, email: string
             <SectionHeader title="פרופיל ציבורי" subtitle="זה יוצג בסביבת העבודה שלך." />
 
             {/* Google Drive Status */}
-            <div className="p-6 bg-[var(--primary)]/5 border border-[var(--primary)]/20 rounded-3xl flex items-center justify-between gap-6 mb-8">
+            <div className="p-6 bg-[var(--primary)]/5 border border-[var(--primary)]/20 rounded-3xl flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-8 group transition-all hover:bg-[var(--primary)]/10">
                 <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-white dark:bg-[#111C44] rounded-2xl flex items-center justify-center shadow-sm">
+                    <div className="w-12 h-12 bg-white dark:bg-[#111C44] rounded-2xl flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform">
                         <HardDrive className={`w-6 h-6 ${isDriveConnected ? 'text-[var(--primary)]' : 'text-slate-400'}`} />
                     </div>
                     <div>
                         <h4 className="text-sm font-black text-slate-800 dark:text-white">חיבור ל-Google Drive</h4>
                         <p className="text-[11px] font-bold text-slate-500">
-                            {isDriveConnected ? 'מחובר - ניתן לייצא משימות ישירות לענן' : 'לא מחובר - חבר כדי לגבות ולייצא משימות'}
+                            {isDriveConnected ? 'מחובר - ניתן לייצא משימות ישירות לענן' : 'לא מחובר - חבר כדי לייצא משימות'}
                         </p>
                     </div>
                 </div>
                 <button
                     onClick={handleToggleDrive}
-                    className={`px-5 py-2.5 rounded-xl font-bold text-xs transition-all ${isDriveConnected ? 'bg-red-50 text-red-600 border border-red-200 hover:bg-red-100' : 'bg-[var(--primary)] text-white shadow-lg shadow-[var(--primary)]/20 hover:-translate-y-0.5'}`}
+                    className={`px-6 py-3 rounded-2xl font-black text-xs transition-all w-full sm:w-auto ${isDriveConnected ? 'bg-red-50 text-red-600 border border-red-200 hover:bg-red-100' : 'bg-[var(--primary)] text-white shadow-xl shadow-[var(--primary)]/20 hover:-translate-y-1 active:scale-95'}`}
                 >
                     {isDriveConnected ? 'נתק חיבור' : 'חבר עכשיו'}
                 </button>
             </div>
 
-            <div className="flex items-center gap-8">
+            <div className="flex flex-col sm:flex-row items-center gap-8">
                 <input type="file" id="profile-image" hidden accept="image/*" onChange={handleImageChange} />
                 <div
                     onClick={() => document.getElementById('profile-image')?.click()}
-                    className="w-24 h-24 rounded-3xl bg-gradient-stat-2 flex items-center justify-center text-3xl font-black text-white shadow-xl shadow-[#00E5FF]/30 relative group cursor-pointer overflow-hidden"
+                    className="w-28 h-28 rounded-[32px] bg-gradient-stat-2 flex items-center justify-center text-3xl font-black text-white shadow-xl shadow-[#00E5FF]/20 relative group cursor-pointer overflow-hidden transition-transform hover:scale-105"
                 >
                     {image ? (
                         <img src={image} alt={name} className="w-full h-full object-cover" />
                     ) : (
                         user.name.charAt(0)
                     )}
-                    <div className="absolute inset-0 bg-black/40 rounded-3xl opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                    <div className="absolute inset-0 bg-black/40 rounded-[32px] opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
                         <User className="w-8 h-8 text-white" />
                     </div>
                 </div>
-                <div className="flex gap-3">
+                <div className="flex gap-3 w-full sm:w-auto">
                     <button
                         onClick={() => document.getElementById('profile-image')?.click()}
-                        className="px-6 py-2.5 bg-[var(--primary)] text-white font-bold text-sm rounded-xl hover:shadow-[0_10px_20px_rgba(67,24,255,0.3)] hover:-translate-y-0.5 transition-all"
+                        className="flex-1 sm:flex-none px-8 py-3.5 bg-[var(--primary)] text-white font-black text-xs md:text-sm rounded-2xl shadow-xl shadow-[var(--primary)]/20 hover:-translate-y-1 transition-all active:scale-95 uppercase tracking-widest"
                     >
                         שנה תמונה
                     </button>
                     <button
                         onClick={() => setImage('')}
-                        className="px-6 py-2.5 bg-slate-100 dark:bg-[#111C44] text-slate-700 dark:text-slate-300 font-bold text-sm rounded-xl hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors"
+                        className="flex-1 sm:flex-none px-8 py-3.5 bg-slate-100 dark:bg-[#111C44] text-slate-700 dark:text-slate-300 font-black text-xs md:text-sm rounded-2xl hover:bg-slate-200 dark:hover:bg-slate-800 transition-all active:scale-95 uppercase tracking-widest"
                     >
                         הסר
                     </button>
