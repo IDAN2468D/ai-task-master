@@ -11,7 +11,7 @@ const AMBIENCE_MODES = [
         icon: CloudRain,
         color: 'text-blue-500',
         bg: 'bg-blue-500/10',
-        url: 'https://actions.google.com/sounds/v1/water/rain_on_roof.ogg'
+        url: 'https://raw.githubusercontent.com/rafaelmardojai/blanket/master/data/resources/sounds/rain.ogg'
     },
     {
         id: 'forest',
@@ -19,7 +19,7 @@ const AMBIENCE_MODES = [
         icon: TreePine,
         color: 'text-emerald-500',
         bg: 'bg-emerald-500/10',
-        url: 'https://actions.google.com/sounds/v1/ambiences/forest_ambience.ogg'
+        url: 'https://raw.githubusercontent.com/rafaelmardojai/blanket/master/data/resources/sounds/birds.ogg'
     },
     {
         id: 'lofi',
