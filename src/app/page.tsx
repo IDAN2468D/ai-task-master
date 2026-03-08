@@ -17,16 +17,24 @@ import {
     LazyKanbanBoard,
     LazyDashboardStats,
     LazySearchFilterBar,
-    LazyAddTaskForm
+    LazyAddTaskForm,
+    LazyAIManagerReport,
+    LazyFocusAmbience
 } from '@/components/LazyClientWrappers';
+import AvatarDisplay from '@/components/AvatarDisplay';
+import { getAIProgressReport } from '@/actions/aiManagerActions';
+
+import { getFullUser } from '@/actions/authActions';
 
 export const dynamic = 'force-dynamic';
 
 export default async function HomePage({ searchParams }: { searchParams: Promise<{ q?: string; priority?: string }> }) {
-    const user = await getCurrentUser();
+    const user = await getFullUser();
     if (!user) {
         redirect('/login');
     }
+
+    const aiReport = await getAIProgressReport();
 
     const resolvedParams = await searchParams;
     const q = resolvedParams.q;
@@ -59,12 +67,15 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
                         <p className="text-slate-500 font-bold text-lg">מוכן לכבוש את היעדים שלך היום?</p>
                     </div>
 
-                    <div className="hidden lg:flex flex-col items-end text-left">
-                        <div className="text-3xl font-black text-slate-800 dark:text-white tabular-nums">
-                            {new Date().toLocaleDateString('he-IL', { day: '2-digit', month: '2-digit' })}
-                        </div>
-                        <div className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">
-                            Current Session
+                    <div className="flex items-center gap-6">
+                        <AvatarDisplay level={user.level} avatar={user.avatar} size={100} />
+                        <div className="hidden lg:flex flex-col items-end text-left">
+                            <div className="text-3xl font-black text-slate-800 dark:text-white tabular-nums">
+                                {new Date().toLocaleDateString('he-IL', { day: '2-digit', month: '2-digit' })}
+                            </div>
+                            <div className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">
+                                Current Session
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -142,6 +153,12 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
                             <div className="w-full md:w-auto">
                                 <LazySearchFilterBar />
                             </div>
+                        </div>
+
+                        {/* Focus Ambience & AI Report */}
+                        <div className="grid md:grid-cols-2 gap-6 mt-12 mb-12">
+                            <LazyFocusAmbience />
+                            <LazyAIManagerReport report={aiReport} />
                         </div>
 
                         {/* Vibrant Board */}

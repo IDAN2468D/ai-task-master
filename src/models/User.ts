@@ -14,6 +14,16 @@ export interface IUser extends Document {
     level: number;
     currency: number;
     unlockedItems: string[];
+    avatar?: {
+        type: string;
+        skin: string;
+        clothing: string;
+        accessory: string;
+    };
+    activeBuffs?: {
+        name: string;
+        expiresAt: Date;
+    }[];
     createdAt: Date;
 }
 
@@ -45,6 +55,16 @@ const UserSchema: Schema<IUser> = new Schema({
     level: { type: Number, default: 1 },
     currency: { type: Number, default: 0 },
     unlockedItems: { type: [String], default: [] },
+    avatar: {
+        type: { type: String, default: 'human_base' },
+        skin: { type: String, default: 'default' },
+        clothing: { type: String, default: 'default' },
+        accessory: { type: String, default: 'none' }
+    },
+    activeBuffs: [{
+        name: String,
+        expiresAt: Date
+    }],
     googleTokens: {
         accessToken: String,
         refreshToken: String,

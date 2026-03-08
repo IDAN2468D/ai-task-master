@@ -4,6 +4,8 @@ import "./globals.css";
 import TopNav from "@/components/TopNav";
 import GlobalFloatingWidgets from "@/components/GlobalFloatingWidgets";
 import ClientOnly from "@/components/ClientOnly";
+import PWAInstaller from "@/components/PWAInstaller";
+
 
 const rubik = Rubik({
   subsets: ["latin", "hebrew"],
@@ -37,6 +39,7 @@ export default function RootLayout({
         <ClientOnly>
           <TopNav />
           <GlobalFloatingWidgets />
+          <PWAInstaller />
         </ClientOnly>
         {children}
       </body>

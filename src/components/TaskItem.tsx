@@ -47,6 +47,7 @@ export default function TaskItem({ task }: { task: Task }) {
     };
 
     const handleGenSubtasks = async () => {
+        if (navigator.vibrate) navigator.vibrate(30);
         await generateSubtasks(task._id, task.title);
         setShowSubtasks(true);
     };
@@ -208,7 +209,10 @@ export default function TaskItem({ task }: { task: Task }) {
                             {showSubtasks ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                         </button>
                         <button
-                            onClick={() => removeTask(task._id)}
+                            onClick={() => {
+                                if (navigator.vibrate) navigator.vibrate([50, 30, 50]);
+                                removeTask(task._id);
+                            }}
                             disabled={isPending}
                             className="p-2 bg-red-50 dark:bg-red-500/10 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition-all ml-1 shadow-sm"
                             title="מחיקה מהירה"
@@ -230,7 +234,10 @@ export default function TaskItem({ task }: { task: Task }) {
                             {task.subtasks.map((s: any) => (
                                 <button
                                     key={s._id}
-                                    onClick={() => toggleSub(task._id, s._id, s.isCompleted)}
+                                    onClick={() => {
+                                        if (!s.isCompleted && navigator.vibrate) navigator.vibrate(50);
+                                        toggleSub(task._id, s._id, s.isCompleted);
+                                    }}
                                     className="w-full flex items-center gap-3 p-2 bg-slate-50/50 dark:bg-slate-900/40 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-900/80 transition-all text-right group/sub"
                                 >
                                     <div className={`p-1 rounded-md transition-colors ${s.isCompleted ? 'bg-[var(--accent-1)]/10 text-[var(--accent-1)]' : 'bg-white dark:bg-white/5 text-slate-300 group-hover/sub:text-slate-400'}`}>

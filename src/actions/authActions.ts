@@ -153,6 +153,23 @@ export async function getCurrentUser() {
         return null;
     }
 }
+
+export async function getFullUser() {
+    try {
+        const session = await getCurrentUser();
+        if (!session) return null;
+
+        await connectDB();
+        const user = await User.findById(session.userId).lean();
+        if (!user) return null;
+
+        return JSON.parse(JSON.stringify(user));
+    } catch (error) {
+        console.error('Error fetching full user:', error);
+        return null;
+    }
+}
+
 // ========================
 // UPDATE PROFILE
 // ========================

@@ -430,6 +430,31 @@ export async function createRecurringFromTask(taskId: string) {
   }
 }
 
+export async function addCommentToTask(taskId: string, text: string) {
+  try {
+    const user = await getCurrentUser();
+    if (!user) throw new Error('Not authenticated');
+
+    await connectDB();
+    await Task.findByIdAndUpdate(taskId, {
+      $push: {
+        comments: {
+          userId: user.userId,
+          userName: user.name,
+          text,
+          createdAt: new Date()
+        }
+      }
+    });
+
+    revalidatePath('/');
+  } catch (error) {
+    console.error('Error adding comment:', error);
+    throw new Error('Failed to add comment');
+  }
+}
+
+
 /**
  * AI Task Clustering: Group related tasks into projects
  */

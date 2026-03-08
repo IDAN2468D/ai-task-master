@@ -36,6 +36,14 @@ export interface ITask extends Document {
     userId?: string;
     workspaceCode?: string;
     links: { url: string, summary?: string }[];
+    comments?: {
+        userId: string;
+        userName: string;
+        text: string;
+        createdAt: Date;
+    }[];
+    lastCompletedAt?: Date;
+    parentTaskId?: string;
     xpAwarded: boolean;
     createdAt: Date;
 }
@@ -117,6 +125,14 @@ const TaskSchema: Schema<ITask> = new Schema({
             summary: { type: String, required: false },
         }
     ],
+    comments: [{
+        userId: String,
+        userName: String,
+        text: String,
+        createdAt: { type: Date, default: Date.now }
+    }],
+    lastCompletedAt: Date,
+    parentTaskId: String,
     xpAwarded: {
         type: Boolean,
         default: false,

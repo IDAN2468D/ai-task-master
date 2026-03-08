@@ -16,6 +16,9 @@ const AchievementBadges = dynamic(() => import('./AchievementBadges'), { ssr: fa
 const GoalsTracker = dynamic(() => import('./GoalsTracker'), { ssr: false });
 const WellnessWidget = dynamic(() => import('./WellnessWidget'), { ssr: false });
 const CollaborativeHub = dynamic(() => import('./CollaborativeHub'), { ssr: false });
+const AIManagerReport = dynamic(() => import('./AIManagerReport'), { ssr: false });
+const FocusAmbience = dynamic(() => import('./FocusAmbience'), { ssr: false });
+
 
 interface Task {
     _id: string;
@@ -81,3 +84,13 @@ export function LazyAddTaskForm() {
 export function LazyCollaborativeHub() {
     return <CollaborativeHub />;
 }
+
+export function LazyAIManagerReport({ report }: { report: string }) {
+    const Component = AIManagerReport as any;
+    return <Component report={report} />;
+}
+
+export function LazyFocusAmbience() {
+    return <FocusAmbience />;
+}
+
