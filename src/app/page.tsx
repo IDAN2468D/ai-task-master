@@ -82,8 +82,13 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
                 {/* Main Content Layout */}
                 <div className="grid lg:grid-cols-12 gap-8 items-start">
 
-                    <div className="lg:col-span-9 space-y-6">
+                    <div className="lg:col-span-3 lg:order-last sticky top-28 space-y-6">
+                        <h3 className="text-2xl font-black text-slate-800 dark:text-white mt-10 lg:mt-0">יצירה חדשה</h3>
+                        <LazyAddTaskForm />
+                        <LazyStreakTracker />
+                    </div>
 
+                    <div className="lg:col-span-9 space-y-6">
                         <div className="flex items-center justify-between">
                             <h3 className="text-2xl font-black text-slate-800 dark:text-white">לוח פעיל</h3>
                             <LazySearchFilterBar />
@@ -100,12 +105,6 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
                         }>
                             <LazyKanbanBoard tasks={tasks} />
                         </Suspense>
-                    </div>
-
-                    <div className="lg:col-span-3 sticky top-28 space-y-6">
-                        <h3 className="text-2xl font-black text-slate-800 dark:text-white">יצירה חדשה</h3>
-                        <LazyAddTaskForm />
-                        <LazyStreakTracker />
                     </div>
                 </div>
             </div>
