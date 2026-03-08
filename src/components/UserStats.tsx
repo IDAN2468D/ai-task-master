@@ -39,16 +39,21 @@ export default function UserStats({ xp, level, currency }: UserStatsProps) {
             </div>
 
             {/* XP Info & Progress */}
-            <div className="flex flex-col gap-2 min-w-[140px]">
-                <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-1.5">
-                        <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Progression</span>
+            <div className="flex flex-col gap-2.5 min-w-[150px]">
+                <div className="flex items-center justify-between px-0.5">
+                    <div className="flex items-center gap-2">
+                        <div className="flex flex-col">
+                            <span className="text-[9px] font-black uppercase tracking-[0.15em] text-slate-400 dark:text-slate-500 leading-none mb-1">Status</span>
+                            <span className="text-[11px] font-black text-slate-700 dark:text-white leading-none">Progression</span>
+                        </div>
                     </div>
-                    <div className="flex items-baseline gap-0.5">
-                        <span className="text-[11px] font-black text-slate-800 dark:text-white tabular-nums">{xpInCurrentLevel}</span>
-                        <span className="text-[9px] font-bold text-slate-400">/ 1000</span>
-                        <span className="text-[8px] font-black text-[var(--primary)] ml-1 bg-[var(--primary)]/10 px-1 rounded">XP</span>
+                    <div className="flex flex-col items-end">
+                        <div className="flex items-center gap-1 bg-slate-900/5 dark:bg-white/5 px-2 py-1 rounded-lg border border-slate-200/50 dark:border-white/5">
+                            <span className="text-[11px] font-black text-[var(--primary)] dark:text-[var(--accent-1)] tabular-nums">{xpInCurrentLevel}</span>
+                            <span className="text-[10px] font-bold text-slate-400">/</span>
+                            <span className="text-[10px] font-black text-slate-500 tracking-tighter">1000</span>
+                            <span className="text-[7px] font-black text-white bg-gradient-to-br from-[var(--primary)] to-[var(--accent-1)] px-1 rounded-[3px] ml-0.5 shadow-sm">XP</span>
+                        </div>
                     </div>
                 </div>
                 <div className="h-3 w-full bg-slate-200/40 dark:bg-white/5 rounded-full overflow-hidden p-[3px] border border-slate-200/50 dark:border-white/5">
