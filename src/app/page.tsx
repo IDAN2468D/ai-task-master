@@ -43,13 +43,13 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
 
                 {/* Colorful Hero Greeting */}
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
-                    <div>
+                    <div className="flex-shrink-0">
                         <h2 className="text-4xl md:text-5xl font-black mb-2 leading-tight">
                             {greeting}, <label className="text-gradient-primary">{user.name}!</label>
                         </h2>
                         <p className="text-slate-500 font-medium">הנה מה שקורה עם המשימות שלך היום.</p>
                     </div>
-                    <div className="flex items-center gap-3 overflow-x-auto pb-6 md:pb-0 px-1 -mx-1 md:mx-0 md:px-0 no-scrollbar w-full md:w-auto mask-fade-right">
+                    <div className="flex items-center gap-3 overflow-x-auto md:overflow-visible pb-6 md:pb-0 px-1 -mx-1 md:mx-0 md:px-0 no-scrollbar w-full md:w-auto mask-fade-right md:mask-none md:flex-wrap md:justify-end">
                         <LazyFocusMode tasks={tasks} />
                         <LazyTaskExport tasks={tasks} />
                         <LazyAchievementBadges tasks={tasks} />
