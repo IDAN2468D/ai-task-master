@@ -14,7 +14,7 @@ const customJestConfig = {
         '^@/(.*)$': '<rootDir>/src/$1',
     },
     transformIgnorePatterns: [
-        '/node_modules/(?!(bson|mongodb|mongoose)/)',
+        'node_modules/(?!(bson|mongodb|mongoose)/)',
     ],
 };
 

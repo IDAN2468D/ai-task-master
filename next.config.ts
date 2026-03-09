@@ -8,6 +8,7 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
+  outputFileTracingRoot: __dirname,
   experimental: {
     optimizePackageImports: ['lucide-react', 'framer-motion'],
   },
