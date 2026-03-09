@@ -5,28 +5,6 @@ import User from '@/models/User';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 
-const DEMO_USER_EMAIL = 'demo@taskmaster.ai';
-const DEMO_USER_NAME = 'משתמש דמו';
-
-// ========================
-// ENSURE DEMO USER EXISTS
-// ========================
-async function ensureDemoUser() {
-    await connectDB();
-    let user = await User.findOne({ email: DEMO_USER_EMAIL });
-
-    if (!user) {
-        user = await User.create({
-            name: DEMO_USER_NAME,
-            email: DEMO_USER_EMAIL,
-            password: 'demo-password-never-shared', // Dummy password
-            xp: 150,
-            level: 2,
-            currency: 50,
-        });
-    }
-    return user;
-}
 
 // ========================
 // SET SESSION
@@ -146,17 +124,6 @@ export async function getCurrentUser() {
     }
 }
 
-// ========================
-// INITIALIZE DEMO SESSION (Called from Client)
-// ========================
-export async function initializeDemoSession() {
-    const user = await getCurrentUser();
-    if (user) return { success: true };
-
-    const demoUser = await ensureDemoUser();
-    await setSession(demoUser);
-    return { success: true };
-}
 
 export async function getFullUser() {
     try {
