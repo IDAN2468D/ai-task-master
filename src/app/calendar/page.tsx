@@ -7,7 +7,6 @@ export const dynamic = 'force-dynamic';
 
 export default async function CalendarPage() {
     const user = await getCurrentUser();
-    if (!user) redirect('/login');
 
     const tasks = await getTasks();
 

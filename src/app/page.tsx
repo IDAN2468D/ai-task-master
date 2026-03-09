@@ -30,9 +30,10 @@ export const dynamic = 'force-dynamic';
 
 export default async function HomePage({ searchParams }: { searchParams: Promise<{ q?: string; priority?: string }> }) {
     const user = await getFullUser();
-    if (!user) {
-        redirect('/login');
-    }
+
+    const userName = user?.name || 'אורח';
+    const userLevel = user?.level || 1;
+    const userAvatar = user?.avatar;
 
     const aiReport = await getAIProgressReport();
 
@@ -62,13 +63,13 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
                             Workspace Active
                         </div>
                         <h2 className="text-4xl md:text-6xl font-black mb-3 leading-tight tracking-tight">
-                            {greeting}, <label className="text-gradient-primary">{user.name.split(' ')[0]}!</label>
+                            {greeting}, <label className="text-gradient-primary">{userName.split(' ')[0]}!</label>
                         </h2>
                         <p className="text-slate-500 font-bold text-lg">מוכן לכבוש את היעדים שלך היום?</p>
                     </div>
 
                     <div className="flex items-center gap-6">
-                        <AvatarDisplay level={user.level} avatar={user.avatar} size={100} />
+                        <AvatarDisplay level={userLevel} avatar={userAvatar} size={100} />
                         <div className="hidden lg:flex flex-col items-end text-left">
                             <div className="text-3xl font-black text-slate-800 dark:text-white tabular-nums">
                                 {new Date().toLocaleDateString('he-IL', { day: '2-digit', month: '2-digit' })}

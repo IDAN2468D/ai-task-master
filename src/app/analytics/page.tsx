@@ -7,9 +7,6 @@ export const dynamic = 'force-dynamic';
 
 export default async function AnalyticsPage() {
     const user = await getCurrentUser();
-    if (!user) {
-        redirect('/login');
-    }
 
     return (
         <main className="min-h-screen text-slate-800 dark:text-white selection:bg-[#4318FF] selection:text-white">

@@ -4,125 +4,57 @@ import connectDB from '@/lib/mongodb';
 import User from '@/models/User';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
-import { sendLoginEmail } from '@/lib/email';
 
-// Simple hash function (for demo purposes - in production use bcrypt)
-async function hashPassword(password: string): Promise<string> {
-    const encoder = new TextEncoder();
-    const data = encoder.encode(password + 'taskflow-salt-2026');
-    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-}
+const DEMO_USER_EMAIL = 'demo@taskmaster.ai';
+const DEMO_USER_NAME = 'משתמש דמו';
 
-async function verifyPassword(password: string, hashedPassword: string): Promise<boolean> {
-    const hash = await hashPassword(password);
-    return hash === hashedPassword;
+// ========================
+// ENSURE DEMO USER EXISTS
+// ========================
+async function ensureDemoUser() {
+    await connectDB();
+    let user = await User.findOne({ email: DEMO_USER_EMAIL });
+
+    if (!user) {
+        user = await User.create({
+            name: DEMO_USER_NAME,
+            email: DEMO_USER_EMAIL,
+            password: 'demo-password-never-shared', // Dummy password
+            xp: 150,
+            level: 2,
+            currency: 50,
+        });
+    }
+    return user;
 }
 
 // ========================
-// REGISTER
+// SET SESSION
 // ========================
-export async function registerUser(formData: FormData) {
-    const name = formData.get('name') as string;
-    const email = formData.get('email') as string;
-    const password = formData.get('password') as string;
+async function setSession(user: any) {
+    const cookieStore = await cookies();
+    cookieStore.set('session', JSON.stringify({
+        userId: user._id.toString(),
+        name: user.name,
+        email: user.email,
+        image: user.image || null,
+    }), {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge: 60 * 60 * 24 * 365, // 1 year (auto-login)
+        path: '/',
+    });
+}
 
-    if (!name || !email || !password) {
-        return { error: 'All fields are required.' };
-    }
-
-    if (password.length < 6) {
-        return { error: 'Password must be at least 6 characters.' };
-    }
-
-    try {
-        await connectDB();
-
-        // Check if user already exists
-        const existingUser = await User.findOne({ email: email.toLowerCase() });
-        if (existingUser) {
-            return { error: 'An account with this email already exists.' };
-        }
-
-        const hashedPassword = await hashPassword(password);
-
-        const user = await User.create({
-            name,
-            email: email.toLowerCase(),
-            password: hashedPassword,
-        });
-
-        // Set session cookie
-        const cookieStore = await cookies();
-        cookieStore.set('session', JSON.stringify({
-            userId: user._id.toString(),
-            name: user.name,
-            email: user.email,
-            image: user.image || null,
-        }), {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'lax',
-            maxAge: 60 * 60 * 24 * 7, // 7 days
-            path: '/',
-        });
-
-    } catch (err: any) {
-        console.error('Registration error:', err);
-        return { error: 'Something went wrong during registration.' };
-    }
-
+// ========================
+// REGISTER / LOGIN (REPLACED BY REDIRECT)
+// ========================
+export async function registerUser() {
     redirect('/');
 }
 
-// ========================
-// LOGIN
-// ========================
-export async function loginUser(formData: FormData) {
-    const email = formData.get('email') as string;
-    const password = formData.get('password') as string;
-
-    if (!email || !password) {
-        return { error: 'Email and password are required.' };
-    }
-
-    try {
-        await connectDB();
-
-        const user = await User.findOne({ email: email.toLowerCase() });
-        if (!user) {
-            return { error: 'Invalid email or password.' };
-        }
-
-        const isValid = await verifyPassword(password, user.password);
-        if (!isValid) {
-            return { error: 'Invalid email or password.' };
-        }
-
-        // Set session cookie
-        const cookieStore = await cookies();
-        cookieStore.set('session', JSON.stringify({
-            userId: user._id.toString(),
-            name: user.name,
-            email: user.email,
-            image: user.image || null,
-        }), {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'lax',
-            maxAge: 60 * 60 * 24 * 7, // 7 days
-            path: '/',
-        });
-
-        // Send login notification email (non-blocking)
-        sendLoginEmail(user.name, user.email);
-
-    } catch (err: any) {
-        console.error('Login error:', err);
-        return { error: 'Something went wrong during login.' };
-    }
-
+export async function loginUser() {
     redirect('/');
 }
 
@@ -130,9 +62,8 @@ export async function loginUser(formData: FormData) {
 // LOGOUT
 // ========================
 export async function logoutUser() {
-    const cookieStore = await cookies();
-    cookieStore.delete('session');
-    redirect('/login');
+    // For demo purposes, we don't logout anymore
+    redirect('/');
 }
 
 // ========================
@@ -152,6 +83,18 @@ export async function getCurrentUser() {
     } catch {
         return null;
     }
+}
+
+// ========================
+// INITIALIZE DEMO SESSION (Called from Client)
+// ========================
+export async function initializeDemoSession() {
+    const user = await getCurrentUser();
+    if (user) return { success: true };
+
+    const demoUser = await ensureDemoUser();
+    await setSession(demoUser);
+    return { success: true };
 }
 
 export async function getFullUser() {
@@ -175,7 +118,7 @@ export async function getFullUser() {
 // ========================
 export async function updateProfile(formData: FormData) {
     const name = formData.get('name') as string;
-    const image = formData.get('image') as string; // Expecting base64 string or URL
+    const image = formData.get('image') as string;
 
     try {
         const session = await getCurrentUser();
@@ -189,21 +132,7 @@ export async function updateProfile(formData: FormData) {
         if (image !== undefined) user.image = image;
 
         await user.save();
-
-        // Update session cookie
-        const cookieStore = await cookies();
-        cookieStore.set('session', JSON.stringify({
-            userId: user._id.toString(),
-            name: user.name,
-            email: user.email,
-            image: user.image || null,
-        }), {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'lax',
-            maxAge: 60 * 60 * 24 * 7,
-            path: '/',
-        });
+        await setSession(user);
 
         return { success: true };
     } catch (err: any) {
@@ -211,3 +140,4 @@ export async function updateProfile(formData: FormData) {
         return { error: 'Failed to update profile.' };
     }
 }
+

@@ -5,6 +5,7 @@ import TopNav from "@/components/TopNav";
 import GlobalFloatingWidgets from "@/components/GlobalFloatingWidgets";
 import ClientOnly from "@/components/ClientOnly";
 import PWAInstaller from "@/components/PWAInstaller";
+import AutoAuth from "@/components/AutoAuth";
 
 
 const rubik = Rubik({
@@ -41,7 +42,9 @@ export default function RootLayout({
           <GlobalFloatingWidgets />
           <PWAInstaller />
         </ClientOnly>
-        {children}
+        <AutoAuth>
+          {children}
+        </AutoAuth>
       </body>
     </html>
   );

@@ -14,7 +14,7 @@ import { getUserStats } from '@/actions/gamificationActions';
 export default function TopNav() {
     const pathname = usePathname();
     const [isOpen, setIsOpen] = useState(false);
-    const [user, setUser] = useState<{ name: string, image?: string } | null>(null);
+    const [user, setUser] = useState<{ name: string, image?: string | null } | null>(null);
     const [stats, setStats] = useState<{ xp: number, level: number, currency: number } | null>(null);
 
     useEffect(() => {
@@ -29,9 +29,8 @@ export default function TopNav() {
         fetchData();
     }, [pathname]);
 
-    // Hide nav on auth pages and profile page
-    const hiddenPages = ['/login', '/register', '/profile'];
-    if (hiddenPages.includes(pathname || '')) {
+    // Hide nav only on profile page
+    if (pathname === '/profile') {
         return null;
     }
 
@@ -141,12 +140,6 @@ export default function TopNav() {
                                 </div>
                                 הפרופיל שלי <ArrowLeft className="w-5 h-5 text-slate-400" />
                             </Link>
-                            <form action={logoutUser}>
-                                <button type="submit" className="flex items-center justify-center gap-3 text-lg font-bold text-red-500 hover:text-red-600 transition-colors mx-auto mt-4">
-                                    <LogOut className="w-5 h-5" />
-                                    התנתק
-                                </button>
-                            </form>
                         </div>
                     </motion.div>
                 )}
