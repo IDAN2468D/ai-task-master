@@ -57,7 +57,7 @@ async function hashPassword(password: string): Promise<string> {
 // ========================
 export async function registerUser(formData: FormData) {
     const name = formData.get('name') as string;
-    const email = formData.get('email') as string;
+    const email = (formData.get('email') as string)?.toLowerCase();
     const password = formData.get('password') as string;
 
     if (!name || !email || !password) {
@@ -90,7 +90,7 @@ export async function registerUser(formData: FormData) {
 // LOGIN
 // ========================
 export async function loginUser(formData: FormData) {
-    const email = formData.get('email') as string;
+    const email = (formData.get('email') as string)?.toLowerCase();
     const password = formData.get('password') as string;
 
     if (!email || !password) {
