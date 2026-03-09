@@ -1,7 +1,7 @@
 'use client';
 
-import { Rocket, Mail, Lock, User, ArrowRight, Sparkles } from 'lucide-react';
-import { loginUser, registerUser, initializeDemoSession } from '@/actions/authActions';
+import { Rocket, Mail, Lock, User, ArrowRight } from 'lucide-react';
+import { loginUser, registerUser } from '@/actions/authActions';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -29,15 +29,6 @@ export default function LoginPage() {
         setLoading(false);
     };
 
-    const handleDemoLogin = async () => {
-        setLoading(true);
-        const result = await initializeDemoSession();
-        if (result.success) {
-            router.push('/');
-            router.refresh();
-        }
-        setLoading(false);
-    };
 
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-[#0B1437] flex items-center justify-center p-6 bg-[url('/grid.svg')] bg-center relative overflow-hidden">
@@ -162,28 +153,13 @@ export default function LoginPage() {
                         </motion.form>
                     </AnimatePresence>
 
-                    <div className="mt-6 pt-6 border-t border-slate-100 dark:border-white/5 space-y-4">
+                    <div className="mt-6 pt-6 border-t border-slate-100 dark:border-white/5">
                         <button
                             type="button"
                             onClick={() => setIsRegister(!isRegister)}
                             className="w-full text-center text-xs font-bold text-slate-500 hover:text-[var(--primary)] transition-colors"
                         >
                             {isRegister ? 'כבר יש לך חשבון? היכנס' : 'אין לך חשבון? הירשם עכשיו'}
-                        </button>
-
-                        <div className="relative flex items-center gap-4 py-2">
-                            <div className="flex-1 h-px bg-slate-100 dark:bg-white/5" />
-                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">או</span>
-                            <div className="flex-1 h-px bg-slate-100 dark:bg-white/5" />
-                        </div>
-
-                        <button
-                            onClick={handleDemoLogin}
-                            type="button"
-                            className="w-full py-3 bg-white dark:bg-[#111C44] border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 font-black text-xs rounded-xl hover:bg-slate-50 dark:hover:bg-[#1a2c6c] transition-all flex items-center justify-center gap-2"
-                        >
-                            <Sparkles className="w-4 h-4 text-amber-500" />
-                            כניסה מהירה (מצב דמו)
                         </button>
                     </div>
                 </motion.div>
