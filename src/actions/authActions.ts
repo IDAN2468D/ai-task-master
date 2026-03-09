@@ -47,15 +47,75 @@ async function setSession(user: any) {
     });
 }
 
-// ========================
-// REGISTER / LOGIN (REPLACED BY REDIRECT)
-// ========================
-export async function registerUser() {
-    redirect('/');
+// Simple hash function (for demo purposes - in production use bcrypt)
+async function hashPassword(password: string): Promise<string> {
+    return password; // For demo, we store plaintext (or a dummy hash)
 }
 
-export async function loginUser() {
-    redirect('/');
+// ========================
+// REGISTER
+// ========================
+export async function registerUser(formData: FormData) {
+    const name = formData.get('name') as string;
+    const email = formData.get('email') as string;
+    const password = formData.get('password') as string;
+
+    if (!name || !email || !password) {
+        return { error: 'Please fill in all fields.' };
+    }
+
+    try {
+        await connectDB();
+        const existingUser = await User.findOne({ email });
+        if (existingUser) {
+            return { error: 'User already exists.' };
+        }
+
+        const hashedPassword = await hashPassword(password);
+        const user = await User.create({
+            name,
+            email,
+            password: hashedPassword,
+        });
+
+        await setSession(user);
+        return { success: true };
+    } catch (err: any) {
+        console.error('Registration error:', err);
+        return { error: 'Something went wrong during registration.' };
+    }
+}
+
+// ========================
+// LOGIN
+// ========================
+export async function loginUser(formData: FormData) {
+    const email = formData.get('email') as string;
+    const password = formData.get('password') as string;
+
+    if (!email || !password) {
+        return { error: 'Please provide email and password.' };
+    }
+
+    try {
+        await connectDB();
+        const user = await User.findOne({ email });
+
+        if (!user) {
+            return { error: 'Invalid credentials.' };
+        }
+
+        // Simple check for demo
+        if (user.password !== password) {
+            return { error: 'Invalid credentials.' };
+        }
+
+        await setSession(user);
+        return { success: true };
+    } catch (err: any) {
+        console.error('Login error:', err);
+        return { error: 'Something went wrong during login.' };
+    }
 }
 
 // ========================

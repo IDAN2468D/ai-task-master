@@ -1,57 +1,197 @@
 'use client';
 
-import { Rocket } from 'lucide-react';
-import { initializeDemoSession } from '@/actions/authActions';
+import { Rocket, Mail, Lock, User, ArrowRight, Sparkles } from 'lucide-react';
+import { loginUser, registerUser, initializeDemoSession } from '@/actions/authActions';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function LoginPage() {
     const router = useRouter();
+    const [isRegister, setIsRegister] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        setLoading(true);
+        setError(null);
+
+        const formData = new FormData(e.currentTarget);
+        const result = isRegister ? await registerUser(formData) : await loginUser(formData);
+
+        if (result?.success) {
+            router.push('/');
+            router.refresh();
+        } else {
+            setError(result?.error || 'משהו השתבש. נסה שוב.');
+        }
+        setLoading(false);
+    };
 
     const handleDemoLogin = async () => {
         setLoading(true);
         const result = await initializeDemoSession();
         if (result.success) {
             router.push('/');
+            router.refresh();
         }
         setLoading(false);
     };
 
     return (
-        <div className="min-h-screen bg-slate-50 dark:bg-[#0B1437] flex items-center justify-center p-6 bg-[url('/grid.svg')] bg-center">
-            <div className="max-w-md w-full vibrancy-card p-10 text-center relative z-10">
-                <div className="w-16 h-16 bg-gradient-stat-1 rounded-2xl flex items-center justify-center shadow-lg shadow-[#4318FF]/30 mx-auto mb-6">
-                    <Rocket className="w-8 h-8 text-white" />
+        <div className="min-h-screen bg-slate-50 dark:bg-[#0B1437] flex items-center justify-center p-6 bg-[url('/grid.svg')] bg-center relative overflow-hidden">
+            {/* Background Glows */}
+            <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-[var(--primary)]/10 blur-[120px] rounded-full pointer-events-none" />
+            <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-[#00E5FF]/10 blur-[120px] rounded-full pointer-events-none" />
+
+            <div className="max-w-md w-full relative z-10">
+                <div className="text-center mb-8">
+                    <motion.div
+                        initial={{ scale: 0.5, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        className="w-16 h-16 bg-gradient-stat-1 rounded-2xl flex items-center justify-center shadow-lg shadow-[#4318FF]/30 mx-auto mb-6"
+                    >
+                        <Rocket className="w-8 h-8 text-white" />
+                    </motion.div>
+
+                    <motion.h1
+                        initial={{ y: 20, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        className="text-4xl font-black mb-2"
+                    >
+                        ברוכים הבאים <br />
+                        <span className="text-gradient-primary">לטאסקפלו</span>
+                    </motion.h1>
+
+                    <motion.p
+                        initial={{ y: 20, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        transition={{ delay: 0.1 }}
+                        className="text-slate-500 font-medium"
+                    >
+                        מנהל המשימות המופעל ע"י בינה מלאכותית המתקדמת ביותר.
+                    </motion.p>
                 </div>
 
-                <h1 className="text-3xl font-black mb-2">
-                    ברוכים הבאים <br />
-                    <span className="text-gradient-primary">לטאסקפלו</span>
-                </h1>
-
-                <p className="text-slate-500 font-medium mb-8">
-                    מנהל המשימות המופעל ע"י בינה מלאכותית המתקדמת ביותר.
-                </p>
-
-                <button
-                    onClick={handleDemoLogin}
-                    disabled={loading}
-                    className="w-full py-4 bg-[var(--primary)] text-white font-black text-lg rounded-2xl shadow-xl shadow-[var(--primary)]/20 hover:-translate-y-1 active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-50"
+                <motion.div
+                    layout
+                    className="vibrancy-card p-8 md:p-10"
                 >
-                    {loading ? (
-                        <div className="w-6 h-6 border-3 border-white/30 border-t-white rounded-full animate-spin" />
-                    ) : (
-                        <>כניסה למערכת (דמו)</>
-                    )}
-                </button>
+                    <AnimatePresence mode="wait">
+                        <motion.form
+                            key={isRegister ? 'register' : 'login'}
+                            initial={{ opacity: 0, x: isRegister ? 20 : -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            exit={{ opacity: 0, x: isRegister ? -20 : 20 }}
+                            onSubmit={handleSubmit}
+                            className="space-y-4"
+                        >
+                            <h2 className="text-xl font-black mb-6 text-slate-800 dark:text-white">
+                                {isRegister ? 'יצירת חשבון חדש' : 'כניסה לחשבון'}
+                            </h2>
 
-                <p className="mt-8 text-[11px] font-bold text-slate-400 uppercase tracking-widest">
+                            {error && (
+                                <motion.div
+                                    initial={{ opacity: 0, y: -10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/30 text-red-600 dark:text-red-400 text-xs font-bold rounded-xl text-center"
+                                >
+                                    {error}
+                                </motion.div>
+                            )}
+
+                            {isRegister && (
+                                <div className="space-y-1">
+                                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 mr-1">שם מלא</label>
+                                    <div className="relative">
+                                        <User className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                                        <input
+                                            name="name"
+                                            type="text"
+                                            required
+                                            placeholder="ישראל ישראלי"
+                                            className="w-full pr-11 pl-4 py-3.5 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-white/10 rounded-xl focus:border-[var(--primary)] text-sm font-bold focus:outline-none transition-all shadow-inner"
+                                        />
+                                    </div>
+                                </div>
+                            )}
+
+                            <div className="space-y-1">
+                                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 mr-1">אימייל</label>
+                                <div className="relative">
+                                    <Mail className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                                    <input
+                                        name="email"
+                                        type="email"
+                                        required
+                                        placeholder="name@example.com"
+                                        className="w-full pr-11 pl-4 py-3.5 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-white/10 rounded-xl focus:border-[var(--primary)] text-sm font-bold focus:outline-none transition-all shadow-inner"
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="space-y-1">
+                                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 mr-1">סיסמה</label>
+                                <div className="relative">
+                                    <Lock className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                                    <input
+                                        name="password"
+                                        type="password"
+                                        required
+                                        placeholder="••••••••"
+                                        className="w-full pr-11 pl-4 py-3.5 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-white/10 rounded-xl focus:border-[var(--primary)] text-sm font-bold focus:outline-none transition-all shadow-inner"
+                                    />
+                                </div>
+                            </div>
+
+                            <button
+                                type="submit"
+                                disabled={loading}
+                                className="w-full py-4 bg-[var(--primary)] text-white font-black text-sm rounded-xl shadow-xl shadow-[var(--primary)]/20 hover:-translate-y-1 active:scale-95 transition-all flex items-center justify-center gap-2 disabled:opacity-50 mt-4"
+                            >
+                                {loading ? (
+                                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                ) : (
+                                    <>
+                                        {isRegister ? 'צור חשבון' : 'היכנס למערכת'}
+                                        <ArrowRight className="w-4 h-4" />
+                                    </>
+                                )}
+                            </button>
+                        </motion.form>
+                    </AnimatePresence>
+
+                    <div className="mt-6 pt-6 border-t border-slate-100 dark:border-white/5 space-y-4">
+                        <button
+                            type="button"
+                            onClick={() => setIsRegister(!isRegister)}
+                            className="w-full text-center text-xs font-bold text-slate-500 hover:text-[var(--primary)] transition-colors"
+                        >
+                            {isRegister ? 'כבר יש לך חשבון? היכנס' : 'אין לך חשבון? הירשם עכשיו'}
+                        </button>
+
+                        <div className="relative flex items-center gap-4 py-2">
+                            <div className="flex-1 h-px bg-slate-100 dark:bg-white/5" />
+                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">או</span>
+                            <div className="flex-1 h-px bg-slate-100 dark:bg-white/5" />
+                        </div>
+
+                        <button
+                            onClick={handleDemoLogin}
+                            type="button"
+                            className="w-full py-3 bg-white dark:bg-[#111C44] border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 font-black text-xs rounded-xl hover:bg-slate-50 dark:hover:bg-[#1a2c6c] transition-all flex items-center justify-center gap-2"
+                        >
+                            <Sparkles className="w-4 h-4 text-amber-500" />
+                            כניסה מהירה (מצב דמו)
+                        </button>
+                    </div>
+                </motion.div>
+
+                <p className="mt-8 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">
                     AI-First Experience
                 </p>
             </div>
-
-            <div className="fixed inset-0 bg-gradient-to-tr from-indigo-500/10 via-transparent to-[var(--primary)]/10 pointer-events-none" />
         </div>
     );
 }

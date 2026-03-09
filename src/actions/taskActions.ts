@@ -11,7 +11,10 @@ import { awardTaskCompletion } from '@/actions/gamificationActions';
 export async function getTasks(searchQuery?: string, filterPriority?: string) {
   try {
     await connectDB();
-    const query: any = {};
+    const session = await getCurrentUser();
+    if (!session) return [];
+
+    const query: any = { userId: session.userId };
     if (searchQuery) query.title = { $regex: searchQuery, $options: 'i' };
     if (filterPriority && filterPriority !== 'All') query.priority = filterPriority;
 
@@ -70,6 +73,9 @@ export async function createSmartTask(formData: FormData) {
       category = (formData.get('category') as string) || 'אישי';
     }
 
+    const session = await getCurrentUser();
+    if (!session) throw new Error('Not authenticated');
+
     const taskData = {
       title: title.trim(),
       category,
@@ -77,6 +83,7 @@ export async function createSmartTask(formData: FormData) {
       energyLevel,
       status: 'Todo',
       subtasks: [],
+      userId: session.userId,
     };
 
     const dueDateStr = formData.get('dueDate') as string;
@@ -85,10 +92,7 @@ export async function createSmartTask(formData: FormData) {
     await Task.create(taskData);
 
     // Send email notification (non-blocking)
-    const user = await getCurrentUser();
-    if (user) {
-      sendTaskCreatedEmail(user.name, user.email, title.trim(), priority, category);
-    }
+    sendTaskCreatedEmail(session.name, session.email, title.trim(), priority, category);
 
     revalidatePath('/');
   } catch (error) {

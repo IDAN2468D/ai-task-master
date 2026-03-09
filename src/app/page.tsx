@@ -31,7 +31,11 @@ export const dynamic = 'force-dynamic';
 export default async function HomePage({ searchParams }: { searchParams: Promise<{ q?: string; priority?: string }> }) {
     const user = await getFullUser();
 
-    const userName = user?.name || 'אורח';
+    if (!user) {
+        redirect('/login');
+    }
+
+    const userName = user.name;
     const userLevel = user?.level || 1;
     const userAvatar = user?.avatar;
 
