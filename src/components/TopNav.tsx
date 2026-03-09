@@ -29,8 +29,9 @@ export default function TopNav() {
         fetchData();
     }, [pathname]);
 
-    // Hide nav only on profile page
-    if (pathname === '/profile') {
+    // Hide nav on profile, login and register pages
+    const isHiddenPage = pathname === '/profile' || pathname === '/login' || pathname === '/register';
+    if (isHiddenPage) {
         return null;
     }
 
