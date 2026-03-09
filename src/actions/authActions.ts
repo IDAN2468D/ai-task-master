@@ -62,8 +62,9 @@ export async function loginUser() {
 // LOGOUT
 // ========================
 export async function logoutUser() {
-    // For demo purposes, we don't logout anymore
-    redirect('/');
+    const cookieStore = await cookies();
+    cookieStore.delete('session');
+    redirect('/login');
 }
 
 // ========================
