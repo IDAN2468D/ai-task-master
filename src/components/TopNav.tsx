@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { logoutUser, getCurrentUser } from '@/actions/authActions';
+import { logoutUser, getFullUser } from '@/actions/authActions';
 import DarkModeToggle from './DarkModeToggle';
 import ThemeSwitcher from './ThemeSwitcher';
 import UserStats from './UserStats';
@@ -20,7 +20,7 @@ export default function TopNav() {
     useEffect(() => {
         const fetchData = async () => {
             const [u, s] = await Promise.all([
-                getCurrentUser(),
+                getFullUser(),
                 getUserStats()
             ]);
             setUser(u);

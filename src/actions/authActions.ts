@@ -11,11 +11,13 @@ import { redirect } from 'next/navigation';
 // ========================
 async function setSession(user: any) {
     const cookieStore = await cookies();
+    // NOTE: Do NOT store `image` in the cookie!
+    // Base64 images can be 50-200KB+, but cookies have a ~4KB limit.
+    // The image is stored in MongoDB and fetched via getFullUser().
     cookieStore.set('session', JSON.stringify({
         userId: user._id.toString(),
         name: user.name,
         email: user.email,
-        image: user.image || null,
     }), {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
@@ -118,7 +120,7 @@ export async function getCurrentUser() {
         }
 
         const session = JSON.parse(sessionCookie.value);
-        return session as { userId: string; name: string; email: string; image?: string };
+        return session as { userId: string; name: string; email: string };
     } catch {
         return null;
     }
@@ -157,9 +159,16 @@ export async function updateProfile(formData: FormData) {
         if (!user) return { error: 'User not found' };
 
         if (name) user.name = name;
-        if (image !== undefined) user.image = image;
+        
+        // Handle image update — can be empty string (remove) or base64 data
+        if (image !== null && image !== undefined) {
+            user.image = image;
+            console.log(`[updateProfile] Image size: ${image.length} chars`);
+        }
 
         await user.save();
+        
+        // Update session cookie (without image — cookie has 4KB limit)
         await setSession(user);
 
         return { success: true };

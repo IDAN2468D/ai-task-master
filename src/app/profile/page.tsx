@@ -1,4 +1,4 @@
-import { getCurrentUser } from '@/actions/authActions';
+import { getFullUser } from '@/actions/authActions';
 import { redirect } from 'next/navigation';
 import ProfileClient from '@/components/ProfileClient';
 import { Suspense } from 'react';
@@ -6,7 +6,9 @@ import { Suspense } from 'react';
 export const dynamic = 'force-dynamic';
 
 export default async function ProfilePage() {
-    const user = await getCurrentUser();
+    // Use getFullUser() to fetch complete user data from MongoDB
+    // This includes the profile image which is NOT stored in the cookie
+    const user = await getFullUser();
 
     // Provide a basic fallback to avoid crash while AutoAuth initializes
     const displayUser = user || { name: 'אורח', email: 'guest@taskmaster.ai' };
