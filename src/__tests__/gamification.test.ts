@@ -6,6 +6,8 @@ import { getCurrentUser } from '@/actions/authActions';
 
 jest.mock('@/lib/mongodb');
 jest.mock('@/actions/authActions');
+jest.mock('@/models/User');
+jest.mock('@/models/Task');
 jest.mock('next/cache', () => ({
     revalidatePath: jest.fn(),
 }));

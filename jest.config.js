@@ -12,6 +12,7 @@ const customJestConfig = {
     testEnvironment: 'jest-environment-jsdom',
     moduleNameMapper: {
         '^@/(.*)$': '<rootDir>/src/$1',
+        '^bson$': require.resolve('bson'),
     },
     transformIgnorePatterns: [
         'node_modules/(?!(bson|mongodb|mongoose)/)',

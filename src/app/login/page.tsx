@@ -1,6 +1,6 @@
 'use client';
 
-import { Rocket, Mail, Lock, User, ArrowRight } from 'lucide-react';
+import { Rocket, Mail, Lock, User, ArrowRight, Eye, EyeOff } from 'lucide-react';
 import { loginUser, registerUser } from '@/actions/authActions';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
@@ -11,6 +11,7 @@ export default function LoginPage() {
     const [isRegister, setIsRegister] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [showPassword, setShowPassword] = useState(false);
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -124,15 +125,23 @@ export default function LoginPage() {
 
                             <div className="space-y-1">
                                 <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 mr-1">סיסמה</label>
-                                <div className="relative">
+                                <div className="relative flex items-center">
                                     <Lock className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                                     <input
                                         name="password"
-                                        type="password"
+                                        type={showPassword ? "text" : "password"}
                                         required
                                         placeholder="••••••••"
-                                        className="w-full pr-11 pl-4 py-3.5 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-white/10 rounded-xl focus:border-[var(--primary)] text-sm font-bold focus:outline-none transition-all shadow-inner"
+                                        className="w-full pr-11 pl-11 py-3.5 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-white/10 rounded-xl focus:border-[var(--primary)] text-sm font-bold focus:outline-none transition-all shadow-inner"
                                     />
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowPassword(!showPassword)}
+                                        className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-[var(--primary)] transition-colors focus:outline-none"
+                                        aria-label={showPassword ? 'הסתר סיסמה' : 'הצג סיסמה'}
+                                    >
+                                        {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                                    </button>
                                 </div>
                             </div>
 
