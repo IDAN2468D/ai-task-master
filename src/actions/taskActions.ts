@@ -121,6 +121,23 @@ export async function updateTaskStatus(taskId: string, newStatus: string) {
   }
 }
 
+export async function completeTaskWithBonus(taskId: string, multiplier: number) {
+  try {
+    await connectDB();
+    await Task.findByIdAndUpdate(taskId, { status: 'Done' });
+
+    // Gamification Hook: Award XP if task is marked as Done with multiplier
+    const result = await awardTaskCompletion(taskId, multiplier);
+    console.log(`Gamification Result (x${multiplier} multiplier):`, result);
+
+    revalidatePath('/');
+    return result;
+  } catch (error) {
+    console.error('Error completing task with bonus:', error);
+    throw new Error('Failed to complete task with bonus');
+  }
+}
+
 export async function generateSubtasksWithAI(taskId: string, taskTitle: string) {
   try {
     await connectDB();

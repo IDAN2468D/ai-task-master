@@ -1,9 +1,10 @@
 'use client';
 
-import { Focus, X, CheckCircle, ArrowLeft, Sparkles } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { Focus, X, CheckCircle, ArrowLeft, Sparkles, Play, Pause, RotateCcw, Volume2, VolumeX, CloudRain, TreePine, Headset } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { updateTaskStatus } from '@/actions/taskActions';
+import { completeTaskWithBonus } from '@/actions/taskActions';
+import confetti from 'canvas-confetti';
 
 interface Task {
     _id: string;
@@ -14,14 +15,29 @@ interface Task {
     subtasks: any[];
 }
 
+const AMBIENCE_MODES = [
+    { id: 'rain', name: 'גשם עדין', icon: CloudRain, url: 'https://raw.githubusercontent.com/rafaelmardojai/blanket/master/data/resources/sounds/rain.ogg' },
+    { id: 'forest', name: 'יער קסום', icon: TreePine, url: 'https://raw.githubusercontent.com/rafaelmardojai/blanket/master/data/resources/sounds/birds.ogg' },
+    { id: 'lofi', name: 'Lo-Fi פוקוס', icon: Headset, url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3' },
+];
+
+const FOCUS_TIME = 25 * 60; // 25 mins
+
 export default function FocusMode({ tasks }: { tasks: Task[] }) {
     const [isOpen, setIsOpen] = useState(false);
     const [currentIndex, setCurrentIndex] = useState(0);
 
-    // Filter only active tasks (not done)
-    const activeTasks = tasks.filter(t => t.status !== 'Done');
+    // Timer State
+    const [timeLeft, setTimeLeft] = useState(FOCUS_TIME);
+    const [isRunning, setIsRunning] = useState(false);
+    const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
-    // Sort by priority: High first
+    // Audio State
+    const [audioActive, setAudioActive] = useState(false);
+    const [audioMode, setAudioMode] = useState('rain');
+    const audioRef = useRef<HTMLAudioElement | null>(null);
+
+    const activeTasks = tasks.filter(t => t.status !== 'Done');
     const sortedTasks = [...activeTasks].sort((a, b) => {
         const order: Record<string, number> = { High: 0, Medium: 1, Low: 2 };
         return (order[a.priority] || 1) - (order[b.priority] || 1);
@@ -29,11 +45,58 @@ export default function FocusMode({ tasks }: { tasks: Task[] }) {
 
     const currentTask = sortedTasks[currentIndex];
 
+    // Handle Timer
+    useEffect(() => {
+        if (isRunning && timeLeft > 0) {
+            intervalRef.current = setInterval(() => setTimeLeft(prev => prev - 1), 1000);
+        } else if (timeLeft === 0 && isRunning) {
+            setIsRunning(false);
+            if (navigator.vibrate) navigator.vibrate([100, 100, 100]); // End of pomodoro
+        }
+        return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
+    }, [isRunning, timeLeft]);
+
+    // Handle Audio
+    useEffect(() => {
+        if (!audioRef.current) {
+            audioRef.current = new Audio();
+            audioRef.current.loop = true;
+            audioRef.current.volume = 0.5;
+        }
+        const selectedMode = AMBIENCE_MODES.find(m => m.id === audioMode);
+        if (selectedMode && audioRef.current.src !== selectedMode.url) {
+            audioRef.current.src = selectedMode.url;
+            if (audioActive) audioRef.current.play().catch(() => {});
+        }
+        if (audioActive) audioRef.current.play().catch(() => {});
+        else audioRef.current.pause();
+
+        return () => {
+            if (audioRef.current) audioRef.current.pause();
+        };
+    }, [audioActive, audioMode]);
+
+    // Cleanup when closing
+    useEffect(() => {
+        if (!isOpen) {
+            setIsRunning(false);
+            setAudioActive(false);
+            setTimeLeft(FOCUS_TIME);
+        }
+    }, [isOpen]);
+
     const handleComplete = async () => {
         if (!currentTask) return;
-        await updateTaskStatus(currentTask._id, 'Done');
+        
+        // Throw confetti for x2 XP!
+        confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+
+        await completeTaskWithBonus(currentTask._id, 2); // Double XP from Focus Room!
+        
         if (currentIndex < sortedTasks.length - 1) {
             setCurrentIndex(prev => prev + 1);
+            setTimeLeft(FOCUS_TIME);
+            setIsRunning(false);
         } else {
             setIsOpen(false);
         }
@@ -42,19 +105,30 @@ export default function FocusMode({ tasks }: { tasks: Task[] }) {
     const handleSkip = () => {
         if (currentIndex < sortedTasks.length - 1) {
             setCurrentIndex(prev => prev + 1);
+            setTimeLeft(FOCUS_TIME);
+            setIsRunning(false);
         }
     };
 
     if (activeTasks.length === 0) return null;
 
+    const formatTime = (seconds: number) => {
+        const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+        const s = (seconds % 60).toString().padStart(2, '0');
+        return `${m}:${s}`;
+    };
+
+    const progress = ((FOCUS_TIME - timeLeft) / FOCUS_TIME) * 100;
+
     return (
         <>
             <button
                 onClick={() => { setIsOpen(true); setCurrentIndex(0); }}
-                className="flex-shrink-0 flex items-center gap-3 px-6 py-4 bg-[#FF00E5]/10 text-[#FF00E5] rounded-2xl font-black text-xs md:text-sm border border-[#FF00E5]/10 dark:border-[#FF00E5]/20 shadow-sm transition-all hover:bg-[#FF00E5]/20 hover:shadow-lg hover:shadow-[#FF00E5]/10 active:scale-95 group/focus"
+                className="flex-shrink-0 flex items-center gap-3 px-6 py-4 bg-indigo-500/10 text-indigo-500 rounded-2xl font-black text-xs md:text-sm border border-indigo-500/10 shadow-sm transition-all hover:bg-indigo-500 hover:text-white hover:scale-105 group/focus"
             >
                 <Focus className="w-5 h-5 group-hover/focus:rotate-90 transition-transform duration-500" />
-                <span className="whitespace-nowrap uppercase tracking-widest text-[10px] md:text-sm">מצב פוקוס</span>
+                <span className="whitespace-nowrap uppercase tracking-widest leading-none">חדר מיקוד חכם</span>
+                <span className="ml-2 px-2 py-0.5 bg-indigo-500 text-white rounded-md text-[9px] uppercase tracking-widest hidden group-hover/focus:inline-block">XP כפול!</span>
             </button>
 
             <AnimatePresence>
@@ -63,86 +137,117 @@ export default function FocusMode({ tasks }: { tasks: Task[] }) {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-[9000] bg-slate-900/95 backdrop-blur-2xl flex items-center justify-center px-6"
+                        className="fixed inset-0 z-[9000] bg-slate-900/95 backdrop-blur-2xl flex items-center justify-center px-6 overflow-hidden"
                     >
                         <motion.div
                             initial={{ opacity: 0, scale: 0.9, y: 30 }}
                             animate={{ opacity: 1, scale: 1, y: 0 }}
                             exit={{ opacity: 0, scale: 0.9, y: 30 }}
-                            className="max-w-lg w-full text-center relative"
+                            className="max-w-2xl w-full relative grid grid-cols-1 md:grid-cols-2 gap-8"
                         >
                             {/* Close */}
                             <button
                                 onClick={() => setIsOpen(false)}
-                                className="absolute top-0 left-0 p-3 text-white/30 hover:text-white transition-colors"
+                                className="absolute -top-12 right-0 p-3 text-white/50 hover:text-white hover:bg-white/10 rounded-xl transition-all"
                             >
                                 <X className="w-6 h-6" />
                             </button>
 
-                            {/* Progress */}
-                            <div className="mb-8">
-                                <div className="flex items-center justify-center gap-2 mb-4">
-                                    <Focus className="w-5 h-5 text-[#FF00E5]" />
-                                    <span className="text-xs font-black uppercase tracking-widest text-[#FF00E5]">מצב פוקוס</span>
-                                </div>
-                                <div className="flex items-center justify-center gap-1 mb-2">
-                                    {sortedTasks.map((_, i) => (
-                                        <div
-                                            key={i}
-                                            className={`h-1 rounded-full transition-all ${i < currentIndex ? 'w-8 bg-emerald-500' :
-                                                i === currentIndex ? 'w-12 bg-[#FF00E5]' :
-                                                    'w-8 bg-white/10'
-                                                }`}
-                                        />
-                                    ))}
-                                </div>
-                                <span className="text-xs font-bold text-white/30">
-                                    {currentIndex + 1} מתוך {sortedTasks.length}
-                                </span>
-                            </div>
-
-                            {/* Current Task */}
-                            <div className="mb-10">
-                                <div className="flex items-center justify-center gap-3 mb-6">
-                                    <span className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider ${currentTask.priority === 'High' ? 'bg-red-500/20 text-red-400' :
-                                        currentTask.priority === 'Medium' ? 'bg-amber-500/20 text-amber-400' :
-                                            'bg-cyan-500/20 text-cyan-400'
-                                        }`}>
-                                        {currentTask.priority === 'High' ? 'עדיפות גבוהה' :
-                                            currentTask.priority === 'Medium' ? 'עדיפות בינונית' : 'עדיפות נמוכה'}
-                                    </span>
-                                    <span className="px-3 py-1 bg-white/5 rounded-lg text-[10px] font-black text-white/50">
-                                        {currentTask.category}
-                                    </span>
+                            {/* Left Panel: Task Info */}
+                            <div className="flex flex-col justify-center text-right border-l-0 md:border-l border-white/10 pl-0 md:pl-8">
+                                <div className="mb-6">
+                                    <div className="flex items-center gap-2 mb-4 text-white/50 text-xs font-bold uppercase tracking-widest">
+                                        <span>משימה {currentIndex + 1} מתוך {sortedTasks.length}</span>
+                                    </div>
+                                    <div className="flex items-center gap-2 mb-4">
+                                        <span className={`px-2 py-1 rounded-md text-[10px] font-black uppercase tracking-wider ${currentTask.priority === 'High' ? 'bg-red-500/20 text-red-400' : currentTask.priority === 'Medium' ? 'bg-amber-500/20 text-amber-400' : 'bg-cyan-500/20 text-cyan-400'}`}>
+                                            {currentTask.priority === 'High' ? 'דחוף' : currentTask.priority === 'Medium' ? 'בינוני' : 'נמוך'}
+                                        </span>
+                                        <span className="px-2 py-1 bg-white/5 rounded-md text-[10px] font-black text-white/50">
+                                            {currentTask.category}
+                                        </span>
+                                    </div>
+                                    <h2 className="text-3xl font-black text-white mb-4 leading-tight">
+                                        {currentTask.title}
+                                    </h2>
+                                    <div className="flex items-center gap-2 text-indigo-400 bg-indigo-500/10 px-3 py-2 rounded-xl mb-8 border border-indigo-500/20 w-fit">
+                                        <Sparkles className="w-4 h-4" />
+                                        <span className="text-xs font-bold">סיום כאן מעניק בונוס XP כפול!</span>
+                                    </div>
                                 </div>
 
-                                <h2 className="text-4xl md:text-5xl font-black text-white mb-6 leading-tight">
-                                    {currentTask.title}
-                                </h2>
-
-                                <div className="flex items-center justify-center gap-2 text-white/20">
-                                    <Sparkles className="w-4 h-4" />
-                                    <span className="text-sm font-bold">התמקד רק במשימה הזו</span>
-                                </div>
-                            </div>
-
-                            {/* Actions */}
-                            <div className="flex items-center justify-center gap-4">
-                                <button
-                                    onClick={handleComplete}
-                                    className="flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-black uppercase tracking-wider text-sm rounded-2xl shadow-xl shadow-emerald-500/30 hover:-translate-y-1 hover:shadow-2xl transition-all"
-                                >
-                                    <CheckCircle className="w-5 h-5" />
-                                    סיימתי!
-                                </button>
-                                {currentIndex < sortedTasks.length - 1 && (
+                                <div className="flex items-center justify-start gap-4">
                                     <button
-                                        onClick={handleSkip}
-                                        className="flex items-center gap-2 px-6 py-4 bg-white/5 text-white/60 font-bold text-sm rounded-2xl hover:bg-white/10 transition-colors"
+                                        onClick={handleComplete}
+                                        className="flex items-center justify-center gap-2 flex-1 py-4 bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-black uppercase tracking-wider text-sm rounded-2xl shadow-xl hover:-translate-y-1 hover:shadow-2xl transition-all"
                                     >
-                                        דלג <ArrowLeft className="w-4 h-4" />
+                                        <CheckCircle className="w-5 h-5" />סיימתי!
                                     </button>
-                                )}
+                                    {currentIndex < sortedTasks.length - 1 && (
+                                        <button
+                                            onClick={handleSkip}
+                                            className="px-6 py-4 bg-white/5 text-white flex-shrink-0 font-bold text-sm rounded-2xl hover:bg-white/10 transition-colors"
+                                        >
+                                            <ArrowLeft className="w-5 h-5" />
+                                        </button>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Right Panel: Pomodoro & Audio */}
+                            <div className="flex flex-col items-center justify-center bg-white/5 rounded-3xl p-6 border border-white/10">
+                                
+                                {/* Circular Timer */}
+                                <div className="relative w-48 h-48 mb-8">
+                                    <svg className="w-full h-full transform -rotate-90" viewBox="0 0 120 120">
+                                        <circle cx="60" cy="60" r="54" fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="4" />
+                                        <circle
+                                            cx="60" cy="60" r="54" fill="none"
+                                            stroke="#4F46E5" strokeWidth="8" strokeLinecap="round"
+                                            strokeDasharray={`${(progress / 100) * 339.29} 339.29`}
+                                            className="transition-all duration-1000"
+                                        />
+                                    </svg>
+                                    <div className="absolute inset-0 flex flex-col items-center justify-center">
+                                        <span className="text-5xl font-black tabular-nums text-white tracking-tighter shadow-sm">{formatTime(timeLeft)}</span>
+                                        <span className="text-[10px] font-black uppercase tracking-widest text-indigo-400 mt-1">
+                                            זמן מיקוד
+                                        </span>
+                                    </div>
+                                </div>
+
+                                {/* Timer Controls */}
+                                <div className="flex items-center gap-3 mb-8 w-full justify-center">
+                                    <button onClick={() => { setIsRunning(false); setTimeLeft(FOCUS_TIME); }} className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center hover:bg-white/20 text-white transition-all">
+                                        <RotateCcw className="w-5 h-5" />
+                                    </button>
+                                    <button onClick={() => setIsRunning(!isRunning)} className={`w-16 h-16 rounded-2xl flex items-center justify-center text-white transition-all hover:scale-105 shadow-xl ${isRunning ? 'bg-red-500 shadow-red-500/30' : 'bg-indigo-500 shadow-indigo-500/30'}`}>
+                                        {isRunning ? <Pause className="w-7 h-7" /> : <Play className="w-7 h-7 ml-1" />}
+                                    </button>
+                                </div>
+
+                                {/* Audio Toggles */}
+                                <div className="w-full pt-6 border-t border-white/10">
+                                    <div className="flex items-center justify-between mb-4">
+                                        <span className="text-xs font-bold text-white/50">רעש לבן לפוקוס</span>
+                                        <button onClick={() => setAudioActive(!audioActive)} className={`p-2 rounded-lg transition-colors ${audioActive ? 'bg-indigo-500 text-white' : 'bg-white/10 text-white/50 hover:bg-white/20'}`}>
+                                            {audioActive ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
+                                        </button>
+                                    </div>
+                                    <div className="grid grid-cols-3 gap-2">
+                                        {AMBIENCE_MODES.map((m) => (
+                                            <button
+                                                key={m.id}
+                                                onClick={() => { setAudioMode(m.id); setAudioActive(true); }}
+                                                className={`p-3 rounded-xl border flex flex-col items-center gap-2 transition-all ${audioMode === m.id ? 'bg-indigo-500/20 border-indigo-500 text-white' : 'bg-white/5 border-transparent text-white/40 hover:bg-white/10'}`}
+                                            >
+                                                <m.icon className="w-5 h-5" />
+                                                <span className="text-[9px] font-black uppercase tracking-widest">{m.name}</span>
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+
                             </div>
                         </motion.div>
                     </motion.div>

@@ -9,7 +9,7 @@ import { revalidatePath } from 'next/cache';
 /**
  * Award XP and points when a task is completed.
  */
-export async function awardTaskCompletion(taskId: string) {
+export async function awardTaskCompletion(taskId: string, xpMultiplier: number = 1) {
     try {
         const session = await getCurrentUser();
         if (!session) throw new Error('Not authenticated');
@@ -25,7 +25,8 @@ export async function awardTaskCompletion(taskId: string) {
 
         // Calculate XP based on priority
         const priorityXP: Record<string, number> = { High: 50, Medium: 30, Low: 15 };
-        const xpToGain = priorityXP[task.priority] || 20;
+        const baseXP = priorityXP[task.priority] || 20;
+        const xpToGain = Math.floor(baseXP * xpMultiplier);
         const currencyToGain = Math.floor(xpToGain / 10); // 1 coin per 10 XP
 
         user.xp += xpToGain;
