@@ -30,7 +30,7 @@ interface Task {
     projectId?: string;
 }
 
-export default function TaskItem({ task }: { task: Task }) {
+export default function TaskItem({ task, compact }: { task: Task, compact?: boolean }) {
     const { isPending, removeTask, optimizeTitle, generateSubtasks, toggleSub, getAnalysis, syncToCalendar } = useTaskFlow();
     const [showSubtasks, setShowSubtasks] = useState(false);
     const [aiAdvice, setAiAdvice] = useState<string | null>(null);
@@ -126,7 +126,7 @@ export default function TaskItem({ task }: { task: Task }) {
                 </div>
 
                 {/* Progress Bar (Compact) */}
-                {total > 0 && (
+                {!compact && total > 0 && (
                     <div className="mb-5 px-1">
                         <div className="h-1.5 w-full bg-slate-100 dark:bg-white/5 rounded-full overflow-hidden">
                             <motion.div
@@ -166,65 +166,67 @@ export default function TaskItem({ task }: { task: Task }) {
                 </AnimatePresence>
 
                 {/* Optimized Quick Actions Footer */}
-                <div className="pt-4 flex items-center justify-between">
-                    <div className="flex items-center gap-1">
-                        <QuickAction
-                            icon={Sparkles}
-                            color="text-amber-500"
-                            onClick={handleGenSubtasks}
-                            disabled={isPending}
-                            title="פירוק חכם לצעדים (AI)"
-                        />
-                        <QuickAction
-                            icon={BrainCircuit}
-                            color="text-[var(--primary)]"
-                            onClick={handleAnalysis}
-                            disabled={isPending}
-                            title="ניתוח משימה (AI)"
-                        />
-                        <QuickAction
-                            icon={FastForward}
-                            color="text-blue-500"
-                            onClick={handleOptimize}
-                            disabled={isPending}
-                            title="שיפור כותרת (AI)"
-                        />
-                        {task.dueDate && (
+                {!compact && (
+                    <div className="pt-4 flex items-center justify-between">
+                        <div className="flex items-center gap-1">
                             <QuickAction
-                                icon={Calendar}
-                                color="text-emerald-500"
-                                onClick={() => syncToCalendar(task._id, task.title)}
+                                icon={Sparkles}
+                                color="text-amber-500"
+                                onClick={handleGenSubtasks}
                                 disabled={isPending}
-                                title="סנכרון ל-Google Calendar"
+                                title="פירוק חכם לצעדים (AI)"
                             />
-                        )}
-                    </div>
+                            <QuickAction
+                                icon={BrainCircuit}
+                                color="text-[var(--primary)]"
+                                onClick={handleAnalysis}
+                                disabled={isPending}
+                                title="ניתוח משימה (AI)"
+                            />
+                            <QuickAction
+                                icon={FastForward}
+                                color="text-blue-500"
+                                onClick={handleOptimize}
+                                disabled={isPending}
+                                title="שיפור כותרת (AI)"
+                            />
+                            {task.dueDate && (
+                                <QuickAction
+                                    icon={Calendar}
+                                    color="text-emerald-500"
+                                    onClick={() => syncToCalendar(task._id, task.title)}
+                                    disabled={isPending}
+                                    title="סנכרון ל-Google Calendar"
+                                />
+                            )}
+                        </div>
 
-                    <div className="flex items-center gap-1">
-                        <button
-                            onClick={() => setShowSubtasks(!showSubtasks)}
-                            className={`p-2 rounded-xl transition-all ${showSubtasks ? 'bg-[var(--primary)] text-white' : 'bg-slate-50 dark:bg-white/5 text-slate-400 hover:bg-slate-100 dark:hover:bg-white/10'}`}
-                            title={showSubtasks ? 'הסתר צעדים' : 'הצג צעדים'}
-                        >
-                            {showSubtasks ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-                        </button>
-                        <button
-                            onClick={() => {
-                                if (navigator.vibrate) navigator.vibrate([50, 30, 50]);
-                                removeTask(task._id);
-                            }}
-                            disabled={isPending}
-                            className="p-2 bg-red-50 dark:bg-red-500/10 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition-all ml-1 shadow-sm"
-                            title="מחיקה מהירה"
-                        >
-                            <Trash2 className="w-4 h-4" />
-                        </button>
+                        <div className="flex items-center gap-1">
+                            <button
+                                onClick={() => setShowSubtasks(!showSubtasks)}
+                                className={`p-2 rounded-xl transition-all ${showSubtasks ? 'bg-[var(--primary)] text-white' : 'bg-slate-50 dark:bg-white/5 text-slate-400 hover:bg-slate-100 dark:hover:bg-white/10'}`}
+                                title={showSubtasks ? 'הסתר צעדים' : 'הצג צעדים'}
+                            >
+                                {showSubtasks ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                            </button>
+                            <button
+                                onClick={() => {
+                                    if (navigator.vibrate) navigator.vibrate([50, 30, 50]);
+                                    removeTask(task._id);
+                                }}
+                                disabled={isPending}
+                                className="p-2 bg-red-50 dark:bg-red-500/10 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition-all ml-1 shadow-sm"
+                                title="מחיקה מהירה"
+                            >
+                                <Trash2 className="w-4 h-4" />
+                            </button>
+                        </div>
                     </div>
-                </div>
+                )}
 
                 {/* Subtasks List */}
                 <AnimatePresence>
-                    {showSubtasks && (
+                    {!compact && showSubtasks && (
                         <motion.div
                             initial={{ height: 0, opacity: 0 }}
                             animate={{ height: 'auto', opacity: 1 }}

@@ -19,7 +19,9 @@ import {
     LazySearchFilterBar,
     LazyAddTaskForm,
     LazyAIManagerReport,
-    LazyFocusAmbience
+    LazyFocusAmbience,
+    LazyDailyAIBriefing,
+    LazyTaskViewContainer
 } from '@/components/LazyClientWrappers';
 import AvatarDisplay from '@/components/AvatarDisplay';
 import { getAIProgressReport } from '@/actions/aiManagerActions';
@@ -54,6 +56,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
     return (
         <main className="min-h-screen text-slate-800 dark:text-white selection:bg-[#4318FF] selection:text-white pb-40">
 
+            <LazyDailyAIBriefing />
             <div className="max-w-[1400px] mx-auto px-6 pt-32 md:pt-40">
 
                 {/* Hero Header Section */}
@@ -166,16 +169,16 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
                             <LazyAIManagerReport report={aiReport} />
                         </div>
 
-                        {/* Vibrant Board */}
+                        {/* Task Views (Kanban, Matrix, Timeline, MindMap) & Filter */}
                         <Suspense fallback={
                             <div className="h-64 flex items-center justify-center rounded-2xl bg-slate-50 dark:bg-slate-800/30">
                                 <div className="flex flex-col items-center gap-3">
                                     <div className="w-8 h-8 border-3 border-[#4318FF]/30 border-t-[#4318FF] rounded-full animate-spin" />
-                                    <span className="text-xs font-bold text-slate-400">טוען לוח משימות...</span>
+                                    <span className="text-xs font-bold text-slate-400">טוען נתונים...</span>
                                 </div>
                             </div>
                         }>
-                            <LazyKanbanBoard tasks={tasks} />
+                            <LazyTaskViewContainer tasks={tasks} />
                         </Suspense>
                     </div>
                 </div>

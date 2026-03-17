@@ -564,6 +564,128 @@ export async function getBottleneckAlerts() {
   }
 }
 
+/**
+ * Eisenhower Matrix Distribution (AI)
+ * Categorizes active tasks into Q1, Q2, Q3, Q4
+ */
+export async function distributeTasksMatrix(tasks: { id: string, title: string, desc: string }[]) {
+    try {
+        const session = await getCurrentUser();
+        if (!session) throw new Error('Not authenticated');
+
+        const prompt = `You are a productivity expert using the Eisenhower Matrix.
+        I will provide a JSON array of tasks exactly like this:
+        [ {"id": "taskId1", "title": "Buy milk", "desc": ""} ]
+        
+        You must analyze each task and assign it to a quadrant:
+        'Q1' = Urgent & Important (Do first)
+        'Q2' = Important, Not Urgent (Schedule)
+        'Q3' = Urgent, Not Important (Delegate)
+        'Q4' = Not Urgent & Not Important (Eliminate)
+
+        Tasks:
+        ${JSON.stringify(tasks)}
+
+        Respond ONLY with a valid JSON object mapping task IDs to quadrants.
+        Example response format:
+        {
+            "taskId1": "Q1",
+            "taskId2": "Q4"
+        }`;
+        
+        const result = await model.generateContent(prompt);
+        let resultText = result.response.text().trim();
+        
+        // Clean JSON formatting if necessary
+        if (resultText.startsWith('```json')) {
+            resultText = resultText.replace(/```json/g, '').replace(/```/g, '').trim();
+        }
+        
+        const mapping = JSON.parse(resultText);
+        
+        return { success: true, mapping };
+    } catch (error) {
+        console.error('Matrix Sorting Error', error);
+        return { success: false, mapping: {} };
+    }
+}
+
+/**
+ * AI Auto-Scheduler
+ * Given a list of tasks, assigns them to time blocks for the current day
+ */
+export async function autoScheduleDay(tasks: { id: string, title: string, durationEstimate: number }[]) {
+    try {
+        const session = await getCurrentUser();
+        if (!session) throw new Error('Not authenticated');
+
+        const prompt = `You are an AI calendar assistant.
+        I will give you a list of tasks for today:
+        ${JSON.stringify(tasks)}
+        
+        Schedule them between 09:00 and 18:00 today.
+        Prioritize larger tasks earlier in the day. Leave small 15m gaps between tasks.
+        
+        Respond ONLY with a JSON array of objects, like this:
+        [
+          { "taskId": "id1", "startTime": "09:00", "endTime": "10:30" }
+        ]`;
+        
+        const result = await model.generateContent(prompt);
+        let resultText = result.response.text().trim();
+        if (resultText.startsWith('```json')) {
+            resultText = resultText.replace(/```json/g, '').replace(/```/g, '').trim();
+        }
+        
+        const schedule = JSON.parse(resultText);
+        return { success: true, schedule };
+    } catch (error) {
+        console.error('Auto Schedule Error', error);
+        return { success: false, schedule: [] };
+    }
+}
+
+/**
+ * AI Mind Map Generator
+ */
+export async function generateMindMap(tasks: { id: string, title: string, subtaskCount: number }[]) {
+    try {
+        const session = await getCurrentUser();
+        if (!session) throw new Error('Not authenticated');
+
+        const prompt = `You are a project manager AI.
+        I will give you a list of tasks:
+        ${JSON.stringify(tasks)}
+        
+        Group them into a logical Mind Map structure with high-level projects/nodes, and subnodes.
+        Respond ONLY with a valid JSON object representing the structure:
+        {
+          "nodes": [
+            {
+              "id": "node1",
+              "title": "Main Project Idea",
+              "category": "Development",
+              "subNodes": [
+                 { "id": "sub1", "title": "Sub task title" }
+              ]
+            }
+          ]
+        }`;
+        
+        const result = await model.generateContent(prompt);
+        let resultText = result.response.text().trim();
+        if (resultText.startsWith('```json')) {
+            resultText = resultText.replace(/```json/g, '').replace(/```/g, '').trim();
+        }
+        
+        const data = JSON.parse(resultText);
+        return { success: true, data };
+    } catch (error) {
+        console.error('Mind Map Error', error);
+        return { success: false, data: null };
+    }
+}
+
 export async function updateTaskDate(taskId: string, newDate: string | null) {
   try {
     await connectDB();

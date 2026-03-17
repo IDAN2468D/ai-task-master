@@ -19,6 +19,13 @@ const CollaborativeHub = dynamic(() => import('./CollaborativeHub'), { ssr: fals
 const AIManagerReport = dynamic(() => import('./AIManagerReport'), { ssr: false });
 const FocusAmbience = dynamic(() => import('./FocusAmbience'), { ssr: false });
 
+const DailyAIBriefing = dynamic(() => import('./DailyAIBriefing'), { ssr: false });
+
+export const LazyTaskViewContainer = dynamic(() => import('./TaskViewContainer'), {
+    ssr: false,
+    loading: () => <div className="h-96 flex justify-center items-center text-slate-400 font-bold animate-pulse">טוען ממשק פעיל...</div>
+});
+
 
 interface Task {
     _id: string;
@@ -92,5 +99,9 @@ export function LazyAIManagerReport({ report }: { report: string }) {
 
 export function LazyFocusAmbience() {
     return <FocusAmbience />;
+}
+
+export function LazyDailyAIBriefing() {
+    return <DailyAIBriefing />;
 }
 

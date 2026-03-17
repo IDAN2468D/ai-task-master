@@ -4,7 +4,7 @@ import { model } from '@/lib/gemini';
 import connectDB from '@/lib/mongodb';
 import Task from '@/models/Task';
 import { getCurrentUser } from '@/actions/authActions';
-import { revalidatePath } from 'next/cache';
+import { sendWeeklySummaryEmail } from '@/lib/email';
 
 /**
  * AI Progress Report: Analyzes recent activity and provides high-level coaching
@@ -79,5 +79,21 @@ export async function suggestAutomation(taskId: string) {
         };
     } catch (error) {
         return null;
+    }
+}
+
+export async function sendAIManagerReportEmail(reportText: string) {
+    try {
+        const session = await getCurrentUser();
+        if (!session) throw new Error('Not authenticated');
+        
+        const res = await sendWeeklySummaryEmail(session.name, session.email, reportText);
+        if(!res.success) {
+            return { success: false, error: res.error };
+        }
+        
+        return { success: true };
+    } catch (error: any) {
+        return { success: false, error: error.message };
     }
 }

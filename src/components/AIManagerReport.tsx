@@ -1,13 +1,30 @@
 'use client';
 
+import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { BrainCircuit, TrendingUp, AlertCircle, CheckCircle2, ChevronRight, Sparkles } from 'lucide-react';
+import { BrainCircuit, TrendingUp, AlertCircle, CheckCircle2, ChevronRight, Sparkles, Mail, Loader2 } from 'lucide-react';
+import { sendAIManagerReportEmail } from '@/actions/aiManagerActions';
 
 interface AIManagerReportProps {
     report: string;
 }
 
 export default function AIManagerReport({ report }: AIManagerReportProps) {
+    const [isEmailing, setIsEmailing] = useState(false);
+    const [emailSuccess, setEmailSuccess] = useState(false);
+
+    const handleEmailReport = async () => {
+        setIsEmailing(true);
+        const res = await sendAIManagerReportEmail(report);
+        if (res?.success) {
+            setEmailSuccess(true);
+            setTimeout(() => setEmailSuccess(false), 3000);
+        } else {
+            alert('שגיאה בשליחת האימייל: ' + (res?.error || 'Unknown error'));
+        }
+        setIsEmailing(false);
+    };
+
     return (
         <div className="vibrant-card p-8 bg-gradient-to-br from-[#111C44] to-[#0B1437] border-indigo-500/20 shadow-2xl relative overflow-hidden group min-h-[300px] flex flex-col">
             {/* Animated Glow Backdrop */}
@@ -69,10 +86,22 @@ export default function AIManagerReport({ report }: AIManagerReportProps) {
                     <Sparkles className="w-3 h-3" />
                     נקה את העומס כדי להגדיל את ה-XP
                 </div>
-                <button className="flex items-center gap-1 text-[10px] font-black text-white px-4 py-2 bg-indigo-500 rounded-xl shadow-lg shadow-indigo-500/20 hover:-translate-y-0.5 transition-transform active:scale-95">
-                    צפה בדו-ח המלא
-                    <ChevronRight className="w-3 h-3" />
-                </button>
+                <div className="flex items-center gap-2">
+                    <button 
+                        onClick={handleEmailReport}
+                        disabled={isEmailing || emailSuccess}
+                        className="flex items-center gap-1 text-[10px] font-black text-indigo-400 px-4 py-2 bg-indigo-500/10 rounded-xl hover:bg-indigo-500/20 transition-colors disabled:opacity-50"
+                    >
+                        {isEmailing ? <Loader2 className="w-3 h-3 animate-spin" /> : 
+                         emailSuccess ? <CheckCircle2 className="w-3 h-3 text-emerald-400" /> : 
+                         <Mail className="w-3 h-3" />}
+                        {emailSuccess ? 'נשלח!' : 'שלח למייל'}
+                    </button>
+                    <button className="flex items-center gap-1 text-[10px] font-black text-white px-4 py-2 bg-indigo-500 rounded-xl shadow-lg shadow-indigo-500/20 hover:-translate-y-0.5 transition-transform active:scale-95">
+                        צפה בדו-ח המלא
+                        <ChevronRight className="w-3 h-3" />
+                    </button>
+                </div>
             </div>
         </div>
     );
