@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { CalendarClock, Sparkles, PlayCircle, Lock } from 'lucide-react';
+import { CalendarClock, Sparkles, PlayCircle, Lock, Download } from 'lucide-react';
 import { autoScheduleDay } from '@/actions/taskActions';
 import TaskItem from './TaskItem';
 
@@ -66,6 +66,46 @@ export default function AutoScheduler({ tasks }: { tasks: Task[] }) {
         return { top: `${top}%`, height: `${height}%` };
     };
 
+    const handleExportToICS = () => {
+        let icsData = "BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//AI Task Master//EN\n";
+        
+        // Get today's date in YYYYMMDD format
+        const today = new Date();
+        const yy = today.getFullYear();
+        const mm = String(today.getMonth() + 1).padStart(2, '0');
+        const dd = String(today.getDate()).padStart(2, '0');
+        const dateStr = `${yy}${mm}${dd}`;
+
+        schedule.forEach(block => {
+            const task = activeTasks.find(t => t._id === block.taskId);
+            if (!task) return;
+
+            const st = block.startTime.replace(':', '') + '00';
+            const et = block.endTime.replace(':', '') + '00';
+
+            icsData += "BEGIN:VEVENT\n";
+            icsData += `DTSTART;TZID=Asia/Jerusalem:${dateStr}T${st}\n`;
+            icsData += `DTEND;TZID=Asia/Jerusalem:${dateStr}T${et}\n`;
+            icsData += `SUMMARY:${task.title}\n`;
+            if (task.description) {
+                icsData += `DESCRIPTION:${task.description.replace(/\n/g, '\\n')}\n`;
+            }
+            icsData += "END:VEVENT\n";
+        });
+        
+        icsData += "END:VCALENDAR";
+
+        const blob = new Blob([icsData], { type: 'text/calendar;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `schedule-${dateStr}.ics`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    };
+
     return (
         <div className="relative">
             <div className="flex justify-between items-center mb-8">
@@ -73,18 +113,29 @@ export default function AutoScheduler({ tasks }: { tasks: Task[] }) {
                     <h3 className="text-xl font-black text-slate-800 dark:text-white">לו"ז אישי מנוהל AI</h3>
                     <p className="text-xs font-bold text-slate-500 ml-2">הבינה המלאכותית מתכננת את לוח הזמנים שלך להיום.</p>
                 </div>
-                <button
-                    onClick={handleMagicSchedule}
-                    disabled={isGenerating || activeTasks.length === 0}
-                    className="group flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-black uppercase tracking-widest text-[11px] rounded-2xl hover:shadow-xl hover:shadow-indigo-500/30 hover:-translate-y-1 transition-all disabled:opacity-50"
-                >
-                    {isGenerating ? (
-                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    ) : (
-                        <Sparkles className="w-4 h-4 group-hover:rotate-12 transition-transform" />
+                <div className="flex gap-3">
+                    {schedule.length > 0 && (
+                        <button
+                            onClick={handleExportToICS}
+                            className="flex items-center gap-2 px-5 py-2.5 bg-white dark:bg-[#111C44] text-slate-700 dark:text-slate-300 font-black uppercase tracking-widest text-[11px] rounded-2xl border border-slate-200 dark:border-white/10 hover:shadow-lg transition-all"
+                        >
+                            <Download className="w-4 h-4" />
+                            <span>ייצא ליומן</span>
+                        </button>
                     )}
-                    {isGenerating ? "מחכה לחלוץ הלוז..." : "Magic Schedule"}
-                </button>
+                    <button
+                        onClick={handleMagicSchedule}
+                        disabled={isGenerating || activeTasks.length === 0}
+                        className="group flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-black uppercase tracking-widest text-[11px] rounded-2xl hover:shadow-xl hover:shadow-indigo-500/30 hover:-translate-y-1 transition-all disabled:opacity-50"
+                    >
+                        {isGenerating ? (
+                            <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        ) : (
+                            <Sparkles className="w-4 h-4 group-hover:rotate-12 transition-transform" />
+                        )}
+                        {isGenerating ? "מחכה לחלוץ הלוז..." : "Magic Schedule"}
+                    </button>
+                </div>
             </div>
 
             <div className="bg-white dark:bg-[#111C44]/50 backdrop-blur-md rounded-[32px] border border-slate-200/60 dark:border-white/5 shadow-xl p-6 min-h-[600px] flex relative">

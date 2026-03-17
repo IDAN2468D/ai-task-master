@@ -3,7 +3,7 @@
 import { X, Eye, FileText, Sparkles, Save, Tag, Clock, MessageSquare, ExternalLink, Link as LinkIcon } from 'lucide-react';
 import { useState, useTransition } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { updateTaskDescription, addTagToTask, removeTagFromTask, addCommentToTask } from '@/actions/taskActions';
+import { updateTaskDescription, addTagToTask, removeTagFromTask, addCommentToTask, generateTaskPrep } from '@/actions/taskActions';
 import { summarizeAndAddLink } from '@/actions/aiSummarizerActions';
 import TaskComments from './TaskComments';
 
@@ -41,6 +41,7 @@ export default function TaskDetailModal({ task, isOpen, onClose }: { task: Task;
     const [isAddingTag, startAddTag] = useTransition();
     const [linkUrl, setLinkUrl] = useState('');
     const [isAddingLink, startAddLink] = useTransition();
+    const [isGeneratingPrep, startGeneratePrep] = useTransition();
 
     const statusHe: Record<string, string> = { Todo: 'לביצוע', InProgress: 'בתהליך', Done: 'הושלם' };
     const priorityHe: Record<string, string> = { High: 'גבוהה', Medium: 'בינונית', Low: 'נמוכה' };
@@ -70,6 +71,15 @@ export default function TaskDetailModal({ task, isOpen, onClose }: { task: Task;
         startAddLink(async () => {
             await summarizeAndAddLink(task._id, linkUrl.trim());
             setLinkUrl('');
+        });
+    };
+
+    const handleGeneratePrep = () => {
+        startGeneratePrep(async () => {
+            const res = await generateTaskPrep(task._id, task.title, description);
+            if (res.success && res.content) {
+                setDescription(prev => prev + (prev ? '\n\n---\n**🧠 AI Task Prep:**\n' : '**🧠 AI Task Prep:**\n') + res.content);
+            }
         });
     };
 
@@ -182,6 +192,25 @@ export default function TaskDetailModal({ task, isOpen, onClose }: { task: Task;
                                         <button onClick={handleAddLink} disabled={isAddingLink || !linkUrl.trim()} className="px-6 py-3.5 bg-gradient-stat-1 text-white rounded-2xl text-xs font-black shadow-lg shadow-indigo-500/20 active:scale-95 disabled:opacity-50 transition-all flex items-center gap-2">
                                             {isAddingLink ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <Sparkles className="w-4 h-4" />}
                                             Analyze
+                                        </button>
+                                    </div>
+                                </section>
+
+                                {/* AI Prep Assistant */}
+                                <section>
+                                    <div className="flex items-center justify-between mb-4">
+                                        <label className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400">AI Task Prep</label>
+                                        <button
+                                            onClick={handleGeneratePrep}
+                                            disabled={isGeneratingPrep}
+                                            className="px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-600 text-white rounded-xl text-[10px] font-black shadow-lg shadow-orange-500/20 active:scale-95 disabled:opacity-50 transition-all flex items-center gap-2"
+                                        >
+                                            {isGeneratingPrep ? (
+                                                <div className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                            ) : (
+                                                <Sparkles className="w-3 h-3 group-hover:rotate-12 transition-transform" />
+                                            )}
+                                            {isGeneratingPrep ? 'מנתח...' : 'הכן משימה / פגישה אוטומטית'}
                                         </button>
                                     </div>
                                 </section>

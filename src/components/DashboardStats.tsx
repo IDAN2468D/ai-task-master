@@ -55,6 +55,28 @@ export default function DashboardStats({ tasks }: { tasks: Task[] }) {
 
     return (
         <div className="grid grid-cols-1 md:grid-cols-12 gap-6 w-full mb-12">
+            
+            {/* AI Flow Predictor Banner */}
+            <div className="md:col-span-12 relative overflow-hidden vibrant-card p-6 flex flex-col md:flex-row items-center justify-between gap-6 bg-gradient-to-r from-amber-500/10 to-orange-500/10 border-amber-500/20">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/20 rounded-full blur-3xl -z-10" />
+                <div className="flex items-center gap-4">
+                    <div className="w-14 h-14 bg-gradient-to-br from-amber-400 to-orange-500 rounded-2xl flex items-center justify-center shadow-lg shadow-orange-500/30">
+                        <Flame className="w-7 h-7 text-white" />
+                    </div>
+                    <div>
+                        <h3 className="text-lg font-black text-amber-900 dark:text-amber-100 flex items-center gap-2">
+                            שעות הזהב שלך <span className="px-2 py-0.5 bg-amber-500 text-white text-[10px] rounded-full uppercase tracking-widest">AI Prediction</span>
+                        </h3>
+                        <p className="text-sm font-bold text-amber-700 dark:text-amber-300/80 mt-1">
+                            ה-AI מזהה שאתה בשיא הריכוז בין השעות 10:00 ל-13:00. <br className="hidden md:block"/>
+                            זה הזמן האידיאלי למשימות דינמיות או קשות!
+                        </p>
+                    </div>
+                </div>
+                <button className="whitespace-nowrap px-6 py-3 bg-white dark:bg-[#111C44] text-amber-600 dark:text-amber-400 font-black uppercase tracking-widest text-[11px] rounded-2xl shadow-xl hover:scale-105 transition-transform border border-amber-100 dark:border-amber-500/10">
+                    נעל יומן לשעות אלו
+                </button>
+            </div>
 
             {/* Mini Stat Cards */}
             <div className="md:col-span-8 grid grid-cols-1 sm:grid-cols-3 gap-6">

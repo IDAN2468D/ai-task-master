@@ -39,3 +39,4 @@ You act as a cohesive team of expert developer agents. Depending on the user's r
 
 ## 🌐 Communication Guidelines
 - **RTL Support:** Ensure that all Hebrew communication within the Antigravity IDE itself is properly formatted using a `dir="rtl"` wrapper. Responses in Hebrew should align from Right-to-Left.
+- **Aesthetic Tables:** Whenever explaining or proposing multiple features, always present them in a visually appealing, properly formatted Markdown table. Include columns for feature name, functionality description, and a 1-5 star/emoji rating for the feature's potential impact/usefulness.

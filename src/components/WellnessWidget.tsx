@@ -11,6 +11,11 @@ export default function WellnessWidget() {
     const [, setBreathCount] = useState(0);
     const [activeMinutes, setActiveMinutes] = useState(0);
     const [showReminder, setShowReminder] = useState(false);
+    const [habits, setHabits] = useState([
+        { id: 'water', label: 'שתי כוסות מים', completed: false },
+        { id: 'stretch', label: 'מתיחות גב וצוואר', completed: false },
+        { id: 'eyes', label: 'חוק ה-20/20 (מנוחה לעיניים)', completed: false },
+    ]);
 
     // Track active minutes
     useEffect(() => {
@@ -164,6 +169,31 @@ export default function WellnessWidget() {
                                                 </button>
                                             )}
                                         </AnimatePresence>
+                                    </div>
+                                </div>
+
+                                {/* Micro-Habits Tracker */}
+                                <div className="mb-10 pt-8 border-t border-slate-100 dark:border-white/5">
+                                    <p className="text-[11px] font-black uppercase tracking-widest text-slate-500 mb-6 text-center">מעקב מיקרו-הרגלים 🌱</p>
+                                    <div className="space-y-3">
+                                        {habits.map((habit, idx) => (
+                                            <div 
+                                                key={habit.id} 
+                                                onClick={() => {
+                                                    const newHabits = [...habits];
+                                                    newHabits[idx].completed = !newHabits[idx].completed;
+                                                    setHabits(newHabits);
+                                                }}
+                                                className={`flex items-center gap-4 p-4 rounded-2xl cursor-pointer transition-all border ${habit.completed ? 'bg-emerald-500/10 border-emerald-500/20' : 'bg-slate-50 dark:bg-white/5 border-slate-100 dark:border-white/5 hover:border-emerald-500/30'}`}
+                                            >
+                                                <div className={`w-6 h-6 rounded-full flex items-center justify-center border-2 transition-colors ${habit.completed ? 'bg-emerald-500 border-emerald-500' : 'border-slate-300 dark:border-slate-600'}`}>
+                                                    {habit.completed && <CheckCircle2 className="w-4 h-4 text-white" />}
+                                                </div>
+                                                <span className={`text-sm font-bold transition-all ${habit.completed ? 'text-emerald-700 dark:text-emerald-400 line-through opacity-70' : 'text-slate-700 dark:text-slate-300'}`}>
+                                                    {habit.label}
+                                                </span>
+                                            </div>
+                                        ))}
                                     </div>
                                 </div>
 

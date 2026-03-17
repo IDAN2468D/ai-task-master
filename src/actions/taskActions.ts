@@ -686,6 +686,41 @@ export async function generateMindMap(tasks: { id: string, title: string, subtas
     }
 }
 
+/**
+ * AI Task Prep / Content Generation
+ */
+export async function generateTaskPrep(taskId: string, title: string, desc?: string) {
+    try {
+        const session = await getCurrentUser();
+        if (!session) throw new Error('Not authenticated');
+
+        const prompt = `You are a professional assistant. Prepare a short, highly practical draft, notes, or agenda for the following task:
+        Title: "${title}"
+        Description: "${desc || 'None'}"
+        
+        Provide the response in Markdown format, make it actionable, clean, and in Hebrew.`;
+        
+        const result = await model.generateContent(prompt);
+        let resultText = result.response.text().trim();
+        
+        // Save it to the task as subtask or description append, or just return it as a new AI note
+        await connectDB();
+        const Task = (await import('@/models/Task')).default;
+        
+        const task = await Task.findOne({ _id: taskId, userId: session.userId });
+        if (task) {
+            // Append to description
+            task.description = (task.description ? task.description + '\n\n---\n**🧠 AI Task Prep:**\n' : '**🧠 AI Task Prep:**\n') + resultText;
+            await task.save();
+        }
+
+        return { success: true, content: resultText };
+    } catch (error) {
+        console.error('Task Prep Error', error);
+        return { success: false, content: '' };
+    }
+}
+
 export async function updateTaskDate(taskId: string, newDate: string | null) {
   try {
     await connectDB();
