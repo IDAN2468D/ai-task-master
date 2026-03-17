@@ -48,14 +48,17 @@ export default function VoiceActionOrb() {
                 try {
                     const result = await handleVoiceCommand(transcript);
                     if (result.success) {
-                        const actionMap: any = { CREATE: 'נוצרה משימה:', MOVE: 'הועברה משימה:', DELETE: 'נמחקה משימה:' };
-                        setResponseMsg(`${actionMap[result.action || ''] || ''} ${result.title || ''}`);
+                        const actionMap: any = { CREATE: 'נוצרה משימה:', MOVE: 'הועברה משימה:', DELETE: 'נמחקה משימה:', EOD_SUMMARY: 'דוח סוף יום:' };
+                        const msg = result.action === 'EOD_SUMMARY' 
+                            ? `${result.title}\n${result.summary}`
+                            : `${actionMap[result.action || ''] || ''} ${result.title || ''}`;
+                        setResponseMsg(msg);
                         setSuccess(true);
                         setTimeout(() => {
                             setSuccess(false);
                             setResponseMsg(null);
                             setTranscript('');
-                        }, 4000);
+                        }, 8000); // give more time to read EOD summary
                     } else {
                         setResponseMsg(result.message || 'לא הבנתי...');
                         setError(true);
@@ -127,7 +130,7 @@ export default function VoiceActionOrb() {
                             <h4 className="text-xs font-black uppercase tracking-widest text-[#4318FF] dark:text-[#00E5FF]">
                                 {processing ? 'AI מעבד...' : success ? 'הצלחתי! ✨' : error ? 'משהו קרה' : 'עוזר קולי'}
                             </h4>
-                            <p className="text-sm font-bold text-slate-700 dark:text-slate-300 italic">
+                            <p className="text-[13px] font-bold text-slate-700 dark:text-slate-300 italic whitespace-pre-wrap leading-relaxed">
                                 {success || error ? responseMsg : `"${transcript}"`}
                             </p>
                         </div>

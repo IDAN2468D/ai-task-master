@@ -292,14 +292,15 @@ export async function handleVoiceCommand(transcript: string) {
     const prompt = `The user dictated this command via voice (in Hebrew): "${transcript}"
     Existing tasks: ${JSON.stringify(taskContext)}
     
-    Determine the user's intent: "CREATE", "MOVE", "DELETE", or "UNKNOWN".
+    Determine the user's intent: "CREATE", "MOVE", "DELETE", "EOD_SUMMARY", or "UNKNOWN".
     - "CREATE": user wants to add a new task.
     - "MOVE": user wants to change a task status (e.g., move "Project X" to "InProgress").
     - "DELETE": user wants to remove a task.
+    - "EOD_SUMMARY": user says they finished everything today or want to close the day (e.g., "סיכום יום", "סיימתי הכל").
     
     Return ONLY a valid JSON object:
     {
-      "intent": "CREATE" | "MOVE" | "DELETE" | "UNKNOWN",
+      "intent": "CREATE" | "MOVE" | "DELETE" | "EOD_SUMMARY" | "UNKNOWN",
       "data": {
         "title": "task title in Hebrew (for CREATE or identifying for MOVE/DELETE)",
         "priority": "High/Medium/Low (for CREATE)",
@@ -338,6 +339,26 @@ export async function handleVoiceCommand(transcript: string) {
       await Task.findByIdAndDelete(parsed.data.taskId);
       revalidatePath('/');
       return { success: true, action: 'DELETE', title: parsed.data.title };
+    }
+
+    if (parsed.intent === 'EOD_SUMMARY') {
+      const session = await getCurrentUser();
+      if (!session) return { success: false, message: 'יש להתחבר כדי לסכם את היום.' };
+
+      // Complete all 'InProgress' tasks
+      await Task.updateMany({ userId: session.userId, status: 'InProgress' }, { status: 'Done' });
+      
+      const doneTasks = await Task.find({ userId: session.userId, status: 'Done' }).lean();
+      if (doneTasks.length === 0) return { success: true, action: 'EOD_SUMMARY', title: 'היום נסגר, אבל לא נראו משימות שהושלמו.' };
+      
+      const promptSum = `Write a short, professional, motivating End of Day Report in Hebrew.
+      The user finished these tasks today: ${doneTasks.slice(-5).map((t: any) => t.title).join(', ')}.
+      Make it sound like a cool professional dispatch report. Limit to 3 sentences.`;
+      const sumRes = await model.generateContent(promptSum);
+      const summaryText = sumRes.response.text();
+
+      revalidatePath('/');
+      return { success: true, action: 'EOD_SUMMARY', title: 'דוח יום עודכן!', summary: summaryText };
     }
 
     return { success: false, message: 'לא הצלחתי להבין את הפקודה. נסה שוב - למשל "צור משימה חדשה" או "העבר את משימת X לבוצע"' };
@@ -685,6 +706,45 @@ export async function generateMindMap(tasks: { id: string, title: string, subtas
         return { success: false, data: null };
     }
 }
+
+/**
+ * AI Task Decomposer
+ */
+export async function decomposeTask(taskId: string, title: string) {
+    try {
+        const session = await getCurrentUser();
+        if (!session) throw new Error('Not authenticated');
+
+        const prompt = `You are an expert productivity assistant. Decompose the following task into 3-5 small, actionable, concrete sub-steps.
+        Task: "${title}"
+        Return ONLY a JSON array of strings in Hebrew, no markdown, no other text. Example: ["שלב 1", "שלב 2"].`;
+        
+        const result = await model.generateContent(prompt);
+        let resultText = result.response.text().trim();
+        if (resultText.startsWith('```json')) {
+            resultText = resultText.replace('```json', '').replace('```', '').trim();
+        }
+        
+        const steps: string[] = JSON.parse(resultText);
+        
+        await connectDB();
+        const Task = (await import('@/models/Task')).default;
+        
+        const task = await Task.findOne({ _id: taskId, userId: session.userId });
+        if (task) {
+            const newSubtasks = steps.map(s => ({ title: s, isCompleted: false }));
+            task.subtasks.push(...newSubtasks);
+            await task.save();
+        }
+
+        revalidatePath('/');
+        return { success: true };
+    } catch (error) {
+        console.error('Decompose Error', error);
+        return { success: false };
+    }
+}
+
 
 /**
  * AI Task Prep / Content Generation

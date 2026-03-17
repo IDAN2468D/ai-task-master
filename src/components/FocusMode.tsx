@@ -1,6 +1,6 @@
 'use client';
 
-import { Focus, X, CheckCircle, ArrowLeft, Sparkles, Play, Pause, RotateCcw, Volume2, VolumeX, CloudRain, TreePine, Headset } from 'lucide-react';
+import { Focus, X, CheckCircle, ArrowLeft, Sparkles, Play, Pause, RotateCcw, Volume2, VolumeX, CloudRain, TreePine, Headset, Lock, Unlock, Youtube } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { completeTaskWithBonus } from '@/actions/taskActions';
@@ -18,7 +18,7 @@ interface Task {
 const AMBIENCE_MODES = [
     { id: 'rain', name: 'גשם עדין', icon: CloudRain, url: 'https://raw.githubusercontent.com/rafaelmardojai/blanket/master/data/resources/sounds/rain.ogg' },
     { id: 'forest', name: 'יער קסום', icon: TreePine, url: 'https://raw.githubusercontent.com/rafaelmardojai/blanket/master/data/resources/sounds/birds.ogg' },
-    { id: 'lofi', name: 'Lo-Fi פוקוס', icon: Headset, url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3' },
+    { id: 'lofi', name: 'Lo-Fi Video', icon: Youtube, url: 'none' },
 ];
 
 const FOCUS_TIME = 25 * 60; // 25 mins
@@ -36,6 +36,12 @@ export default function FocusMode({ tasks }: { tasks: Task[] }) {
     const [audioActive, setAudioActive] = useState(false);
     const [audioMode, setAudioMode] = useState('rain');
     const audioRef = useRef<HTMLAudioElement | null>(null);
+
+    // Focus Lock State
+    const [isLockMode, setIsLockMode] = useState(false);
+    const [showChallenge, setShowChallenge] = useState(false);
+    const [mathProblem, setMathProblem] = useState({ q: '', a: 0 });
+    const [mathAnswer, setMathAnswer] = useState('');
 
     const activeTasks = tasks.filter(t => t.status !== 'Done');
     const sortedTasks = [...activeTasks].sort((a, b) => {
@@ -64,12 +70,15 @@ export default function FocusMode({ tasks }: { tasks: Task[] }) {
             audioRef.current.volume = 0.5;
         }
         const selectedMode = AMBIENCE_MODES.find(m => m.id === audioMode);
-        if (selectedMode && audioRef.current.src !== selectedMode.url) {
+        if (selectedMode && selectedMode.id !== 'lofi' && audioRef.current.src !== selectedMode.url) {
             audioRef.current.src = selectedMode.url;
-            if (audioActive) audioRef.current.play().catch(() => {});
         }
-        if (audioActive) audioRef.current.play().catch(() => {});
-        else audioRef.current.pause();
+
+        if (audioActive && audioMode !== 'lofi') {
+            audioRef.current.play().catch(() => {});
+        } else {
+            audioRef.current.pause();
+        }
 
         return () => {
             if (audioRef.current) audioRef.current.pause();
@@ -82,8 +91,32 @@ export default function FocusMode({ tasks }: { tasks: Task[] }) {
             setIsRunning(false);
             setAudioActive(false);
             setTimeLeft(FOCUS_TIME);
+            setIsLockMode(false);
+            setShowChallenge(false);
         }
     }, [isOpen]);
+
+    const handleAttemptClose = () => {
+        if (isLockMode) {
+            const num1 = Math.floor(Math.random() * 20) + 10;
+            const num2 = Math.floor(Math.random() * 20) + 5;
+            setMathProblem({ q: `${num1} + ${num2}`, a: num1 + num2 });
+            setMathAnswer('');
+            setShowChallenge(true);
+        } else {
+            setIsOpen(false);
+        }
+    };
+
+    const submitChallenge = () => {
+        if (parseInt(mathAnswer) === mathProblem.a) {
+            setShowChallenge(false);
+            setIsLockMode(false);
+            setIsOpen(false);
+        } else {
+            setMathAnswer('');
+        }
+    };
 
     const handleComplete = async () => {
         if (!currentTask) return;
@@ -139,6 +172,17 @@ export default function FocusMode({ tasks }: { tasks: Task[] }) {
                         exit={{ opacity: 0 }}
                         className="fixed inset-0 z-[9000] bg-slate-900/95 backdrop-blur-2xl flex items-center justify-center px-6 overflow-hidden"
                     >
+                        {/* Lofi Background */}
+                        {audioMode === 'lofi' && audioActive && (
+                            <div className="absolute inset-0 z-0 pointer-events-none opacity-20 transition-opacity duration-1000">
+                                <iframe 
+                                    src="https://www.youtube.com/embed/jfKfPfyJRdk?autoplay=1&mute=0&controls=0&showinfo=0&loop=1" 
+                                    className="w-full h-[150%] -translate-y-[25%]" 
+                                    allow="autoplay"
+                                />
+                            </div>
+                        )}
+
                         <motion.div
                             initial={{ opacity: 0, scale: 0.9, y: 30 }}
                             animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -147,17 +191,53 @@ export default function FocusMode({ tasks }: { tasks: Task[] }) {
                         >
                             {/* Close */}
                             <button
-                                onClick={() => setIsOpen(false)}
-                                className="absolute -top-12 right-0 p-3 text-white/50 hover:text-white hover:bg-white/10 rounded-xl transition-all"
+                                onClick={handleAttemptClose}
+                                className="absolute -top-12 right-0 p-3 text-white/50 hover:text-white hover:bg-white/10 rounded-xl transition-all z-10"
                             >
                                 <X className="w-6 h-6" />
                             </button>
 
+                            {/* Focus Lock Challenge Modal */}
+                            <AnimatePresence>
+                                {showChallenge && (
+                                    <motion.div 
+                                        initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }}
+                                        className="absolute inset-0 z-50 bg-slate-900/95 backdrop-blur-md rounded-3xl p-8 flex flex-col items-center justify-center text-center border border-indigo-500/30"
+                                    >
+                                        <Lock className="w-12 h-12 text-indigo-500 mb-6" />
+                                        <h3 className="text-2xl font-black text-white mb-2">מצב פוקוס אקסטרים!</h3>
+                                        <p className="text-white/60 text-sm mb-8">פתור את התרגיל כדי לצאת מהחדר</p>
+                                        <div className="text-4xl font-black text-indigo-400 tracking-wider mb-8">{mathProblem.q} = ?</div>
+                                        <div className="flex gap-4">
+                                            <input 
+                                                autoFocus
+                                                type="number" 
+                                                value={mathAnswer} 
+                                                onChange={e => setMathAnswer(e.target.value)}
+                                                onKeyDown={e => e.key === 'Enter' && submitChallenge()}
+                                                className="w-24 text-center bg-white/5 border border-white/20 rounded-xl p-4 text-2xl font-black text-white outline-none focus:border-indigo-500"
+                                            />
+                                            <button onClick={submitChallenge} className="px-6 py-4 bg-indigo-500 text-white rounded-xl font-bold shadow-lg hover:bg-indigo-600 transition-colors">
+                                                שחרר אותי
+                                            </button>
+                                        </div>
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
+
                             {/* Left Panel: Task Info */}
                             <div className="flex flex-col justify-center text-right border-l-0 md:border-l border-white/10 pl-0 md:pl-8">
                                 <div className="mb-6">
-                                    <div className="flex items-center gap-2 mb-4 text-white/50 text-xs font-bold uppercase tracking-widest">
+                                    <div className="flex items-center gap-2 mb-4 text-white/50 text-xs font-bold uppercase tracking-widest justify-between">
                                         <span>משימה {currentIndex + 1} מתוך {sortedTasks.length}</span>
+                                        <button 
+                                            onClick={() => setIsLockMode(!isLockMode)}
+                                            className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border transition-all ${isLockMode ? 'bg-indigo-500/20 text-indigo-400 border-indigo-500/50' : 'bg-transparent text-white/30 border-white/10 hover:bg-white/5 hover:text-white'}`}
+                                            title="נעילת פוקוס - דורש תרגיל מתמטי כדי לצאת"
+                                        >
+                                            {isLockMode ? <Lock className="w-3 h-3" /> : <Unlock className="w-3 h-3" />}
+                                            <span className="text-[9px]">Focus Lock</span>
+                                        </button>
                                     </div>
                                     <div className="flex items-center gap-2 mb-4">
                                         <span className={`px-2 py-1 rounded-md text-[10px] font-black uppercase tracking-wider ${currentTask.priority === 'High' ? 'bg-red-500/20 text-red-400' : currentTask.priority === 'Medium' ? 'bg-amber-500/20 text-amber-400' : 'bg-cyan-500/20 text-cyan-400'}`}>
