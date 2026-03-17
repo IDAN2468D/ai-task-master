@@ -3,7 +3,7 @@
 import { X, Eye, FileText, Sparkles, Save, Tag, Clock, MessageSquare, ExternalLink, Link as LinkIcon, Check } from 'lucide-react';
 import { useState, useTransition } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { updateTaskDescription, addTagToTask, removeTagFromTask, addCommentToTask, generateTaskPrep, decomposeTask, toggleSubtask } from '@/actions/taskActions';
+import { updateTaskDescription, addTagToTask, removeTagFromTask, addCommentToTask, generateTaskPrep, cognitiveDecomposeTask, toggleSubtask, delegateTask } from '@/actions/taskActions';
 import { summarizeAndAddLink } from '@/actions/aiSummarizerActions';
 import TaskComments from './TaskComments';
 
@@ -44,6 +44,8 @@ export default function TaskDetailModal({ task, isOpen, onClose }: { task: Task;
     const [isGeneratingPrep, startGeneratePrep] = useTransition();
     const [isDecomposing, startDecompose] = useTransition();
     const [isTogglingSubtask, startToggleSubtask] = useTransition();
+    const [isDelegating, startDelegating] = useTransition();
+    const [delegationDraft, setDelegationDraft] = useState('');
 
     const statusHe: Record<string, string> = { Todo: 'לביצוע', InProgress: 'בתהליך', Done: 'הושלם' };
     const priorityHe: Record<string, string> = { High: 'גבוהה', Medium: 'בינונית', Low: 'נמוכה' };
@@ -87,13 +89,22 @@ export default function TaskDetailModal({ task, isOpen, onClose }: { task: Task;
 
     const handleDecompose = () => {
         startDecompose(async () => {
-            await decomposeTask(task._id, task.title);
+            await cognitiveDecomposeTask(task._id, task.title);
         });
     };
 
     const handleToggleSubtask = (subtaskId: string, currentStatus: boolean) => {
         startToggleSubtask(async () => {
             await toggleSubtask(task._id, subtaskId, currentStatus);
+        });
+    };
+
+    const handleDelegate = (method: 'whatsapp' | 'email') => {
+        startDelegating(async () => {
+            const res = await delegateTask(task._id, method);
+            if (res.success) {
+                setDelegationDraft(res.draft);
+            }
         });
     };
 
@@ -224,7 +235,7 @@ export default function TaskDetailModal({ task, isOpen, onClose }: { task: Task;
                                             ) : (
                                                 <Sparkles className="w-3 h-3 group-hover:rotate-12 transition-transform" />
                                             )}
-                                            {isDecomposing ? 'מפרק משימה...' : 'AI Task Decomposer 🧩'}
+                                            {isDecomposing ? 'בונה שלבים קוגניטיביים...' : 'בניית מסלול שלבים חכם 🧩'}
                                         </button>
                                     </div>
                                     <div className="space-y-2">
@@ -265,6 +276,19 @@ export default function TaskDetailModal({ task, isOpen, onClose }: { task: Task;
                                             {isGeneratingPrep ? 'מנתח...' : 'הכן משימה / פגישה אוטומטית'}
                                         </button>
                                     </div>
+                                    <div className="flex gap-2">
+                                        <button onClick={() => handleDelegate('whatsapp')} disabled={isDelegating} className="px-4 py-2 bg-green-500/10 text-green-600 rounded-xl text-[10px] font-black hover:bg-green-500 hover:text-white transition-all">האצלת סמכויות (WhatsApp)</button>
+                                        <button onClick={() => handleDelegate('email')} disabled={isDelegating} className="px-4 py-2 bg-blue-500/10 text-blue-600 rounded-xl text-[10px] font-black hover:bg-blue-500 hover:text-white transition-all">האצלת סמכויות (Email)</button>
+                                    </div>
+                                    <AnimatePresence>
+                                        {delegationDraft && (
+                                            <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="mt-4 p-4 bg-slate-100 dark:bg-white/5 rounded-2xl relative">
+                                                <span className="text-[10px] font-black text-slate-400 mb-2 block">טיוטת הודעה מוכנה:</span>
+                                                <p className="text-sm font-medium whitespace-pre-wrap">{delegationDraft}</p>
+                                                <button onClick={() => { navigator.clipboard.writeText(delegationDraft); setDelegationDraft(''); }} className="absolute top-4 right-4 text-xs font-bold text-indigo-500 bg-indigo-500/10 px-3 py-1.5 rounded-lg hover:bg-indigo-500 hover:text-white transition-all">העתק הודעה</button>
+                                            </motion.div>
+                                        )}
+                                    </AnimatePresence>
                                 </section>
 
                                 {/* Tactical Notes */}

@@ -2,12 +2,14 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Coffee, X, Sparkles, Sun } from 'lucide-react';
+import { Coffee, X, Sparkles, Sun, Volume2, VolumeX } from 'lucide-react';
 import { getEnergyInsights } from '@/actions/taskActions';
 
 export default function DailyAIBriefing() {
     const [isVisible, setIsVisible] = useState(false);
     const [insight, setInsight] = useState<string>('');
+    const [isPlaying, setIsPlaying] = useState(false);
+    const synth = typeof window !== 'undefined' ? window.speechSynthesis : null;
 
     useEffect(() => {
         const checkBriefing = async () => {
@@ -24,7 +26,30 @@ export default function DailyAIBriefing() {
 
         // Delay to allow the page to mount and feel natural
         setTimeout(checkBriefing, 2000);
+
+        return () => {
+            if (synth) synth.cancel();
+        };
     }, []);
+
+    const toggleSpeech = () => {
+        if (!synth) return;
+        if (isPlaying) {
+            synth.cancel();
+            setIsPlaying(false);
+        } else {
+            const utterance = new SpeechSynthesisUtterance(insight);
+            utterance.lang = 'he-IL';
+            // Find Hebrew voice if available
+            const voices = synth.getVoices();
+            const heVoice = voices.find(v => v.lang.includes('he') || v.lang.includes('he-IL'));
+            if (heVoice) utterance.voice = heVoice;
+            
+            utterance.onend = () => setIsPlaying(false);
+            synth.speak(utterance);
+            setIsPlaying(true);
+        }
+    };
 
     return (
         <AnimatePresence>
@@ -62,12 +87,17 @@ export default function DailyAIBriefing() {
                                 המלצת AI אישית להיום
                             </p>
 
-                            <p className="text-lg font-medium text-slate-600 dark:text-slate-300 leading-relaxed mb-8">
+                            <p className="text-lg font-medium text-slate-600 dark:text-slate-300 leading-relaxed mb-4">
                                 &quot;{insight}&quot;
                             </p>
 
+                            <button onClick={toggleSpeech} className="mb-8 flex items-center gap-2 px-6 py-2 rounded-full bg-slate-100 dark:bg-white/5 text-slate-500 hover:text-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 transition-colors">
+                                {isPlaying ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5 text-indigo-500" />}
+                                <span className="text-sm font-bold">{isPlaying ? 'השתק' : 'השמע הכל (Audio Briefing)'}</span>
+                            </button>
+
                             <button
-                                onClick={() => setIsVisible(false)}
+                                onClick={() => { setIsVisible(false); if(synth) synth.cancel(); }}
                                 className="w-full py-4 rounded-2xl bg-gradient-stat-1 text-white text-sm font-black tracking-widest uppercase hover:shadow-[0_20px_40px_rgba(67,24,255,0.3)] hover:-translate-y-1 transition-all"
                             >
                                 בוא נתחיל לעבוד 🚀

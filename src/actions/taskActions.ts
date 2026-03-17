@@ -792,3 +792,122 @@ export async function updateTaskDate(taskId: string, newDate: string | null) {
     throw new Error('Failed to update task date');
   }
 }
+
+/**
+ * AI Delegation Assistant
+ */
+export async function delegateTask(taskId: string, method: 'email' | 'whatsapp') {
+    try {
+        const session = await getCurrentUser();
+        if (!session) throw new Error('Not authenticated');
+
+        await connectDB();
+        const task = await Task.findOne({ _id: taskId, userId: session.userId });
+        if (!task) return { success: false, message: '' };
+
+        const prompt = `You are an executive assistant. Your boss wants to delegate this task to a colleague via ${method}.
+        Task Title: "${task.title}"
+        Task Description: "${task.description || 'No description'}"
+        
+        Draft a polite, professional, and clear message in Hebrew requesting them to handle this.
+        Do not include markdown or explanations, just the raw message text.`;
+        
+        const result = await model.generateContent(prompt);
+        let draft = result.response.text().trim();
+        return { success: true, draft };
+    } catch (error) {
+        return { success: false, draft: '' };
+    }
+}
+
+/**
+ * Cognitive Sequencing Engine
+ */
+export async function cognitiveDecomposeTask(taskId: string, title: string) {
+    try {
+        const session = await getCurrentUser();
+        if (!session) throw new Error('Not authenticated');
+
+        const prompt = `You are a cognitive process architect. The user needs to complete: "${title}".
+        Break this down into an ordered sequence of subtasks where dependencies are met (step 1 MUST happen before step 2).
+        For each step, include the estimated minutes.
+        Return ONLY a JSON array in Hebrew like this:
+        [
+            {"title": "שלב 1: מחקר ראשוני (תלוי בעצמו) - 15 דקות", "isCompleted": false},
+            {"title": "שלב 2: כתיבת סקיצה (תלוי בשלב 1) - 30 דקות", "isCompleted": false}
+        ]`;
+        
+        const result = await model.generateContent(prompt);
+        let resultText = result.response.text().trim();
+        if (resultText.startsWith('```json')) {
+            resultText = resultText.replace('```json', '').replace('```', '').trim();
+        }
+        
+        const steps = JSON.parse(resultText);
+        
+        await connectDB();
+        const task = await Task.findOne({ _id: taskId, userId: session.userId });
+        if (task) {
+            task.subtasks.push(...steps);
+            await task.save();
+        }
+
+        revalidatePath('/');
+        return { success: true };
+    } catch (error) {
+        console.error('Cognitive Decompose Error', error);
+        return { success: false };
+    }
+}
+
+/**
+ * Smart Priority Shifting (AI)
+ */
+export async function autoShiftPriorities() {
+    try {
+        const session = await getCurrentUser();
+        if (!session) throw new Error('Not authenticated');
+
+        await connectDB();
+        const tasks = await Task.find({ userId: session.userId, status: 'Todo' });
+        if (tasks.length === 0) return { success: true, message: "אין משימות לעדכון" };
+
+        const taskContext = tasks.map((t: any) => ({
+            id: t._id,
+            title: t.title,
+            currentPriority: t.priority,
+            dueDate: t.dueDate ? t.dueDate.toISOString() : null,
+            energyLevel: t.energyLevel
+        }));
+
+        const prompt = `You are an AI priority shifting engine. 
+        Evaluate these tasks. If a task has a due date within 48 hours, bump its priority to High.
+        If a task is High priority but low energy and has no due date, maybe move to Medium.
+        Return ONLY a JSON array of updates. Format:
+        [ {"id": "taskId1", "newPriority": "High"} ]
+        Only include tasks whose priority should ACTUALLY change.
+        Current Tasks: ${JSON.stringify(taskContext)}`;
+
+        const result = await model.generateContent(prompt);
+        let resultText = result.response.text().trim();
+        if (resultText.startsWith('```json')) {
+            resultText = resultText.replace('```json', '').replace('```', '').trim();
+        }
+        
+        const updates = JSON.parse(resultText);
+        let changedCount = 0;
+
+        for (const update of updates) {
+            if (['High', 'Medium', 'Low'].includes(update.newPriority)) {
+                await Task.findByIdAndUpdate(update.id, { priority: update.newPriority });
+                changedCount++;
+            }
+        }
+
+        revalidatePath('/');
+        return { success: true, message: `סדר העדיפויות שונה. שודרגו מתחת לרדאר ${changedCount} משימות.` };
+    } catch (error) {
+        console.error('Auto Shift Priorites Error', error);
+        return { success: false, message: "נכשל בעדכון סדרי עדיפויות" };
+    }
+}

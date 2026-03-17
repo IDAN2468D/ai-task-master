@@ -20,6 +20,8 @@ const AIManagerReport = dynamic(() => import('./AIManagerReport'), { ssr: false 
 const FocusAmbience = dynamic(() => import('./FocusAmbience'), { ssr: false });
 
 const DailyAIBriefing = dynamic(() => import('./DailyAIBriefing'), { ssr: false });
+const ZenMode = dynamic(() => import('./ZenMode'), { ssr: false });
+const SmartPriorityButton = dynamic(() => import('./SmartPriorityButton'), { ssr: false });
 
 export const LazyTaskViewContainer = dynamic(() => import('./TaskViewContainer'), {
     ssr: false,
@@ -105,3 +107,10 @@ export function LazyDailyAIBriefing() {
     return <DailyAIBriefing />;
 }
 
+export function LazyZenMode({ tasks }: { tasks: Task[] }) {
+    return <ZenMode tasks={tasks} />;
+}
+
+export function LazySmartPriorityButton() {
+    return <SmartPriorityButton />;
+}
