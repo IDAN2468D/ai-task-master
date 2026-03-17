@@ -24,6 +24,16 @@ export default function AICompanion() {
         scrollToBottom();
     }, [messages]);
 
+    // Handle global body class to hide floating buttons when AI chat is open
+    useEffect(() => {
+        if (isOpen) {
+            document.body.classList.add('ai-chat-open');
+        } else {
+            document.body.classList.remove('ai-chat-open');
+        }
+        return () => document.body.classList.remove('ai-chat-open');
+    }, [isOpen]);
+
     const handleSend = async () => {
         if (!inputValue.trim() || isLoading) return;
 

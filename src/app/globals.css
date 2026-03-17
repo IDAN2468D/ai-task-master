@@ -160,3 +160,10 @@ body {
 [dir="rtl"] .mask-fade-right {
   mask-image: linear-gradient(to left, black 95%, transparent 100%);
 }
+
+/* Hide floating orbs when AI chat is open */
+body.ai-chat-open .global-floating-btn {
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transform: scale(0.8) !important;
+}

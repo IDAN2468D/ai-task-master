@@ -100,7 +100,7 @@ export default function VoiceActionOrb() {
     };
 
     return (
-        <div className="fixed bottom-6 left-6 z-[3000]">
+        <div className="fixed bottom-6 left-6 z-[3000] global-floating-btn transition-all duration-300">
             <AnimatePresence>
                 {(isListening || processing || success || error) && (
                     <motion.div

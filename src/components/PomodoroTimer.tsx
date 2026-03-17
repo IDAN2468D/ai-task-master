@@ -68,7 +68,7 @@ export default function PomodoroTimer() {
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
                     onClick={() => setIsOpen(true)}
-                    className="fixed top-24 left-6 z-[900] flex items-center gap-2 px-4 py-2 bg-white dark:bg-[#111C44] rounded-full shadow-xl border border-slate-200 dark:border-white/10 hover:scale-105 transition-transform"
+                    className="fixed top-24 left-6 z-[900] global-floating-btn transition-all duration-300 flex items-center gap-2 px-4 py-2 bg-white dark:bg-[#111C44] rounded-full shadow-xl border border-slate-200 dark:border-white/10 hover:scale-105"
                 >
                     <div className={`w-2 h-2 rounded-full ${mode === 'focus' ? 'bg-red-500' : 'bg-emerald-500'} animate-pulse`} />
                     <span className="text-sm font-black tabular-nums text-slate-800 dark:text-white">{formatTime(timeLeft)}</span>
@@ -78,7 +78,7 @@ export default function PomodoroTimer() {
             {/* Toggle Button */}
             <button
                 onClick={() => setIsOpen(!isOpen)}
-                className="fixed bottom-6 left-24 z-[3000] w-12 h-12 bg-white dark:bg-[#111C44] border-2 border-slate-200 dark:border-white/10 rounded-full flex items-center justify-center shadow-xl hover:scale-110 transition-transform"
+                className="fixed bottom-6 left-24 z-[3000] global-floating-btn w-12 h-12 bg-white dark:bg-[#111C44] border-2 border-slate-200 dark:border-white/10 rounded-full flex items-center justify-center shadow-xl hover:scale-110 transition-all duration-300"
                 title="טיימר פומודורו"
             >
                 <Timer className={`w-6 h-6 ${isRunning ? (mode === 'focus' ? 'text-red-500' : 'text-emerald-500') : 'text-slate-600 dark:text-white'}`} />
