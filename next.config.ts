@@ -10,6 +10,7 @@ const nextConfig: NextConfig = {
   },
   outputFileTracingRoot: __dirname,
   experimental: {
+    reactCompiler: true,
     optimizePackageImports: ['lucide-react', 'framer-motion'],
   },
 };
