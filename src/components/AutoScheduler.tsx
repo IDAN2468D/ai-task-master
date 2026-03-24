@@ -159,7 +159,38 @@ export default function AutoScheduler({ tasks }: { tasks: Task[] }) {
                 </div>
 
                 {/* Grid Area */}
-                <div className="flex-1 relative mr-4 ml-2">
+                <div className="flex-1 relative mr-4 ml-2 mt-2">
+                    {/* Free Time Ghost Blocks */}
+                    {(() => {
+                        if (schedule.length === 0) return null;
+                        const sorted = [...schedule].sort((a,b) => a.startTime.localeCompare(b.startTime));
+                        const freeBlocks = [];
+                        let lastEnd = "08:00";
+                        for (const block of sorted) {
+                            if (block.startTime > lastEnd) {
+                                freeBlocks.push({ start: lastEnd, end: block.startTime });
+                            }
+                            if (block.endTime > lastEnd) lastEnd = block.endTime;
+                        }
+                        if (lastEnd < "20:00") {
+                            freeBlocks.push({ start: lastEnd, end: "20:00" });
+                        }
+                        return freeBlocks.map((fb, idx) => {
+                            const { top, height } = getStyles(fb.start, fb.end);
+                            return (
+                                <div
+                                    key={`free-${idx}`}
+                                    style={{ top, height }}
+                                    className="absolute left-0 right-0 p-3 bg-slate-100/50 dark:bg-white/5 border-2 border-dashed border-slate-300 dark:border-white/10 rounded-2xl flex items-center justify-center opacity-70"
+                                >
+                                    <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest text-center">
+                                        צללית זמן פנוי<br/>({fb.start} - {fb.end})
+                                    </span>
+                                </div>
+                            );
+                        });
+                    })()}
+
                     {schedule.map((block, i) => {
                         const task = activeTasks.find(t => t._id === block.taskId);
                         if (!task) return null;

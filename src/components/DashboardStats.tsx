@@ -32,6 +32,7 @@ const LazyPieChart = dynamic(
 
 interface Task {
     status: 'Todo' | 'InProgress' | 'Done';
+    priority: string;
 }
 
 export default function DashboardStats({ tasks }: { tasks: Task[] }) {
@@ -52,6 +53,8 @@ export default function DashboardStats({ tasks }: { tasks: Task[] }) {
         { name: 'בתהליך', value: stats.InProgress, color: '#00E5FF' },
         { name: 'הושלם', value: stats.Done, color: '#FF7D00' },
     ];
+
+    const atRisk = tasks.filter(t => t.status !== 'Done' && t.priority === 'High').length;
 
     return (
         <div className="grid grid-cols-1 md:grid-cols-12 gap-6 w-full mb-12">
@@ -79,24 +82,30 @@ export default function DashboardStats({ tasks }: { tasks: Task[] }) {
             </div>
 
             {/* Mini Stat Cards */}
-            <div className="md:col-span-8 grid grid-cols-1 sm:grid-cols-3 gap-6">
+            <div className="md:col-span-8 grid grid-cols-1 sm:grid-cols-4 gap-4">
                 <StatCard
-                    title="משימות ממתינות"
+                    title="ממתינות"
                     value={stats.Todo}
-                    icon={<LayoutDashboard className="w-8 h-8 text-white relative z-10" />}
+                    icon={<LayoutDashboard className="w-6 h-6 text-white relative z-10" />}
                     bgClass="bg-gradient-stat-1"
                 />
                 <StatCard
                     title="בתנועה"
                     value={stats.InProgress}
-                    icon={<Flame className="w-8 h-8 text-white relative z-10" />}
+                    icon={<Flame className="w-6 h-6 text-white relative z-10" />}
                     bgClass="bg-gradient-stat-2"
                 />
                 <StatCard
                     title="הושלמו"
                     value={stats.Done}
-                    icon={<CheckCircle2 className="w-8 h-8 text-white relative z-10" />}
+                    icon={<CheckCircle2 className="w-6 h-6 text-white relative z-10" />}
                     bgClass="bg-gradient-stat-3"
+                />
+                <StatCard
+                    title="בסיכון (AI)"
+                    value={atRisk}
+                    icon={<Flame className="w-6 h-6 text-white relative z-10" />}
+                    bgClass="bg-gradient-to-br from-red-500 to-rose-600"
                 />
             </div>
 

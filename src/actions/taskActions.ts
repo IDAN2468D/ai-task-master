@@ -996,3 +996,63 @@ export async function eodJournalAnalyzer(transcript: string) {
     throw new Error('Failed to process EOD journal');
   }
 }
+
+export async function chatWithWorkspace(query: string) {
+    try {
+        await connectDB();
+        const session = await getCurrentUser();
+        if (!session) throw new Error('Not authenticated');
+
+        const tasks = await Task.find({ userId: session.userId, status: { $ne: 'Done' } }).lean();
+        const prompt = `You are an AI assistant for a task management app.
+        The user asks: "${query}".
+        Answer intelligently and concisely in HEBREW based on the user's active tasks:
+        ${JSON.stringify(tasks.map(t => ({ title: t.title, priority: t.priority, dueDate: t.dueDate })))}
+        Keep the response short, friendly and helpful.`;
+
+        const result = await model.generateContent(prompt);
+        return result.response.text().trim();
+    } catch(err) {
+        console.error(err);
+        return "מצטער, הייתה שגיאה בתקשורת עם השרת.";
+    }
+}
+
+export async function extractTasksFromMeeting(transcript: string) {
+    try {
+        await connectDB();
+        const session = await getCurrentUser();
+        if (!session) throw new Error('Not authenticated');
+
+        const prompt = `Extract actionable tasks from this meeting transcript in HEBREW.
+        Return ONLY a JSON array of objects: [{"title": "...", "description": "...", "priority": "High|Medium|Low"}].
+        Transcript: "${transcript}"`;
+
+        const result = await model.generateContent(prompt);
+        let resultText = result.response.text().trim();
+        if (resultText.startsWith('\`\`\`json')) {
+            resultText = resultText.replace(/\`\`\`json/g, '').replace(/\`\`\`/g, '').trim();
+        }
+
+        const tasksData = JSON.parse(resultText);
+        let count = 0;
+        for (const t of tasksData) {
+            const task = new Task({
+                title: t.title,
+                description: t.description || '',
+                priority: t.priority || 'Medium',
+                category: 'עבודה',
+                status: 'Todo',
+                userId: session.userId,
+            });
+            await task.save();
+            count++;
+        }
+
+        revalidatePath('/');
+        return { success: true, count };
+    } catch (err) {
+        console.error(err);
+        throw new Error('Failed to extract tasks');
+    }
+}

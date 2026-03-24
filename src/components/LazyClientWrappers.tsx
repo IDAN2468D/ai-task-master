@@ -29,6 +29,8 @@ const SmartPriorityButton = dynamic(() => import('./SmartPriorityButton'), { ssr
 const AIGoalDecomposer = dynamic(() => import('./AIGoalDecomposer'), { ssr: false });
 const VoiceEODJournal = dynamic(() => import('./VoiceEODJournal'), { ssr: false });
 const EnergyLevelFilter = dynamic(() => import('./EnergyLevelFilter'), { ssr: false });
+const WorkspaceChat = dynamic(() => import('./WorkspaceChat'), { ssr: false });
+const MeetingToTask = dynamic(() => import('./MeetingToTask'), { ssr: false });
 
 export const LazyTaskViewContainer = dynamic(() => import('./TaskViewContainer'), {
     ssr: false,
@@ -132,4 +134,12 @@ export function LazyVoiceEODJournal() {
 
 export function LazyEnergyLevelFilter({ currentFilter, onFilterChange }: { currentFilter: any, onFilterChange: any }) {
     return <EnergyLevelFilter currentFilter={currentFilter} onFilterChange={onFilterChange} />;
+}
+
+export function LazyWorkspaceChat() {
+    return <WorkspaceChat />;
+}
+
+export function LazyMeetingToTask() {
+    return <MeetingToTask />;
 }
