@@ -1,5 +1,7 @@
 'use client';
 
+'use client';
+
 import dynamic from 'next/dynamic';
 
 // Lazy load these components - they use browser APIs and framer-motion
@@ -13,6 +15,7 @@ const StreakTracker = dynamic(() => import('./StreakTracker'), { ssr: false });
 const FocusMode = dynamic(() => import('./FocusMode'), { ssr: false });
 const TaskExport = dynamic(() => import('./TaskExport'), { ssr: false });
 const AchievementBadges = dynamic(() => import('./AchievementBadges'), { ssr: false });
+
 const GoalsTracker = dynamic(() => import('./GoalsTracker'), { ssr: false });
 const WellnessWidget = dynamic(() => import('./WellnessWidget'), { ssr: false });
 const CollaborativeHub = dynamic(() => import('./CollaborativeHub'), { ssr: false });
@@ -22,6 +25,10 @@ const FocusAmbience = dynamic(() => import('./FocusAmbience'), { ssr: false });
 const DailyAIBriefing = dynamic(() => import('./DailyAIBriefing'), { ssr: false });
 const ZenMode = dynamic(() => import('./ZenMode'), { ssr: false });
 const SmartPriorityButton = dynamic(() => import('./SmartPriorityButton'), { ssr: false });
+
+const AIGoalDecomposer = dynamic(() => import('./AIGoalDecomposer'), { ssr: false });
+const VoiceEODJournal = dynamic(() => import('./VoiceEODJournal'), { ssr: false });
+const EnergyLevelFilter = dynamic(() => import('./EnergyLevelFilter'), { ssr: false });
 
 export const LazyTaskViewContainer = dynamic(() => import('./TaskViewContainer'), {
     ssr: false,
@@ -113,4 +120,16 @@ export function LazyZenMode({ tasks }: { tasks: Task[] }) {
 
 export function LazySmartPriorityButton() {
     return <SmartPriorityButton />;
+}
+
+export function LazyAIGoalDecomposer() {
+    return <AIGoalDecomposer onGoalDecomposed={() => {}} />;
+}
+
+export function LazyVoiceEODJournal() {
+    return <VoiceEODJournal onJournalProcessed={() => {}} />;
+}
+
+export function LazyEnergyLevelFilter({ currentFilter, onFilterChange }: { currentFilter: any, onFilterChange: any }) {
+    return <EnergyLevelFilter currentFilter={currentFilter} onFilterChange={onFilterChange} />;
 }

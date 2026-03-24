@@ -911,3 +911,88 @@ export async function autoShiftPriorities() {
         return { success: false, message: "נכשל בעדכון סדרי עדיפויות" };
     }
 }
+
+export async function decomposeGoal(goal: string) {
+  try {
+    await connectDB();
+    const session = await getCurrentUser();
+    if (!session) throw new Error('Not authenticated');
+
+    const prompt = `Decompose the following big goal into 3-5 smaller, actionable tasks in Hebrew. 
+    Return ONLY a JSON array of objects.
+    Each object must have: "title" (string), "description" (string), "priority" (High, Medium, Low), "category" (string), "energyLevel" (High, Medium, Low).
+    Goal: "${goal}"`;
+
+    const result = await model.generateContent(prompt);
+    let resultText = result.response.text().trim();
+    if (resultText.startsWith('\`\`\`json')) {
+      resultText = resultText.replace(/\`\`\`json/g, '').replace(/\`\`\`/g, '').trim();
+    }
+    
+    // Attempt parse
+    const tasksData = JSON.parse(resultText);
+
+    let createdCount = 0;
+    for (const t of tasksData) {
+      const task = new Task({
+        title: t.title,
+        description: t.description || '',
+        priority: t.priority || 'Medium',
+        category: t.category || 'אישי',
+        energyLevel: t.energyLevel || 'Medium',
+        status: 'Todo',
+        userId: session.userId,
+      });
+      await task.save();
+      createdCount++;
+    }
+
+    revalidatePath('/');
+    return { success: true, count: createdCount };
+  } catch (error) {
+    console.error('API Error:', error);
+    throw new Error('Failed to decompose goal');
+  }
+}
+
+export async function eodJournalAnalyzer(transcript: string) {
+  try {
+    await connectDB();
+    const session = await getCurrentUser();
+    if (!session) throw new Error('Not authenticated');
+
+    const prompt = `You are a productivity journal analyzer. 
+    Analyze the following end-of-day voice transcript (in Hebrew/English).
+    1. Summarize how the day went in 1-2 positive, encouraging sentences (in Hebrew).
+    2. Extract action items that the user mentioned needing to do tomorrow.
+    Return ONLY a JSON object: { "summaryText": "...", "newTasks": [{"title": "...", "priority": "High|Medium|Low", "energyLevel": "High|Medium|Low"}] }
+    Transcript: "${transcript}"`;
+
+    const result = await model.generateContent(prompt);
+    let resultText = result.response.text().trim();
+    if (resultText.startsWith('\`\`\`json')) {
+      resultText = resultText.replace(/\`\`\`json/g, '').replace(/\`\`\`/g, '').trim();
+    }
+    
+    const parsed = JSON.parse(resultText);
+
+    // Create tasks
+    for (const t of (parsed.newTasks || [])) {
+      const task = new Task({
+        title: t.title,
+        priority: t.priority || 'Medium',
+        energyLevel: t.energyLevel || 'Medium',
+        category: 'אישי',
+        status: 'Todo',
+        userId: session.userId,
+      });
+      await task.save();
+    }
+
+    revalidatePath('/');
+    return parsed.summaryText || 'היומן נותח בהצלחה ומשימות חדשות נוצרו!';
+  } catch (error) {
+    console.error('API Error:', error);
+    throw new Error('Failed to process EOD journal');
+  }
+}

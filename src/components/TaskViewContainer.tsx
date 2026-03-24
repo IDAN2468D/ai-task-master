@@ -5,6 +5,7 @@ import KanbanBoard from './KanbanBoard';
 import EisenhowerMatrix from './EisenhowerMatrix';
 import AutoScheduler from './AutoScheduler';
 import MindMapViewer from './MindMapViewer';
+import EnergyLevelFilter from './EnergyLevelFilter';
 import { Columns, LayoutGrid, Zap, Network, CalendarClock } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -70,30 +71,7 @@ export default function TaskViewContainer({ tasks }: { tasks: Task[] }) {
 
                 {/* Energy Matcher Filter */}
                 <div className="flex-1 flex items-center md:justify-end gap-3 mt-4 md:mt-0">
-                    <span className="text-[11px] font-black text-slate-500 uppercase tracking-widest hidden lg:block">רמת אנרגיה כרגע:</span>
-                    <div className="flex bg-slate-100 dark:bg-[#0B1437] p-1 rounded-3xl relative">
-                        {['All', 'Low', 'Medium', 'High'].map((level) => (
-                            <button
-                                key={level}
-                                onClick={() => setEnergyFilter(level as any)}
-                                className={`relative px-4 py-2 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-colors z-10 ${
-                                    energyFilter === level ? 'text-white' : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-300'
-                                }`}
-                            >
-                                {energyFilter === level && (
-                                    <motion.div
-                                        layoutId="energyTracker"
-                                        className={`absolute inset-0 rounded-2xl -z-10 ${
-                                            level === 'All' ? 'bg-slate-500' :
-                                            level === 'Low' ? 'bg-emerald-500' :
-                                            level === 'Medium' ? 'bg-amber-500' : 'bg-red-500'
-                                        }`}
-                                    />
-                                )}
-                                {level === 'All' ? 'הכל' : level === 'Low' ? 'עייף (Low)' : level === 'Medium' ? 'רגיל (Med)' : 'בשיא (High)'}
-                            </button>
-                        ))}
-                    </div>
+                    <EnergyLevelFilter currentFilter={energyFilter} onFilterChange={setEnergyFilter as any} />
                 </div>
             </div>
 

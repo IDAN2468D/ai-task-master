@@ -23,7 +23,9 @@ import {
     LazyDailyAIBriefing,
     LazyTaskViewContainer,
     LazyZenMode,
-    LazySmartPriorityButton
+    LazySmartPriorityButton,
+    LazyAIGoalDecomposer,
+    LazyVoiceEODJournal
 } from '@/components/LazyClientWrappers';
 import AvatarDisplay from '@/components/AvatarDisplay';
 import { getAIProgressReport } from '@/actions/aiManagerActions';
@@ -116,6 +118,8 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
                             <LazyWellnessWidget />
                             <LazyCollaborativeHub />
                             <LazySmartPriorityButton />
+                            <LazyAIGoalDecomposer />
+                            <LazyVoiceEODJournal />
                             <Link href="/store" className="flex-shrink-0 flex items-center gap-3 px-6 py-4 bg-amber-500/10 text-amber-600 dark:text-amber-400 rounded-2xl font-black text-[10px] md:text-xs border border-amber-500/10 dark:border-amber-500/20 shadow-sm transition-all hover:bg-amber-500/20 active:scale-95 uppercase tracking-widest">
                                 <ShoppingBag className="w-5 h-5" />
                                 <span>חנות</span>
