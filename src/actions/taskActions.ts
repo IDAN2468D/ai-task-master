@@ -761,7 +761,7 @@ export async function generateTaskPrep(taskId: string, title: string, desc?: str
         Provide the response in Markdown format, make it actionable, clean, and in Hebrew.`;
         
         const result = await model.generateContent(prompt);
-        let resultText = result.response.text().trim();
+        const resultText = result.response.text().trim();
         
         // Save it to the task as subtask or description append, or just return it as a new AI note
         await connectDB();
@@ -813,7 +813,7 @@ export async function delegateTask(taskId: string, method: 'email' | 'whatsapp')
         Do not include markdown or explanations, just the raw message text.`;
         
         const result = await model.generateContent(prompt);
-        let draft = result.response.text().trim();
+        const draft = result.response.text().trim();
         return { success: true, draft };
     } catch (error) {
         return { success: false, draft: '' };

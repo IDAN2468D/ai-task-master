@@ -13,7 +13,7 @@ if (!MONGODB_URI) {
  * during API Route usage.
  */
 declare global {
-    // eslint-disable-next-line no-var
+     
     var mongooseGlobal: {
         conn: typeof mongoose | null;
         promise: Promise<typeof mongoose> | null;
