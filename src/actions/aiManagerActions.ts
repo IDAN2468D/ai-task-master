@@ -48,12 +48,39 @@ export async function getAIProgressReport() {
         Return ONLY the text.`;
 
         const result = await model.generateContent(prompt);
-        return result.response.text().trim();
+        const insight = result.response.text().trim();
+
+        // Calculate specific metrics for the dashboard
+        const mentalLoad = tasks.reduce((acc: number, t: any) => {
+            if (t.status === 'Done') return acc;
+            const energyMap = { 'Low': 1, 'Medium': 2, 'High': 3 };
+            return acc + (energyMap[t.energyLevel as keyof typeof energyMap] || 2);
+        }, 0);
+
+        const highPriorityCount = tasks.filter((t: any) => t.status !== 'Done' && t.priority === 'High').length;
+        const totalEstimatedHours = tasks.filter((t: any) => t.status !== 'Done').reduce((acc: number, t: any) => acc + (t.estimatedHours || 1), 0);
+        
+        // Burnout risk calculation (0-100)
+        // High priority tasks and high volume of hours increase risk
+        const burnoutRisk = Math.min(100, Math.round((totalEstimatedHours / 20) * 50 + (highPriorityCount * 10)));
+
+        return {
+            insight,
+            mentalLoad,
+            burnoutRisk,
+            taskCount: tasks.length
+        };
     } catch (error) {
         console.error('AI Progress Report Error:', error);
-        return "לא הצלחתי לנתח את ההתקדמות שלך כרגע. נסה שוב מאוחר יותר.";
+        return {
+            insight: "לא הצלחתי לנתח את ההתקדמות שלך כרגע. נסה שוב מאוחר יותר.",
+            mentalLoad: 0,
+            burnoutRisk: 0,
+            taskCount: 0
+        };
     }
 }
+
 
 /**
  * Setup a "Smart Trigger" (Automation)

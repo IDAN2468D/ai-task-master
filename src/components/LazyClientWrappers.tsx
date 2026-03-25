@@ -31,6 +31,13 @@ const VoiceEODJournal = dynamic(() => import('./VoiceEODJournal'), { ssr: false 
 const EnergyLevelFilter = dynamic(() => import('./EnergyLevelFilter'), { ssr: false });
 const WorkspaceChat = dynamic(() => import('./WorkspaceChat'), { ssr: false });
 const MeetingToTask = dynamic(() => import('./MeetingToTask'), { ssr: false });
+const AIProjectCharter = dynamic(() => import('./AIProjectCharter'), { ssr: false });
+const OmniChannelSync = dynamic(() => import('./OmniChannelSync'), { ssr: false });
+
+export function LazyOmniChannelSync() {
+    return <OmniChannelSync />;
+}
+
 
 export const LazyTaskViewContainer = dynamic(() => import('./TaskViewContainer'), {
     ssr: false,
@@ -51,9 +58,10 @@ interface Task {
     description?: string;
 }
 
-export function LazyFocusMode({ tasks }: { tasks: Task[] }) {
-    return <FocusMode tasks={tasks} />;
+export function LazyFocusMode({ tasks, onFocusChange }: { tasks: Task[], onFocusChange?: (isActive: boolean) => void }) {
+    return <FocusMode tasks={tasks} onFocusChange={onFocusChange} />;
 }
+
 
 export function LazyTaskExport({ tasks }: { tasks: Task[] }) {
     return <TaskExport tasks={tasks} />;
@@ -103,7 +111,8 @@ export function LazyCollaborativeHub() {
     return <CollaborativeHub />;
 }
 
-export function LazyAIManagerReport({ report }: { report: string }) {
+export function LazyAIManagerReport({ report }: { report: any }) {
+
     const Component = AIManagerReport as any;
     return <Component report={report} />;
 }
@@ -143,3 +152,8 @@ export function LazyWorkspaceChat() {
 export function LazyMeetingToTask() {
     return <MeetingToTask />;
 }
+
+export function LazyAIProjectCharter() {
+    return <AIProjectCharter />;
+}
+

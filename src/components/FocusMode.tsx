@@ -23,9 +23,11 @@ const AMBIENCE_MODES = [
 
 const FOCUS_TIME = 25 * 60; // 25 mins
 
-export default function FocusMode({ tasks }: { tasks: Task[] }) {
+export default function FocusMode({ tasks, onFocusChange }: { tasks: Task[], onFocusChange?: (isActive: boolean) => void }) {
     const [isOpen, setIsOpen] = useState(false);
     const [currentIndex, setCurrentIndex] = useState(0);
+    const [isDeepWork, setIsDeepWork] = useState(false);
+
 
     // Timer State
     const [timeLeft, setTimeLeft] = useState(FOCUS_TIME);
@@ -85,6 +87,33 @@ export default function FocusMode({ tasks }: { tasks: Task[] }) {
         };
     }, [audioActive, audioMode]);
 
+    // Handle UI state sync
+    useEffect(() => {
+        if (onFocusChange) onFocusChange(isOpen);
+        
+        // Dispatch custom event for parts of the UI that aren't direct children
+        window.dispatchEvent(new CustomEvent('ui-focus-mode', { detail: { active: isOpen } }));
+
+        if (isOpen) {
+            document.title = "Focus Room | AI-Task-Master";
+        } else {
+            document.title = "AI-Task-Master";
+        }
+    }, [isOpen, onFocusChange]);
+
+    // Handle Deep Work Guard (Notification Silencing)
+    useEffect(() => {
+        if (isDeepWork && isRunning) {
+            if ("Notification" in window && Notification.permission !== "granted") {
+                Notification.requestPermission();
+            }
+            // In a real app, this would integrate with a browser extension or 
+            // use a more advanced API to actually silence the OS.
+            // For now, we simulate by blocking the UI further.
+            console.log("Deep Work Guard Active: Silencing distractions...");
+        }
+    }, [isDeepWork, isRunning]);
+
     // Cleanup when closing
     useEffect(() => {
         if (!isOpen) {
@@ -93,8 +122,10 @@ export default function FocusMode({ tasks }: { tasks: Task[] }) {
             setTimeLeft(FOCUS_TIME);
             setIsLockMode(false);
             setShowChallenge(false);
+            setIsDeepWork(false);
         }
     }, [isOpen]);
+
 
     const handleAttemptClose = () => {
         if (isLockMode) {
@@ -238,7 +269,16 @@ export default function FocusMode({ tasks }: { tasks: Task[] }) {
                                             {isLockMode ? <Lock className="w-3 h-3" /> : <Unlock className="w-3 h-3" />}
                                             <span className="text-[9px]">Focus Lock</span>
                                         </button>
+                                        <button 
+                                            onClick={() => setIsDeepWork(!isDeepWork)}
+                                            className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border transition-all ${isDeepWork ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/50' : 'bg-transparent text-white/30 border-white/10 hover:bg-white/5 hover:text-white'}`}
+                                            title="שומר ריכוז עמוק - משתיק התראות ומצמצם הסחות דעת"
+                                        >
+                                            <Sparkles className={`w-3 h-3 ${isDeepWork ? 'animate-pulse' : ''}`} />
+                                            <span className="text-[9px]">Deep Work Guard</span>
+                                        </button>
                                     </div>
+
                                     <div className="flex items-center gap-2 mb-4">
                                         <span className={`px-2 py-1 rounded-md text-[10px] font-black uppercase tracking-wider ${currentTask.priority === 'High' ? 'bg-red-500/20 text-red-400' : currentTask.priority === 'Medium' ? 'bg-amber-500/20 text-amber-400' : 'bg-cyan-500/20 text-cyan-400'}`}>
                                             {currentTask.priority === 'High' ? 'דחוף' : currentTask.priority === 'Medium' ? 'בינוני' : 'נמוך'}

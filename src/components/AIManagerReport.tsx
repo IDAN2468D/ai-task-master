@@ -2,20 +2,25 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { BrainCircuit, TrendingUp, AlertCircle, CheckCircle2, ChevronRight, Sparkles, Mail, Loader2 } from 'lucide-react';
+import { BrainCircuit, TrendingUp, AlertCircle, CheckCircle2, ChevronRight, Sparkles, Mail, Loader2, Brain, Activity } from 'lucide-react';
 import { sendAIManagerReportEmail } from '@/actions/aiManagerActions';
 
 interface AIManagerReportProps {
-    report: string;
+    report: any;
 }
+
 
 export default function AIManagerReport({ report }: AIManagerReportProps) {
     const [isEmailing, setIsEmailing] = useState(false);
     const [emailSuccess, setEmailSuccess] = useState(false);
 
+    const data = typeof report === 'string' 
+        ? { insight: report, mentalLoad: 0, burnoutRisk: 0 } 
+        : report;
+
     const handleEmailReport = async () => {
         setIsEmailing(true);
-        const res = await sendAIManagerReportEmail(report);
+        const res = await sendAIManagerReportEmail(data.insight);
         if (res?.success) {
             setEmailSuccess(true);
             setTimeout(() => setEmailSuccess(false), 3000);
@@ -59,27 +64,36 @@ export default function AIManagerReport({ report }: AIManagerReportProps) {
                 <div className="relative">
                     <div className="absolute -left-6 top-0 bottom-0 w-1 bg-gradient-to-b from-indigo-500 via-purple-500 to-transparent rounded-full opacity-50" />
                     <p className="text-sm font-bold text-slate-300 leading-relaxed pl-2 italic">
-                        &quot;{report}&quot;
+                        &quot;{data.insight}&quot;
                     </p>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                     <div className="p-4 bg-white/5 rounded-2xl border border-white/5 hover:bg-white/10 transition-colors cursor-pointer group/stat">
                         <div className="flex items-center gap-3 mb-2">
-                            <TrendingUp className="w-4 h-4 text-emerald-400" />
-                            <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Peak Performance</span>
+                            <Brain className="w-4 h-4 text-indigo-400" />
+                            <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">עומס מנטלי</span>
                         </div>
-                        <p className="text-xs font-bold text-slate-300">הבוקר שלך היה הפרודוקטיבי ביותר.</p>
+                        <p className="text-2xl font-black text-white tabular-nums">{data.mentalLoad}</p>
+                        <p className="text-[9px] font-bold text-slate-500">Units</p>
                     </div>
                     <div className="p-4 bg-white/5 rounded-2xl border border-white/5 hover:bg-white/10 transition-colors cursor-pointer group/stat">
                         <div className="flex items-center gap-3 mb-2">
-                            <AlertCircle className="w-4 h-4 text-amber-400" />
-                            <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Risk Factor</span>
+                            <Activity className="w-4 h-4 text-rose-500" />
+                            <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">סיכון לשחיקה</span>
                         </div>
-                        <p className="text-xs font-bold text-slate-300">דחיינות קלה במשימות ניהול.</p>
+                        <p className="text-2xl font-black text-rose-500 tabular-nums">{data.burnoutRisk}%</p>
+                        <div className="w-full bg-white/5 h-1 rounded-full mt-2 overflow-hidden">
+                            <motion.div 
+                                initial={{ width: 0 }}
+                                animate={{ width: `${data.burnoutRisk}%` }}
+                                className={`h-full ${data.burnoutRisk > 70 ? 'bg-rose-500' : 'bg-indigo-500'}`} 
+                            />
+                        </div>
                     </div>
                 </div>
             </div>
+
 
             <div className="mt-8 pt-6 border-t border-white/5 flex items-center justify-between">
                 <div className="flex items-center gap-2 text-[10px] font-black text-indigo-400 uppercase tracking-widest">
