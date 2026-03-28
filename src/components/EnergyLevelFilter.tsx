@@ -20,20 +20,20 @@ export default function EnergyLevelFilter({ currentFilter, onFilterChange }: Ene
   ];
 
   return (
-    <div className="flex flex-wrap items-center gap-2 p-2 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700/50 w-max" dir="rtl">
-      <div className="px-2 text-sm font-medium text-slate-500 dark:text-slate-400 flex items-center gap-2">
-        <Battery size={16} />
-        <span>סינון לפי רמת אנרגיה:</span>
+    <div className="flex items-center gap-2 p-1.5 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700/50 w-full sm:w-max" dir="rtl">
+      <div className="px-2 text-[10px] font-black text-slate-400 uppercase tracking-tighter hidden lg:flex items-center gap-2 whitespace-nowrap">
+        <Battery size={14} />
+        <span>סינון אנרגיה:</span>
       </div>
       
-      <div className="flex bg-white dark:bg-slate-900 rounded-xl p-1 shadow-sm border border-slate-100 dark:border-slate-700">
+      <div className="flex bg-white dark:bg-slate-900 rounded-xl p-0.5 shadow-sm border border-slate-100 dark:border-slate-700 overflow-x-auto no-scrollbar">
         {levels.map((level) => {
           const isActive = currentFilter === level.id;
           return (
             <button
               key={level.id}
               onClick={() => onFilterChange(level.id)}
-              className="relative px-4 py-2 rounded-lg text-sm font-medium transition-colors outline-none"
+              className="relative px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all outline-none flex-shrink-0"
             >
               {isActive && (
                 <motion.div
@@ -43,9 +43,9 @@ export default function EnergyLevelFilter({ currentFilter, onFilterChange }: Ene
                   transition={{ type: 'spring', stiffness: 500, damping: 30 }}
                 />
               )}
-              <span className={`relative z-10 flex items-center gap-2 ${isActive ? '' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'}`}>
+              <span className={`relative z-10 flex items-center gap-2 ${isActive ? '' : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'}`}>
                 <span className={isActive ? '' : level.color}>{level.icon}</span>
-                <span>{level.label}</span>
+                <span className="hidden sm:inline-block whitespace-nowrap">{level.label}</span>
               </span>
             </button>
           );
