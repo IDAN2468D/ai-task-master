@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Coffee, X, Sparkles, Sun, Volume2, VolumeX } from 'lucide-react';
+import { Coffee, X, Sparkles, Sun, Volume2, VolumeX, Brain, Zap } from 'lucide-react';
 import { getEnergyInsights } from '@/actions/taskActions';
 
 export default function DailyAIBriefing() {
@@ -54,54 +54,92 @@ export default function DailyAIBriefing() {
     return (
         <AnimatePresence>
             {isVisible && (
-                <div className="fixed inset-0 z-[5000] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm">
+                <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-xl">
                     <motion.div
-                        initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                        initial={{ opacity: 0, scale: 0.9, y: 30 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
-                        exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                        className="relative w-full max-w-md bg-white dark:bg-[#111C44] rounded-[2rem] shadow-2xl p-8 overflow-hidden"
+                        exit={{ opacity: 0, scale: 0.9, y: 30 }}
+                        transition={{ duration: 0.5, ease: [0.23, 1, 0.32, 1] }}
+                        className="relative w-full max-w-lg glass-panel border-white/20 dark:border-white/10 rounded-[3rem] shadow-[0_32px_128px_-16px_rgba(0,0,0,0.5)] p-0 overflow-hidden"
                     >
-                        {/* Background Effect */}
-                        <div className="absolute -top-24 -right-24 w-48 h-48 bg-gradient-stat-1 rounded-full blur-3xl opacity-20" />
+                        {/* Interactive Background Orbs */}
+                        <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/20 rounded-full blur-[100px] -mr-32 -mt-32 animate-pulse" />
+                        <div className="absolute bottom-0 left-0 w-64 h-64 bg-cyan-500/20 rounded-full blur-[100px] -ml-32 -mb-32 animate-pulse" style={{ animationDelay: '1s' }} />
 
-                        {/* Close Button */}
-                        <button
-                            onClick={() => setIsVisible(false)}
-                            className="absolute top-4 left-4 p-2 bg-slate-100 dark:bg-white/5 rounded-xl hover:bg-slate-200 dark:hover:bg-white/10 transition-colors"
-                        >
-                            <X className="w-5 h-5 text-slate-500" />
-                        </button>
+                        <div className="relative z-10 p-10 flex flex-col items-center text-center">
+                            {/* Header Status */}
+                            <div className="flex items-center gap-3 mb-8">
+                                <span className="h-px w-8 bg-gradient-to-r from-transparent to-indigo-500/50" />
+                                <div className="px-4 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-500 dark:text-indigo-400 text-[10px] font-black uppercase tracking-[0.25em]">
+                                    Autonomous Intelligence Mode
+                                </div>
+                                <span className="h-px w-8 bg-gradient-to-l from-transparent to-indigo-500/50" />
+                            </div>
 
-                        <div className="flex flex-col items-center text-center mt-4">
-                            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 shadow-xl shadow-orange-500/30 flex items-center justify-center mb-6 relative">
-                                <Sun className="w-10 h-10 text-white animate-pulse" />
-                                <div className="absolute bottom-0 right-0 w-6 h-6 bg-white rounded-full flex items-center justify-center shadow-md">
-                                    <Sparkles className="w-4 h-4 text-orange-500" />
+                            <div className="relative group mb-8">
+                                <div className="absolute -inset-4 bg-gradient-mesh rounded-full blur-2xl opacity-30 group-hover:opacity-60 transition duration-1000 group-hover:duration-200" />
+                                <div className="w-24 h-24 rounded-[2rem] bg-gradient-mesh flex items-center justify-center text-white shadow-2xl relative transform transition-transform group-hover:scale-110 group-hover:rotate-3">
+                                    <Brain className="w-12 h-12" />
+                                    <div className="absolute -top-2 -right-2 bg-white dark:bg-slate-900 rounded-xl p-2 shadow-xl border border-white/20">
+                                        <Sparkles className="w-5 h-5 text-amber-500 animate-pulse" />
+                                    </div>
                                 </div>
                             </div>
 
-                            <h2 className="text-2xl font-black text-slate-800 dark:text-white mb-2">
-                                תדרוך בוקר חכם 🌅
+                            <h2 className="text-3xl md:text-4xl font-black mb-4 leading-tight tracking-tighter">
+                                <span className="text-slate-800 dark:text-white">תדרוך בוקר </span>
+                                <span className="text-gradient-primary">חכם.</span>
                             </h2>
-                            <p className="text-sm font-bold text-[#4318FF] dark:text-[#00E5FF] uppercase tracking-widest mb-6 border-b border-slate-100 dark:border-white/10 pb-4 inline-block">
-                                המלצת AI אישית להיום
-                            </p>
+                            
+                            <div className="w-full h-px bg-linear-to-r from-transparent via-slate-200 dark:via-white/10 to-transparent mb-8" />
 
-                            <p className="text-lg font-medium text-slate-600 dark:text-slate-300 leading-relaxed mb-4">
-                                &quot;{insight}&quot;
-                            </p>
+                            <div className="relative mb-10 group">
+                                <p className="text-xl font-bold text-slate-700 dark:text-slate-200 leading-relaxed italic px-4">
+                                    &quot;{insight}&quot;
+                                </p>
+                            </div>
 
-                            <button onClick={toggleSpeech} className="mb-8 flex items-center gap-2 px-6 py-2 rounded-full bg-slate-100 dark:bg-white/5 text-slate-500 hover:text-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 transition-colors">
-                                {isPlaying ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5 text-indigo-500" />}
-                                <span className="text-sm font-bold">{isPlaying ? 'השתק' : 'השמע הכל (Audio Briefing)'}</span>
-                            </button>
+                            <div className="flex flex-col w-full gap-4">
+                                <div className="flex items-center gap-3 w-full">
+                                    <button 
+                                        onClick={toggleSpeech} 
+                                        className="flex-1 flex items-center justify-center gap-3 px-6 py-4 rounded-2xl bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-300 hover:bg-white dark:hover:bg-white/10 transition-all active:scale-95 group"
+                                    >
+                                        {isPlaying ? (
+                                            <VolumeX className="w-6 h-6 text-rose-500" />
+                                        ) : (
+                                            <Volume2 className="w-6 h-6 text-indigo-500 animate-pulse" />
+                                        )}
+                                        <span className="text-xs font-black uppercase tracking-widest">{isPlaying ? 'השתק קול' : 'השמע תדרוך'}</span>
+                                    </button>
 
-                            <button
-                                onClick={() => { setIsVisible(false); if(synth) synth.cancel(); }}
-                                className="w-full py-4 rounded-2xl bg-gradient-stat-1 text-white text-sm font-black tracking-widest uppercase hover:shadow-[0_20px_40px_rgba(67,24,255,0.3)] hover:-translate-y-1 transition-all"
-                            >
-                                בוא נתחיל לעבוד 🚀
-                            </button>
+                                    <button
+                                        onClick={() => setIsVisible(false)}
+                                        className="p-4 rounded-2xl bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-400 hover:text-rose-500 transition-all active:scale-95"
+                                    >
+                                        <X className="w-6 h-6" />
+                                    </button>
+                                </div>
+
+                                <button
+                                    onClick={() => { setIsVisible(false); if(synth) synth.cancel(); }}
+                                    className="w-full group relative py-5 px-8 rounded-2xl overflow-hidden shadow-2xl shadow-indigo-500/20 active:scale-[0.98] transition-all"
+                                >
+                                    <div className="absolute inset-0 bg-gradient-mesh transition-transform group-hover:scale-105 duration-500" />
+                                    <div className="relative flex items-center justify-center gap-3 text-white font-black text-xs uppercase tracking-[0.3em]">
+                                        <span>שגר את היום שלי</span>
+                                        <Zap className="w-4 h-4 fill-current group-hover:animate-bounce" />
+                                    </div>
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Bottom Status bar */}
+                        <div className="p-4 bg-slate-50 dark:bg-black/20 border-t border-slate-100 dark:border-white/5 flex items-center justify-center gap-4">
+                            <div className="flex items-center gap-2">
+                                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" />
+                                <span className="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Neural Link Active</span>
+                            </div>
                         </div>
                     </motion.div>
                 </div>
@@ -109,3 +147,4 @@ export default function DailyAIBriefing() {
         </AnimatePresence>
     );
 }
+

@@ -30,37 +30,46 @@ export default function SearchFilterBar() {
     };
 
     return (
-        <div className="vibrant-card p-4 flex flex-col sm:flex-row gap-4 items-center">
-            {/* Search Input */}
-            <div className="relative flex-1 w-full">
-                <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+        <div className="elite-card !p-3 !rounded-[40px] flex flex-col sm:flex-row gap-4 items-center group/search border-white/20 dark:border-white/5 bg-slate-500/5 backdrop-blur-3xl shadow-2xl overflow-visible">
+            {/* Neural Search Input */}
+            <div className="relative flex-1 w-full group/input">
+                <div className="absolute right-8 top-1/2 -translate-y-1/2 z-20 pointer-events-none group-focus-within/input:scale-125 transition-transform duration-500">
+                    <Search className={`w-6 h-6 ${isPending ? 'text-indigo-500 animate-pulse' : 'text-slate-400 dark:text-slate-600'}`} />
+                </div>
                 <input
                     type="text"
-                    placeholder="חיפוש משימה..."
+                    placeholder="Search neural matrix..."
                     defaultValue={searchParams.get('q') || ''}
                     onChange={(e) => handleSearch(e.target.value)}
-                    className="w-full pr-11 pl-4 py-3 bg-slate-50 dark:bg-slate-900 border-none rounded-xl focus:ring-2 focus:ring-[var(--primary)] transition-all text-slate-700 dark:text-slate-200"
+                    dir="rtl"
+                    className="w-full pr-22 pl-10 py-6 bg-transparent border-none rounded-[32px] focus:ring-0 text-slate-800 dark:text-white font-black text-sm uppercase tracking-tighter placeholder:text-slate-400/50 transition-all"
                 />
-                {isPending && (
-                    <div className="absolute left-4 top-1/2 -translate-y-1/2">
-                        <div className="w-4 h-4 border-2 border-[var(--primary)] border-t-transparent rounded-full animate-spin" />
-                    </div>
-                )}
+                
+                {/* Advanced Focus Indicator */}
+                <div className="absolute inset-x-4 bottom-2 h-[2px] bg-linear-to-r from-transparent via-indigo-500/40 to-transparent opacity-0 group-focus-within/input:opacity-100 transition-opacity duration-1000 scale-x-0 group-focus-within/input:scale-x-100 origin-center" />
             </div>
 
-            {/* Priority Toggle */}
-            <div className="flex items-center gap-2 w-full sm:w-auto">
+            <div className="h-10 w-px bg-slate-200 dark:bg-white/10 hidden sm:block mx-2" />
+
+            {/* Premium Rank Filter */}
+            <div className="relative w-full sm:w-auto px-4">
+                <div className="absolute left-6 top-1/2 -translate-y-1/2 z-20 pointer-events-none opacity-40">
+                    <Filter className="w-4 h-4 text-indigo-500" />
+                </div>
                 <select
                     onChange={(e) => handlePriorityFilter(e.target.value)}
                     defaultValue={searchParams.get('priority') || 'All'}
-                    className="w-full sm:w-40 py-3 px-4 bg-slate-50 dark:bg-slate-900 border-none rounded-xl focus:ring-2 focus:ring-[var(--primary)] transition-all text-slate-700 dark:text-slate-200 font-bold text-xs cursor-pointer"
+                    dir="rtl"
+                    className="w-full sm:w-52 py-6 pr-8 pl-12 bg-transparent border-none rounded-[32px] focus:ring-0 text-slate-800 dark:text-white font-black text-[10px] uppercase tracking-[0.2em] cursor-pointer appearance-none group-hover/search:text-indigo-600 dark:group-hover/search:text-indigo-400 transition-colors"
                 >
-                    <option value="All">כל העדיפויות</option>
-                    <option value="High">עדיפות גבוהה</option>
-                    <option value="Medium">עדיפות בינונית</option>
-                    <option value="Low">עדיפות נמוכה</option>
+                    <option value="All">All_Ranks</option>
+                    <option value="High">Overdrive</option>
+                    <option value="Medium">Standard</option>
+                    <option value="Low">Economic</option>
                 </select>
             </div>
+            
+            <div className="absolute inset-0 shimmer-elite opacity-5 pointer-events-none rounded-[40px]" />
         </div>
     );
 }

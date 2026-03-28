@@ -3,7 +3,8 @@
 import {
     Trash2, GripHorizontal, CheckSquare, Square, Sparkles, BrainCircuit,
     FastForward, Clock, Eye, Calendar, ChevronDown, ChevronUp, Layers,
-    Zap, Star, ExternalLink, Link as LinkIcon, ArrowLeft
+    Zap, Star, ExternalLink, Link as LinkIcon, ArrowLeft, MoreHorizontal,
+    Target, X
 } from 'lucide-react';
 import { useState } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
@@ -31,7 +32,7 @@ interface Task {
 }
 
 export default function TaskItem({ task, compact }: { task: Task, compact?: boolean }) {
-    const { isPending, removeTask, optimizeTitle, generateSubtasks, toggleSub, getAnalysis, syncToCalendar } = useTaskFlow();
+    const { isPending, removeTask, updateStatus, optimizeTitle, generateSubtasks, toggleSub, getAnalysis, syncToCalendar } = useTaskFlow();
     const [showSubtasks, setShowSubtasks] = useState(false);
     const [aiAdvice, setAiAdvice] = useState<string | null>(null);
     const [showDetail, setShowDetail] = useState(false);
@@ -59,239 +60,265 @@ export default function TaskItem({ task, compact }: { task: Task, compact?: bool
 
     const isDone = task.status === 'Done';
 
+    const priorityStyles: Record<string, { bg: string, text: string, glow: string }> = {
+        High: { 
+            bg: 'bg-rose-500/10 border-rose-500/20', 
+            text: 'text-rose-500', 
+            glow: 'from-rose-500/20 to-rose-900/5 shadow-rose-500/20' 
+        },
+        Medium: { 
+            bg: 'bg-amber-500/10 border-amber-500/20', 
+            text: 'text-amber-500', 
+            glow: 'from-amber-500/20 to-amber-900/5 shadow-amber-500/20' 
+        },
+        Low: { 
+            bg: 'bg-emerald-500/10 border-emerald-500/20', 
+            text: 'text-emerald-500', 
+            glow: 'from-emerald-500/20 to-emerald-900/5 shadow-emerald-500/20' 
+        }
+    };
+
+    const currentStyle = priorityStyles[task.priority] || priorityStyles.Medium;
+
     return (
         <>
             <motion.div
                 ref={setNodeRef}
                 style={style}
                 layout
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: isDone ? 0.7 : 1, y: 0 }}
-                className={`group/task relative p-5 bg-white dark:bg-[#111C44]/40 backdrop-blur-xl border border-slate-200/60 dark:border-white/5 rounded-3xl shadow-sm hover:shadow-xl hover:shadow-[var(--primary-glow)] transition-all duration-300 ${isDragging ? 'z-50 rotate-1 scale-105 shadow-2xl' : ''}`}
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: isDone ? 0.6 : 1, y: 0 }}
+                whileHover={{ y: -8, scale: 1.02, rotate: -0.5 }}
+                className={`
+                    group/task relative p-10 elite-card border-white/30 dark:border-white/10 overflow-hidden transition-all duration-1000
+                    ${isDragging ? 'z-50 shadow-[0_100px_200px_-50px_rgba(0,0,0,0.7)] scale-110 rotate-2 cursor-grabbing bg-white/50 dark:bg-black/80 backdrop-blur-3xl border-indigo-500' : 'cursor-grab hover:shadow-[0_40px_100px_-20px_rgba(79,70,229,0.3)] hover:border-indigo-500/50'}
+                `}
+                dir="rtl"
             >
-                {/* Drag Handle Overlay (Visible on Hover) */}
-                <div {...listeners} {...attributes} className="absolute top-4 left-4 p-1.5 opacity-0 group-hover/task:opacity-100 bg-slate-100 dark:bg-slate-800 rounded-lg cursor-grab transition-opacity active:cursor-grabbing z-10">
-                    <GripHorizontal className="w-4 h-4 text-slate-400" />
+                {/* Elite Scanline & Platinum Shimmer - V7 */}
+                <div className="absolute inset-0 elite-scanline opacity-0 group-hover/task:opacity-20 transition-opacity duration-1000" />
+                <div className="absolute inset-0 shimmer-elite opacity-0 group-hover/task:opacity-10 transition-opacity duration-1000" />
+                <div className={`absolute -right-32 -top-32 w-80 h-80 bg-gradient-to-br ${currentStyle.glow} blur-[120px] rounded-full opacity-10 group-hover/task:opacity-40 transition-all duration-1000`} />
+                
+                {/* Top Neural Trail */}
+                <div className="absolute top-0 left-0 w-full h-[1.5px] bg-linear-to-r from-transparent via-white/40 to-transparent group-hover/task:via-indigo-400 transition-all duration-1000" />
+
+                {/* Header: Interaction & Meta V7 */}
+                <div className="flex items-center justify-between mb-8 relative z-10">
+                    <div className="flex items-center gap-4">
+                        <div {...listeners} {...attributes} className="p-3 glass-panel rounded-2xl hover:bg-white/40 transition-all border-white/20 dark:border-white/10 group-hover/task:border-indigo-500/50 shadow-xl">
+                            <GripHorizontal className="w-4 h-4 text-slate-400 group-hover/task:text-indigo-400" />
+                        </div>
+                        <div className={`elite-tag text-[10px] px-4 py-1.5 font-black tracking-[0.3em] uppercase ${currentStyle.bg} ${currentStyle.text} border border-current/30 rounded-full shadow-lg`}>
+                            <div className="w-2 h-2 rounded-full bg-current relative neural-pulse ml-2.5 inline-block shadow-[0_0_12px_currentColor]" />
+                            <span>{task.category || 'COGNITIVE'}</span>
+                        </div>
+                        {task.energyLevel && (
+                            <div className="elite-tag text-[10px] px-4 py-1.5 bg-white/10 border border-white/20 text-slate-400 font-bold tracking-[0.2em] rounded-full">
+                                <Zap size={11} className="text-amber-400 ml-2 inline-block animate-pulse" />
+                                <span>{task.energyLevel.toUpperCase()}</span>
+                            </div>
+                        )}
+                    </div>
+                    
+                    <button 
+                        onClick={() => setShowDetail(true)} 
+                        className="w-11 h-11 flex items-center justify-center glass-panel rounded-2xl hover:bg-indigo-600 hover:text-white text-slate-400 transition-all duration-700 border-white/20 group/more shadow-2xl active:scale-90"
+                    >
+                        <MoreHorizontal className="w-5 h-5 transition-transform group-hover/more:rotate-180 duration-700" />
+                    </button>
                 </div>
 
-                {/* Priority & Category Header */}
-                <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center gap-2">
-                        <PriorityIcon priority={task.priority} />
-                        <span className="text-[10px] font-black uppercase tracking-widest text-[var(--primary)] bg-[var(--primary)]/5 px-2 py-0.5 rounded-md">
-                            {task.category}
-                        </span>
-                        {task.energyLevel && (
-                            <span className={`px-2 py-0.5 rounded-md text-[9px] font-black uppercase flex items-center gap-1 ${task.energyLevel === 'High' ? 'bg-orange-100/50 text-orange-600' :
-                                task.energyLevel === 'Medium' ? 'bg-blue-100/50 text-blue-600' : 'bg-slate-100/50 text-slate-600'
-                                }`}>
-                                <Zap className="w-2.5 h-2.5" /> {task.energyLevel}
-                            </span>
+                {/* Content Section V7 */}
+                <div className="flex items-start gap-6 mb-8 relative z-10">
+                    <button 
+                        onClick={() => updateStatus(task._id, isDone ? 'Todo' : 'Done')}
+                        className={`mt-2 w-9 h-9 rounded-2xl border-2 flex items-center justify-center transition-all duration-1000 shrink-0 ${isDone ? 'bg-emerald-500 border-emerald-500 shadow-[0_0_30px_rgba(16,185,129,0.7)]' : 'bg-white/10 border-slate-300 dark:border-white/20 hover:border-indigo-500/60 hover:scale-115 group-hover/task:border-indigo-400 shadow-inner'}`}
+                    >
+                        {isDone && <CheckSquare className="w-5 h-5 text-white" />}
+                    </button>
+                    <div className="flex-1 min-w-0">
+                        <h4 className={`text-2xl font-outfit font-black tracking-tight leading-tight transition-all duration-1000 ${isDone ? 'text-slate-400/40' : 'text-slate-900 dark:text-white group-hover/task:platinum-heading'}`}>
+                            {task.title}
+                        </h4>
+                        
+                        {task.description && !compact && (
+                            <p className="mt-4 text-sm font-medium text-slate-500 dark:text-white/40 leading-relaxed line-clamp-2 italic font-outfit group-hover/task:text-slate-400 transition-colors duration-700">
+                                {task.description}
+                            </p>
                         )}
                     </div>
                 </div>
 
-                {/* Task Title */}
-                <div className="flex gap-3 mb-4">
-                    <h4 className={`text-base font-black leading-tight flex-1 ${isDone ? 'line-through text-slate-400' : 'text-slate-800 dark:text-white'}`}>
-                        {task.title}
-                    </h4>
-                    <button onClick={() => setShowDetail(true)} className="p-2 h-fit bg-slate-50 dark:bg-white/5 rounded-xl hover:bg-[var(--primary)] hover:text-white transition-all text-slate-400 shadow-sm" title="פרטים מלאים">
-                        <Eye className="w-4 h-4" />
-                    </button>
-                </div>
-
-                {/* Metadata Row (Date, Links, Subtasks Count) */}
-                <div className="flex items-center gap-4 mb-5 text-[10px] font-bold text-slate-500">
+                {/* Status Pills V7 */}
+                <div className="flex flex-wrap items-center gap-4 mb-8 relative z-10">
                     {task.dueDate && (
-                        <div className="flex items-center gap-1.5 px-2 py-1 bg-amber-50 dark:bg-amber-500/10 text-amber-600 rounded-lg">
-                            <Clock className="w-3 h-3" />
-                            {new Date(task.dueDate).toLocaleDateString('he-IL', { day: 'numeric', month: 'short' })}
+                        <div className="flex items-center gap-3 px-4 py-2 bg-rose-500/10 border border-rose-500/20 text-rose-500 rounded-xl text-[11px] font-black tracking-tight font-outfit shadow-sm">
+                            <Clock size={14} className="opacity-80" />
+                            <span>{new Date(task.dueDate).toLocaleDateString('he-IL', { day: 'numeric', month: 'short' })}</span>
                         </div>
                     )}
 
                     {total > 0 && (
-                        <div className="flex items-center gap-1.5 px-2 py-1 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 rounded-lg">
-                            <Layers className="w-3 h-3" />
-                            {comps}/{total} צעדים
-                        </div>
-                    )}
-
-                    {(task.links?.length || 0) > 0 && (
-                        <div className="flex items-center gap-1.5 px-2 py-1 bg-cyan-50 dark:bg-cyan-500/10 text-cyan-600 rounded-lg">
-                            <LinkIcon className="w-3 h-3" />
-                            {task.links?.length} קישורים
+                        <div className="flex items-center gap-3 px-4 py-2 bg-indigo-500/10 border border-indigo-500/20 text-indigo-500 rounded-xl text-[11px] font-black tracking-[0.2em] font-outfit shadow-sm">
+                            <Layers size={14} className="opacity-80" />
+                            <span>{comps}/{total} NODES</span>
                         </div>
                     )}
                 </div>
 
-                {/* Progress Bar (Compact) */}
+                {/* Platinum Precision Progress Bar - V7 */}
                 {!compact && total > 0 && (
-                    <div className="mb-5 px-1">
-                        <div className="h-1.5 w-full bg-slate-100 dark:bg-white/5 rounded-full overflow-hidden">
+                    <div className="mb-10 relative z-10 px-0.5">
+                        <div className="h-2.5 w-full bg-slate-200/50 dark:bg-white/10 rounded-full overflow-hidden p-[1.5px] border border-white/20 shadow-inner">
                             <motion.div
                                 initial={{ width: 0 }}
                                 animate={{ width: `${prog}%` }}
-                                transition={{ type: "spring", stiffness: 100 }}
-                                className="h-full bg-gradient-to-r from-[var(--primary)] to-[var(--accent-1)]"
-                            />
+                                transition={{ type: "spring", stiffness: 50, damping: 20 }}
+                                className="h-full bg-linear-to-r from-indigo-600 via-violet-600 to-emerald-500 rounded-full relative overflow-hidden shadow-[0_0_20px_rgba(99,102,241,0.6)]"
+                            >
+                                <div className="absolute inset-0 bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.4),transparent)] animate-[shimmer_3s_infinite] w-[200%]" />
+                            </motion.div>
                         </div>
                     </div>
                 )}
 
-                {/* AI Advice Callout */}
+                {/* Platinum Actions Footer - Elite V7 */}
+                <div className="pt-8 border-t border-slate-200/50 dark:border-white/10 flex items-center justify-between relative z-10">
+                    <div className="flex items-center gap-4">
+                        <QuickAction
+                            icon={Sparkles}
+                            gradient="from-indigo-600 to-violet-700"
+                            activeColor="text-indigo-400"
+                            onClick={handleGenSubtasks}
+                            disabled={isPending}
+                            title="Neural Decompose"
+                        />
+                        <QuickAction
+                            icon={BrainCircuit}
+                            gradient="from-violet-600 to-fuchsia-700"
+                            activeColor="text-violet-400"
+                            onClick={handleAnalysis}
+                            disabled={isPending}
+                            title="Cognitive Analysis"
+                        />
+                    </div>
+
+                    <div className="flex items-center gap-4">
+                        {total > 0 && (
+                            <button
+                                onClick={() => setShowSubtasks(!showSubtasks)}
+                                className={`flex items-center gap-3 px-8 py-3 rounded-2xl transition-all duration-1000 font-outfit font-black text-[11px] tracking-[0.3em] ${showSubtasks ? 'bg-indigo-700 text-white shadow-[0_15px_40px_-5px_rgba(79,70,229,0.5)]' : 'glass-panel text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-white border-white/20 hover:border-indigo-500 shadow-xl'}`}
+                            >
+                                <span className="platinum-glow">{showSubtasks ? 'QUASH NODES' : 'SCAN NODES'}</span>
+                                {showSubtasks ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                            </button>
+                        )}
+                        <button
+                            onClick={() => {
+                                if (navigator.vibrate) navigator.vibrate([20, 10, 20]);
+                                removeTask(task._id);
+                            }}
+                            disabled={isPending}
+                            className="w-12 h-12 flex items-center justify-center glass-panel text-rose-500/80 rounded-2xl hover:bg-rose-600 hover:text-white hover:border-rose-600 transition-all duration-1000 border-white/20 group/del shadow-2xl active:scale-90"
+                        >
+                            <Trash2 className="w-5 h-5 group-hover/del:scale-125 group-hover/del:rotate-12 transition-all duration-700" />
+                        </button>
+                    </div>
+                </div>
+
+                {/* AI Insight Panel - Platinum V7 Redesign */}
                 <AnimatePresence>
                     {aiAdvice && (
                         <motion.div
-                            initial={{ height: 0, opacity: 0 }}
-                            animate={{ height: 'auto', opacity: 1 }}
-                            exit={{ height: 0, opacity: 0 }}
-                            className="mb-5 p-4 rounded-2xl bg-gradient-to-br from-[var(--primary)]/10 to-[var(--accent-1)]/10 border border-[var(--primary)]/10 relative overflow-hidden group/advice"
+                            initial={{ height: 0, opacity: 0, scale: 0.9 }}
+                            animate={{ height: 'auto', opacity: 1, scale: 1 }}
+                            exit={{ height: 0, opacity: 0, scale: 0.9 }}
+                            className="mt-8 p-6 rounded-3xl glass-panel border-indigo-500/30 relative overflow-hidden group/advice bg-indigo-600/10 backdrop-blur-3xl shadow-2xl"
                         >
-                            <div className="absolute -right-4 -top-4 w-12 h-12 bg-white/10 blur-xl rounded-full" />
-                            <div className="flex items-start gap-2 relative z-10">
-                                <Sparkles className="w-3.5 h-3.5 text-[var(--primary)] shrink-0 mt-0.5" />
-                                <p className="text-xs font-bold leading-relaxed text-slate-700 dark:text-slate-200 pr-5">
-                                    {aiAdvice}
-                                </p>
+                            <div className="absolute inset-0 elite-scanline opacity-20" />
+                            <div className="flex items-start gap-6 relative z-10">
+                                <div className="p-4 rounded-2xl bg-indigo-600/30 border border-indigo-400/40 text-indigo-400 shadow-2xl animate-pulse">
+                                    <BrainCircuit className="w-6 h-6" />
+                                </div>
+                                <div className="space-y-2 flex-1">
+                                    <span className="text-[10px] font-black uppercase tracking-[0.4em] text-indigo-500 dark:text-indigo-400 font-outfit block mb-2 platinum-glow">NEURAL SYNAPSE ACTIVE</span>
+                                    <p className="text-base font-bold leading-relaxed text-slate-900 dark:text-white font-outfit">
+                                        {aiAdvice}
+                                    </p>
+                                </div>
+                                <button
+                                    onClick={() => setAiAdvice(null)}
+                                    className="p-2 hover:bg-white/20 rounded-xl transition-all group-hover/advice:rotate-180 duration-1000"
+                                >
+                                    <X className="w-5 h-5 text-slate-400" />
+                                </button>
                             </div>
-                            <button
-                                onClick={() => setAiAdvice(null)}
-                                className="absolute top-2 left-2 p-1 bg-white dark:bg-white/5 rounded-md hover:bg-slate-100 dark:hover:bg-white/10 transition-colors"
-                            >
-                                <X className="w-3 h-3 text-slate-400" />
-                            </button>
                         </motion.div>
                     )}
                 </AnimatePresence>
 
-                {/* Optimized Quick Actions Footer */}
-                {!compact && (
-                    <div className="pt-4 flex items-center justify-between">
-                        <div className="flex items-center gap-1">
-                            <QuickAction
-                                icon={Sparkles}
-                                color="text-amber-500"
-                                onClick={handleGenSubtasks}
-                                disabled={isPending}
-                                title="פירוק חכם לצעדים (AI)"
-                            />
-                            <QuickAction
-                                icon={BrainCircuit}
-                                color="text-[var(--primary)]"
-                                onClick={handleAnalysis}
-                                disabled={isPending}
-                                title="ניתוח משימה (AI)"
-                            />
-                            <QuickAction
-                                icon={FastForward}
-                                color="text-blue-500"
-                                onClick={handleOptimize}
-                                disabled={isPending}
-                                title="שיפור כותרת (AI)"
-                            />
-                            {task.dueDate && (
-                                <QuickAction
-                                    icon={Calendar}
-                                    color="text-emerald-500"
-                                    onClick={() => syncToCalendar(task._id, task.title)}
-                                    disabled={isPending}
-                                    title="סנכרון ל-Google Calendar"
-                                />
-                            )}
-                        </div>
-
-                        <div className="flex items-center gap-1">
-                            <button
-                                onClick={() => setShowSubtasks(!showSubtasks)}
-                                className={`p-2 rounded-xl transition-all ${showSubtasks ? 'bg-[var(--primary)] text-white' : 'bg-slate-50 dark:bg-white/5 text-slate-400 hover:bg-slate-100 dark:hover:bg-white/10'}`}
-                                title={showSubtasks ? 'הסתר צעדים' : 'הצג צעדים'}
-                            >
-                                {showSubtasks ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-                            </button>
-                            <button
-                                onClick={() => {
-                                    if (navigator.vibrate) navigator.vibrate([50, 30, 50]);
-                                    removeTask(task._id);
-                                }}
-                                disabled={isPending}
-                                className="p-2 bg-red-50 dark:bg-red-500/10 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition-all ml-1 shadow-sm"
-                                title="מחיקה מהירה"
-                            >
-                                <Trash2 className="w-4 h-4" />
-                            </button>
-                        </div>
-                    </div>
-                )}
-
-                {/* Subtasks List */}
+                {/* Task Nodes Grid - Platinum V7 */}
                 <AnimatePresence>
                     {!compact && showSubtasks && (
                         <motion.div
-                            initial={{ height: 0, opacity: 0 }}
-                            animate={{ height: 'auto', opacity: 1 }}
-                            exit={{ height: 0, opacity: 0 }}
-                            className="overflow-hidden mt-4 pt-4 border-t border-slate-100 dark:border-white/5 space-y-2"
+                            initial={{ height: 0, opacity: 0, y: -20 }}
+                            animate={{ height: 'auto', opacity: 1, y: 0 }}
+                            exit={{ height: 0, opacity: 0, y: -20 }}
+                            className="overflow-hidden mt-8 space-y-4 bg-slate-900/5 dark:bg-black/60 rounded-[40px] p-6 border border-white/20 dark:border-white/10 backdrop-blur-3xl shadow-inner"
                         >
                             {task.subtasks.map((s: any) => (
                                 <button
                                     key={s._id}
                                     onClick={() => {
-                                        if (!s.isCompleted && navigator.vibrate) navigator.vibrate(50);
+                                        if (!s.isCompleted && navigator.vibrate) navigator.vibrate(30);
                                         toggleSub(task._id, s._id, s.isCompleted);
                                     }}
-                                    className="w-full flex items-center gap-3 p-2 bg-slate-50/50 dark:bg-slate-900/40 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-900/80 transition-all text-right group/sub"
+                                    className={`w-full flex items-center gap-6 p-6 rounded-[28px] transition-all duration-1000 text-right group/sub relative overflow-hidden ${s.isCompleted ? 'bg-emerald-500/10 border-emerald-500/30 shadow-inner' : 'bg-white/50 dark:bg-white/5 hover:bg-white dark:hover:bg-white/10 border border-white/30 dark:border-white/10 hover:border-indigo-500 shadow-2xl'}`}
                                 >
-                                    <div className={`p-1 rounded-md transition-colors ${s.isCompleted ? 'bg-[var(--accent-1)]/10 text-[var(--accent-1)]' : 'bg-white dark:bg-white/5 text-slate-300 group-hover/sub:text-slate-400'}`}>
-                                        {s.isCompleted ? <CheckSquare className="w-4 h-4" /> : <Square className="w-4 h-4" />}
+                                    {s.isCompleted && <div className="absolute inset-0 bg-emerald-500/5 animate-pulse" />}
+                                    <div className={`w-7 h-7 rounded-[10px] flex items-center justify-center transition-all duration-1000 border-2 relative z-10 ${s.isCompleted ? 'bg-emerald-500 border-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.6)]' : 'border-slate-300 dark:border-white/20 group-hover/sub:border-indigo-500 group-hover/sub:scale-115'}`}>
+                                        {s.isCompleted && <CheckSquare className="w-4 h-4 text-white" />}
                                     </div>
-                                    <span className={`text-[13px] transition-all font-medium ${s.isCompleted ? 'line-through text-slate-400' : 'text-slate-600 dark:text-slate-300'}`}>
+                                    <span className={`text-base font-black font-outfit transition-all duration-1000 relative z-10 ${s.isCompleted ? 'line-through text-slate-400/60' : 'text-slate-800 dark:text-white group-hover/sub:platinum-glow'}`}>
                                         {s.title}
                                     </span>
                                 </button>
                             ))}
-                            {task.subtasks.length === 0 && (
-                                <p className="text-[11px] text-slate-400 font-bold p-2 italic">אין עדיין צעדים. לחץ על הניצוץ כדי ליצור!</p>
-                            )}
                         </motion.div>
                     )}
                 </AnimatePresence>
             </motion.div>
 
             {/* Task Detail Modal */}
-            {showDetail && <TaskDetailModal task={task} isOpen={showDetail} onClose={() => setShowDetail(false)} />}
+            <AnimatePresence>
+                {showDetail && (
+                    <TaskDetailModal 
+                        task={task} 
+                        isOpen={showDetail} 
+                        onClose={() => setShowDetail(false)} 
+                    />
+                )}
+            </AnimatePresence>
         </>
     );
 }
 
-function PriorityIcon({ priority }: { priority: string }) {
-    const icons: Record<string, any> = { High: Zap, Medium: Star, Low: ArrowLeft };
-    const Icon = icons[priority] || Star;
-    const colors: Record<string, string> = {
-        High: 'bg-red-500/10 text-red-500',
-        Medium: 'bg-amber-500/10 text-amber-500',
-        Low: 'bg-emerald-500/10 text-emerald-500'
-    };
-    return (
-        <div className={`p-1.5 rounded-lg ${colors[priority]}`}>
-            <Icon className="w-3 h-3" strokeWidth={3} />
-        </div>
-    );
-}
-
-function QuickAction({ icon: Icon, color, onClick, disabled, title }: any) {
+function QuickAction({ icon: Icon, gradient, activeColor, onClick, disabled, title }: any) {
     return (
         <button
             onClick={onClick}
             disabled={disabled}
             title={title}
-            className={`p-2 bg-slate-50 dark:bg-white/5 ${color} rounded-xl hover:scale-110 active:scale-95 transition-all shadow-sm border border-transparent hover:border-slate-200 dark:hover:border-white/10`}
+            className={`
+                group/qa relative p-2.5 rounded-xl transition-all duration-300 overflow-hidden
+                bg-white/5 border border-white/10 dark:border-white/5 hover:border-white/20 hover:scale-105 active:scale-95
+            `}
         >
-            <Icon className="w-4 h-4" />
+            <div className={`absolute inset-0 bg-gradient-to-br ${gradient} opacity-0 group-hover/qa:opacity-100 transition-opacity duration-500`} />
+            <Icon className={`w-4 h-4 relative z-10 transition-colors ${activeColor} group-hover/qa:text-white`} />
         </button>
     );
 }
 
-function X({ className }: { className?: string }) {
-    return <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>;
-}
+

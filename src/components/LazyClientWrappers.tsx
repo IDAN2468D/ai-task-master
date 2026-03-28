@@ -3,6 +3,7 @@
 'use client';
 
 import dynamic from 'next/dynamic';
+import { motion } from 'framer-motion';
 
 // Lazy load these components - they use browser APIs and framer-motion
 const SmartReminders = dynamic(() => import('./SmartReminders'), { ssr: false });
@@ -165,3 +166,10 @@ export function LazyAIProjectCharter() {
     return <AIProjectCharter />;
 }
 
+export function LazyMotionDiv(props: any) {
+    return <motion.div {...props} />;
+}
+
+export function LazyMotionSection(props: any) {
+    return <motion.section {...props} />;
+}
