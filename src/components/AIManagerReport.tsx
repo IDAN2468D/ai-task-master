@@ -31,7 +31,7 @@ export default function AIManagerReport({ report }: AIManagerReportProps) {
     };
 
     return (
-        <div className="vibrant-card p-8 bg-gradient-to-br from-[#111C44] to-[#0B1437] border-indigo-500/20 shadow-2xl relative overflow-hidden group min-h-[300px] flex flex-col">
+        <div id="ai-report" className="vibrant-card p-8 bg-gradient-to-br from-[#111C44] to-[#0B1437] border-indigo-500/20 shadow-2xl relative overflow-hidden group min-h-[300px] flex flex-col">
             {/* Animated Glow Backdrop */}
             <motion.div
                 animate={{

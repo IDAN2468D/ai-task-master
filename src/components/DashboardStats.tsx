@@ -35,12 +35,26 @@ interface Task {
     priority: string;
 }
 
-export default function DashboardStats({ tasks }: { tasks: Task[] }) {
+import { optimizeSchedule } from '@/actions/scheduleActions';
+import { toast } from 'react-hot-toast';
+
+export default function DashboardStats({ tasks }: { tasks: any[] }) {
     const [isMounted, setIsMounted] = useState(false);
+    const [isOptimizing, setIsOptimizing] = useState(false);
 
     useEffect(() => {
         setIsMounted(true);
     }, []);
+
+    const handleOptimize = async () => {
+        setIsOptimizing(true);
+        const result = await optimizeSchedule(tasks);
+        setIsOptimizing(false);
+        if (result) {
+            toast.success(`הלו״ז עבר אופטימיזציה! שעות הזהב שלך: ${result.goldenHours}`);
+        }
+    };
+
 
     const stats = {
         Todo: tasks.filter(t => t.status === 'Todo').length,
@@ -64,7 +78,7 @@ export default function DashboardStats({ tasks }: { tasks: Task[] }) {
     ];
 
     return (
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 w-full mb-12">
+        <div id="dashboard-stats" className="grid grid-cols-1 md:grid-cols-12 gap-6 w-full mb-12">
             
             {/* AI Flow Predictor Banner */}
             <div className="md:col-span-12 relative overflow-hidden vibrant-card p-6 flex flex-col md:flex-row items-center justify-between gap-6 bg-gradient-to-r from-indigo-500/10 to-purple-500/10 border-indigo-500/20">
@@ -83,8 +97,12 @@ export default function DashboardStats({ tasks }: { tasks: Task[] }) {
                         </p>
                     </div>
                 </div>
-                <button className="whitespace-nowrap px-6 py-3 bg-white dark:bg-[#111C44] text-indigo-600 dark:text-indigo-400 font-black uppercase tracking-widest text-[11px] rounded-2xl shadow-xl hover:scale-105 transition-transform border border-indigo-100 dark:border-indigo-500/10">
-                    הפעל הגנת שחיקה
+                <button 
+                    onClick={handleOptimize}
+                    disabled={isOptimizing}
+                    className="whitespace-nowrap px-6 py-3 bg-white dark:bg-[#111C44] text-indigo-600 dark:text-indigo-400 font-black uppercase tracking-widest text-[11px] rounded-2xl shadow-xl hover:scale-105 active:scale-95 transition-all border border-indigo-100 dark:border-indigo-500/10 disabled:opacity-50"
+                >
+                    {isOptimizing ? 'מחשב מסלול מחדש...' : 'בצע אופטימיזציית AI'}
                 </button>
             </div>
 

@@ -29,7 +29,12 @@ import {
     LazyWorkspaceChat,
     LazyMeetingToTask,
     LazyAIProjectCharter,
-    LazyOmniChannelSync
+    LazyOmniChannelSync,
+    LazyVoiceExecution,
+    LazyAnimatedBeam,
+    LazyShimmerWrapper,
+    LazyBentoContainer,
+    LazyBentoItem
 } from '@/components/LazyClientWrappers';
 
 import AvatarDisplay from '@/components/AvatarDisplay';
@@ -129,6 +134,8 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
                                 <LazyMeetingToTask />
                                 <LazyAIProjectCharter />
                                 <LazyOmniChannelSync />
+                                <LazyVoiceExecution />
+
                                 <Link href="/store" className="flex-shrink-0 flex items-center gap-3 px-6 py-4 bg-amber-500/10 text-amber-600 dark:text-amber-400 rounded-2xl font-black text-[10px] md:text-xs border border-amber-500/10 dark:border-amber-500/20 shadow-sm transition-all hover:bg-amber-500/20 active:scale-95 uppercase tracking-widest">
 
                                     <ShoppingBag className="w-5 h-5" />
@@ -153,16 +160,6 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
                     {/* Smart Reminders */}
                     <LazySmartReminders tasks={tasks} />
 
-                    <Suspense fallback={
-                        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 w-full mb-12">
-                            <div className="md:col-span-8 grid grid-cols-1 sm:grid-cols-3 gap-6">
-                                {[1, 2, 3].map(i => <div key={i} className="vibrant-card p-6 h-28 animate-pulse bg-slate-100 dark:bg-slate-800 rounded-2xl" />)}
-                            </div>
-                            <div className="md:col-span-4 vibrant-card p-6 h-28 animate-pulse bg-slate-100 dark:bg-slate-800 rounded-2xl" />
-                        </div>
-                    }>
-                        <LazyDashboardStats tasks={tasks} />
-                    </Suspense>
 
                     {/* Main Content Layout */}
                     <div className="grid lg:grid-cols-12 gap-8 items-start">
@@ -181,11 +178,25 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
                                 </div>
                             </div>
 
-                            {/* Focus Ambience & AI Report */}
-                            <div className="grid md:grid-cols-2 gap-6 mt-12 mb-12">
-                                <LazyFocusAmbience />
-                                <LazyAIManagerReport report={aiReport} />
-                            </div>
+                            <LazyBentoContainer className="mb-20">
+                                {/* Shimmer high priority dashboard */}
+                                <LazyBentoItem colSpan={8} priority={10}>
+                                    <LazyShimmerWrapper active={true}>
+                                        <LazyDashboardStats tasks={tasks} />
+                                    </LazyShimmerWrapper>
+                                </LazyBentoItem>
+
+                                <LazyBentoItem colSpan={4} priority={30}>
+                                    <LazyAIManagerReport report={aiReport} />
+                                </LazyBentoItem>
+
+
+                                {/* Animated Data Flow Visualization */}
+                                <div className="hidden lg:block absolute inset-0 pointer-events-none overflow-visible">
+                                    <LazyAnimatedBeam fromId="omni-sync" toId="dashboard-stats" />
+                                    <LazyAnimatedBeam fromId="voice-exec" toId="ai-report" reverse />
+                                </div>
+                            </LazyBentoContainer>
 
                             {/* Task Views (Kanban, Matrix, Timeline, MindMap) & Filter */}
                             <Suspense fallback={
