@@ -1,7 +1,7 @@
 'use client';
 
-import { Trophy, Star, Coins, Zap, Shield, Sparkles } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { Trophy, Star, Coins } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 interface UserStatsProps {
     xp: number;
@@ -14,115 +14,82 @@ export default function UserStats({ xp, level, currency }: UserStatsProps) {
     const progress = (xpInCurrentLevel / 1000) * 100;
 
     return (
-        <div className="flex items-center gap-8 bg-white/5 dark:bg-black/40 backdrop-blur-3xl px-8 py-3 rounded-[32px] border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.3)] group/stats relative overflow-hidden h-[72px]">
-            {/* Elite Background Layers */}
-            <div className="absolute inset-0 bg-linear-to-r from-transparent via-indigo-500/5 to-transparent -translate-x-full group-hover/stats:translate-x-full transition-transform duration-1500 ease-in-out" />
-            <div className="absolute top-0 left-0 w-full h-[1px] bg-linear-to-r from-transparent via-white/20 to-transparent" />
-            
-            {/* 3D Level Orb - The "Elite" Sphere */}
-            <div className="relative group/level shrink-0 flex items-center justify-center">
-                <motion.div 
-                    animate={{ rotate: 360 }}
-                    transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                    className="absolute -inset-4 bg-linear-to-tr from-indigo-500/20 via-purple-500/20 to-cyan-500/20 rounded-full blur-xl opacity-0 group-hover/level:opacity-100 transition duration-700" 
+        <div className="flex items-center gap-5 bg-white/40 dark:bg-[#111C44]/40 backdrop-blur-xl px-6 py-3 rounded-[24px] border border-slate-200/50 dark:border-white/10 shadow-xl shadow-indigo-500/10 group/stats overflow-hidden relative">
+            {/* Background Ambient Glow */}
+            <div className="absolute -left-10 -top-10 w-20 h-20 bg-blue-500/10 blur-2xl rounded-full" />
+
+            {/* Level Badge */}
+            <div className="relative flex items-center justify-center w-12 h-12 shrink-0">
+                <motion.div
+                    animate={{ rotate: [12, -5, 12] }}
+                    transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+                    className="absolute inset-0 bg-gradient-to-tr from-[#4318FF] via-[#7C3AED] to-[#00E5FF] rounded-[14px] shadow-lg shadow-[#4318FF]/30"
                 />
-                
-                <div className="relative w-12 h-12 rounded-full p-[2px] bg-linear-to-br from-indigo-500 via-purple-500 to-cyan-500 shadow-[0_0_20px_rgba(99,102,241,0.4)]">
-                    <div className="w-full h-full rounded-full bg-slate-900 border border-white/10 flex items-center justify-center overflow-hidden relative shadow-inner">
-                        {/* Internal Orb Glow */}
-                        <div className="absolute inset-0 bg-linear-to-tr from-indigo-600/40 to-transparent opacity-50" />
-                        <motion.div 
-                            animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.6, 0.3] }}
-                            transition={{ duration: 4, repeat: Infinity }}
-                            className="absolute top-1 left-1 w-4 h-4 bg-white/20 rounded-full blur-sm" 
-                        />
-                        
-                        <span className="relative z-10 text-lg font-black italic text-white tracking-widest drop-shadow-[0_0_10px_rgba(255,255,255,0.5)]">
-                            {level}
-                        </span>
-                        
-                        {/* Elite Scanline on Orb */}
-                        <motion.div 
-                            animate={{ y: ['-100%', '200%'] }}
-                            transition={{ duration: 2.5, repeat: Infinity, ease: "linear" }}
-                            className="absolute inset-0 w-full h-[1px] bg-white/20 blur-[1px] z-20" 
+                <span className="relative text-xl font-black text-white leading-none drop-shadow-md">{level}</span>
+                <div className="absolute -top-1.5 -right-1.5">
+                    <div className="relative">
+                        <Trophy className="w-5 h-5 text-amber-300 drop-shadow-[0_0_8px_rgba(251,191,36,0.6)] animate-bounce" style={{ animationDuration: '4s' }} />
+                        <motion.div
+                            animate={{ scale: [1, 1.2, 1], opacity: [0.5, 1, 0.5] }}
+                            transition={{ duration: 2, repeat: Infinity }}
+                            className="absolute inset-0 bg-amber-400 blur-sm rounded-full -z-10"
                         />
                     </div>
-                </div>
-
-                {/* Ranking Sparkle */}
-                <div className="absolute -top-1 -right-1 z-20 filter drop-shadow-[0_0_8px_rgba(251,191,36,0.8)]">
-                    <Star size={12} className="text-amber-400 fill-amber-400 animate-pulse" />
                 </div>
             </div>
 
-            {/* Neural Progression Track */}
-            <div className="flex flex-col gap-2 min-w-[160px]">
-                <div className="flex items-center justify-between px-1">
+            {/* XP Info & Progress */}
+            <div className="flex flex-col gap-2.5 min-w-[150px]">
+                <div className="flex items-center justify-between px-0.5">
                     <div className="flex items-center gap-2">
-                        <Sparkles size={8} className="text-indigo-400 animate-spin-slow" />
-                        <span className="text-[10px] font-black uppercase tracking-[0.3em] text-indigo-400/80">Neural XP</span>
+                        <div className="flex flex-col">
+                            <span className="text-[9px] font-black uppercase tracking-[0.15em] text-slate-400 dark:text-slate-500 leading-none mb-1">Status</span>
+                            <span className="text-[11px] font-black text-slate-700 dark:text-white leading-none">Progression</span>
+                        </div>
                     </div>
-                    <span className="text-[10px] font-black text-slate-400 tabular-nums uppercase tracking-widest">
-                        {xpInCurrentLevel} <span className="opacity-30">/</span> 1000
-                    </span>
+                    <div className="flex flex-col items-end">
+                        <div className="flex items-center gap-1 bg-slate-900/5 dark:bg-white/5 px-2 py-1 rounded-lg border border-slate-200/50 dark:border-white/5">
+                            <span className="text-[11px] font-black text-[var(--primary)] dark:text-[var(--accent-1)] tabular-nums">{xpInCurrentLevel}</span>
+                            <span className="text-[10px] font-bold text-slate-400">/</span>
+                            <span className="text-[10px] font-black text-slate-500 tracking-tighter">1000</span>
+                            <span className="text-[7px] font-black text-white bg-gradient-to-br from-[var(--primary)] to-[var(--accent-1)] px-1 rounded-[3px] ml-0.5 shadow-sm">XP</span>
+                        </div>
+                    </div>
                 </div>
-                
-                <div className="h-2.5 w-full bg-black/20 dark:bg-white/5 rounded-full overflow-hidden p-[2px] border border-white/5 shadow-inner">
-                    <div className="h-full rounded-full overflow-hidden relative bg-slate-800/50">
+                <div className="h-3 w-full bg-slate-200/40 dark:bg-white/5 rounded-full overflow-hidden p-[3px] border border-slate-200/50 dark:border-white/5">
+                    <div className="h-full w-full bg-slate-100 dark:bg-black/20 rounded-full overflow-hidden">
                         <motion.div
                             initial={{ width: 0 }}
                             animate={{ width: `${progress}%` }}
                             transition={{ duration: 2, ease: "circOut" }}
-                            className="h-full bg-linear-to-r from-indigo-500 via-purple-500 to-cyan-400 rounded-full relative"
+                            className="h-full bg-gradient-to-r from-[#4318FF] via-[#00E5FF] to-[#4318FF] bg-[length:200%_100%] rounded-full shadow-[0_0_15px_rgba(0,229,255,0.4)] relative"
                         >
-                            {/* Neural Flow Animation */}
                             <motion.div
-                                animate={{ x: ['-100%', '200%'] }}
+                                animate={{ x: ['100%', '-100%'] }}
                                 transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-                                className="absolute inset-0 bg-linear-to-r from-transparent via-white/30 to-transparent skew-x-[-20deg]"
+                                className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent"
                             />
-                            
-                            {/* Lead Particle Glow */}
-                            <div className="absolute right-0 top-1/2 -translate-y-1/2 w-4 h-4 bg-white rounded-full blur-md opacity-50" />
                         </motion.div>
                     </div>
                 </div>
             </div>
 
-            <div className="h-10 w-[1px] bg-linear-to-b from-transparent via-white/10 to-transparent" />
+            <div className="w-[1px] h-12 bg-gradient-to-b from-transparent via-slate-200 dark:via-white/10 to-transparent hidden sm:block" />
 
-            {/* Currency HUD - Digital Asset Style */}
-            <motion.div 
-                whileHover={{ scale: 1.02 }}
-                className="flex items-center gap-4 group/currency cursor-pointer"
+            {/* Currency Pill */}
+            <motion.div
+                whileHover={{ scale: 1.05 }}
+                className="flex items-center gap-3 px-5 py-2.5 bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-500/10 dark:to-orange-500/10 rounded-2xl border border-amber-200/50 dark:border-amber-500/20 shadow-inner group/coin cursor-pointer"
             >
                 <div className="relative">
-                    <div className="absolute inset-0 bg-amber-500/20 blur-xl opacity-0 group-hover/currency:opacity-100 transition-opacity duration-500" />
-                    <motion.div 
-                        animate={{ rotateY: 360 }}
-                        transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
-                        className="w-10 h-10 rounded-xl bg-linear-to-br from-amber-400/10 to-orange-500/5 flex items-center justify-center border border-amber-500/30 relative overflow-hidden group-hover/currency:border-amber-500/60 transition-colors"
-                    >
-                        <div className="absolute inset-0 bg-amber-500/5 translate-y-full group-hover/currency:translate-y-0 transition-transform duration-500" />
-                        <Coins size={18} className="text-amber-500 relative z-10" />
-                    </motion.div>
+                    <Coins className="w-6 h-6 text-amber-500 group-hover/coin:rotate-[360deg] transition-transform duration-1000 ease-in-out" />
+                    <Star className="absolute -top-1.5 -right-1.5 w-3 h-3 text-amber-300 fill-amber-300 animate-spin" style={{ animationDuration: '4s' }} />
                 </div>
-                
-                <div className="flex flex-col">
-                    <div className="flex items-center gap-1.5 leading-none">
-                        <span className="text-xl font-black text-amber-500 tabular-nums tracking-tighter drop-shadow-[0_0_15px_rgba(245,158,11,0.3)]">
-                            {currency.toLocaleString()}
-                        </span>
-                        <Zap size={10} className="text-amber-400 fill-current animate-bounce" />
-                    </div>
-                    <span className="text-[8px] font-black uppercase text-amber-500/50 tracking-[0.2em] mt-1 flex items-center gap-1">
-                        <Shield size={7} /> Core Reserve
-                    </span>
+                <div className="flex flex-col leading-none">
+                    <span className="text-lg font-black text-amber-700 dark:text-amber-400 tabular-nums tracking-tighter">{currency}</span>
+                    <span className="text-[8px] font-black uppercase text-amber-600/50 dark:text-amber-400/50 tracking-widest mt-0.5">Credits</span>
                 </div>
             </motion.div>
         </div>
     );
 }
-
-

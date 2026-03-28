@@ -2,13 +2,13 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { BrainCircuit, ChevronRight, Sparkles, Mail, Loader2, Brain, Activity, CheckCircle2 } from 'lucide-react';
+import { BrainCircuit, TrendingUp, AlertCircle, CheckCircle2, ChevronRight, Sparkles, Mail, Loader2, Brain, Activity } from 'lucide-react';
 import { sendAIManagerReportEmail } from '@/actions/aiManagerActions';
-import { toast } from 'react-hot-toast';
 
 interface AIManagerReportProps {
     report: any;
 }
+
 
 export default function AIManagerReport({ report }: AIManagerReportProps) {
     const [isEmailing, setIsEmailing] = useState(false);
@@ -24,79 +24,98 @@ export default function AIManagerReport({ report }: AIManagerReportProps) {
         if (res?.success) {
             setEmailSuccess(true);
             setTimeout(() => setEmailSuccess(false), 3000);
-            toast.success('הדו"ח נשלח בהצלחה!');
         } else {
-            toast.error('שגיאה בשליחת האימייל: ' + (res?.error || 'Unknown error'));
+            alert('שגיאה בשליחת האימייל: ' + (res?.error || 'Unknown error'));
         }
         setIsEmailing(false);
     };
 
     return (
-        <div id="ai-report" className="glass-panel p-6 rounded-[32px] border-indigo-500/20 shadow-2xl relative overflow-hidden flex flex-col h-full group">
-            <div className="absolute -top-10 -right-10 w-40 h-40 bg-indigo-500/10 rounded-full blur-3xl -z-10 animate-pulse" />
-            
-            <div className="flex items-start justify-between mb-6">
+        <div className="vibrant-card p-8 bg-gradient-to-br from-[#111C44] to-[#0B1437] border-indigo-500/20 shadow-2xl relative overflow-hidden group min-h-[300px] flex flex-col">
+            {/* Animated Glow Backdrop */}
+            <motion.div
+                animate={{
+                    opacity: [0.1, 0.2, 0.1],
+                    scale: [1, 1.2, 1]
+                }}
+                transition={{ duration: 8, repeat: Infinity }}
+                className="absolute -top-20 -left-20 w-64 h-64 bg-indigo-500 blur-[100px] rounded-full -z-10"
+            />
+
+            <div className="flex items-center justify-between mb-8">
                 <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-gradient-mesh rounded-2xl flex items-center justify-center shadow-lg shadow-indigo-500/20 group-hover:rotate-6 transition-transform">
-                        <BrainCircuit className="w-6 h-6 text-white" />
+                    <div className="w-12 h-12 bg-indigo-500/20 rounded-2xl flex items-center justify-center border border-indigo-500/30">
+                        <BrainCircuit className="w-6 h-6 text-indigo-400" />
                     </div>
                     <div>
-                        <h3 className="text-lg font-black text-slate-800 dark:text-white leading-tight uppercase tracking-tight">AI Report</h3>
-                        <div className="flex items-center gap-1.5 mt-1">
-                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                            <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Live Analysis</p>
-                        </div>
+                        <h3 className="text-xl font-black text-white leading-none">AI Intelligence Report</h3>
+                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-400 mt-2">ניתוח שבועי מבוסס בינה מלאכותית</p>
                     </div>
                 </div>
-                <div className="p-2 glass-panel rounded-xl group-hover:bg-indigo-500 group-hover:text-white transition-colors">
-                    <Sparkles className="w-4 h-4" />
+                <div className="px-3 py-1 bg-white/5 border border-white/10 rounded-full">
+                    <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                        <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                        Live Analysis
+                    </span>
                 </div>
             </div>
 
             <div className="flex-1 space-y-6">
-                <div className="relative p-4 bg-slate-50/50 dark:bg-white/5 rounded-2xl border border-black/5 dark:border-white/5 italic">
-                    <p className="text-sm font-bold text-slate-600 dark:text-slate-300 leading-relaxed pr-2">
+                <div className="relative">
+                    <div className="absolute -left-6 top-0 bottom-0 w-1 bg-gradient-to-b from-indigo-500 via-purple-500 to-transparent rounded-full opacity-50" />
+                    <p className="text-sm font-bold text-slate-300 leading-relaxed pl-2 italic">
                         &quot;{data.insight}&quot;
                     </p>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div className="p-4 glass-panel rounded-2xl border-white/50 dark:border-white/5 flex flex-col gap-1">
-                        <div className="flex items-center gap-2">
-                            <Brain className="w-3.5 h-3.5 text-indigo-500" />
-                            <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Mental</span>
+                <div className="grid grid-cols-2 gap-4">
+                    <div className="p-4 bg-white/5 rounded-2xl border border-white/5 hover:bg-white/10 transition-colors cursor-pointer group/stat">
+                        <div className="flex items-center gap-3 mb-2">
+                            <Brain className="w-4 h-4 text-indigo-400" />
+                            <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">עומס מנטלי</span>
                         </div>
-                        <p className="text-2xl font-black text-slate-800 dark:text-white tabular-nums">{data.mentalLoad}</p>
+                        <p className="text-2xl font-black text-white tabular-nums">{data.mentalLoad}</p>
+                        <p className="text-[9px] font-bold text-slate-500">Units</p>
                     </div>
-                    <div className="p-4 glass-panel rounded-2xl border-white/50 dark:border-white/5 flex flex-col gap-1">
-                        <div className="flex items-center gap-2">
-                            <Activity className="w-3.5 h-3.5 text-rose-500" />
-                            <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Burnout</span>
+                    <div className="p-4 bg-white/5 rounded-2xl border border-white/5 hover:bg-white/10 transition-colors cursor-pointer group/stat">
+                        <div className="flex items-center gap-3 mb-2">
+                            <Activity className="w-4 h-4 text-rose-500" />
+                            <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">סיכון לשחיקה</span>
                         </div>
                         <p className="text-2xl font-black text-rose-500 tabular-nums">{data.burnoutRisk}%</p>
+                        <div className="w-full bg-white/5 h-1 rounded-full mt-2 overflow-hidden">
+                            <motion.div 
+                                initial={{ width: 0 }}
+                                animate={{ width: `${data.burnoutRisk}%` }}
+                                className={`h-full ${data.burnoutRisk > 70 ? 'bg-rose-500' : 'bg-indigo-500'}`} 
+                            />
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div className="mt-8 pt-6 border-t border-black/5 dark:border-white/5 space-y-4">
-                <div className="flex items-center justify-between gap-3">
+
+            <div className="mt-8 pt-6 border-t border-white/5 flex items-center justify-between">
+                <div className="flex items-center gap-2 text-[10px] font-black text-indigo-400 uppercase tracking-widest">
+                    <Sparkles className="w-3 h-3" />
+                    נקה את העומס כדי להגדיל את ה-XP
+                </div>
+                <div className="flex items-center gap-2">
                     <button 
                         onClick={handleEmailReport}
                         disabled={isEmailing || emailSuccess}
-                        className="flex-1 flex items-center justify-center gap-2 text-[10px] font-black text-indigo-500 px-4 py-3 bg-indigo-500/10 rounded-xl hover:bg-indigo-500/20 transition-all active:scale-95 disabled:opacity-50 uppercase tracking-widest"
+                        className="flex items-center gap-1 text-[10px] font-black text-indigo-400 px-4 py-2 bg-indigo-500/10 rounded-xl hover:bg-indigo-500/20 transition-colors disabled:opacity-50"
                     >
                         {isEmailing ? <Loader2 className="w-3 h-3 animate-spin" /> : 
                          emailSuccess ? <CheckCircle2 className="w-3 h-3 text-emerald-400" /> : 
-                         <Mail className="w-3.5 h-3.5" />}
-                        {emailSuccess ? 'SENT' : 'SEND REPORT'}
+                         <Mail className="w-3 h-3" />}
+                        {emailSuccess ? 'נשלח!' : 'שלח למייל'}
                     </button>
-                    <button className="p-3 bg-slate-100 dark:bg-white/5 text-slate-500 dark:text-slate-400 rounded-xl hover:bg-indigo-500 hover:text-white transition-all active:scale-90">
-                        <ChevronRight className="w-5 h-5" />
+                    <button className="flex items-center gap-1 text-[10px] font-black text-white px-4 py-2 bg-indigo-500 rounded-xl shadow-lg shadow-indigo-500/20 hover:-translate-y-0.5 transition-transform active:scale-95">
+                        צפה בדו-ח המלא
+                        <ChevronRight className="w-3 h-3" />
                     </button>
                 </div>
-                <p className="text-[9px] font-black text-center text-slate-400 uppercase tracking-[0.2em] opacity-50">
-                    Next update in <span className="text-indigo-500">2h 45m</span>
-                </p>
             </div>
         </div>
     );

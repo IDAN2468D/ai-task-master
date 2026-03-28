@@ -30,7 +30,7 @@ export default function OmniChannelSync() {
     };
 
     return (
-        <div id="omni-sync">
+        <>
             <button
                 onClick={() => setIsOpen(true)}
                 className="flex-shrink-0 flex items-center gap-3 px-6 py-4 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-2xl font-black text-xs md:text-sm border border-emerald-500/10 shadow-sm transition-all hover:bg-emerald-500 hover:text-white hover:scale-105 group/sync"
@@ -129,7 +129,6 @@ export default function OmniChannelSync() {
                     </div>
                 )}
             </AnimatePresence>
-        </div>
+        </>
     );
 }
-

@@ -3,7 +3,6 @@
 'use client';
 
 import dynamic from 'next/dynamic';
-import { motion } from 'framer-motion';
 
 // Lazy load these components - they use browser APIs and framer-motion
 const SmartReminders = dynamic(() => import('./SmartReminders'), { ssr: false });
@@ -34,19 +33,11 @@ const WorkspaceChat = dynamic(() => import('./WorkspaceChat'), { ssr: false });
 const MeetingToTask = dynamic(() => import('./MeetingToTask'), { ssr: false });
 const AIProjectCharter = dynamic(() => import('./AIProjectCharter'), { ssr: false });
 const OmniChannelSync = dynamic(() => import('./OmniChannelSync'), { ssr: false });
-const VoiceExecution = dynamic(() => import('./VoiceExecution'), { ssr: false });
-const AnimatedBeam = dynamic(() => import('./AnimatedBeam'), { ssr: false });
-const ShimmerWrapper = dynamic(() => import('./ShimmerWrapper'), { ssr: false });
-const BentoContainer = dynamic(() => import('./BentoContainer'), { ssr: false });
 
-import { BentoItem } from './BentoContainer';
+export function LazyOmniChannelSync() {
+    return <OmniChannelSync />;
+}
 
-export function LazyOmniChannelSync() { return <OmniChannelSync />; }
-export function LazyVoiceExecution() { return <VoiceExecution />; }
-export function LazyAnimatedBeam(props: any) { return <AnimatedBeam {...props} />; }
-export function LazyShimmerWrapper({ children, active }: any) { return <ShimmerWrapper active={active}>{children}</ShimmerWrapper>; }
-export function LazyBentoContainer({ children, className }: any) { return <BentoContainer className={className}>{children}</BentoContainer>; }
-export function LazyBentoItem(props: any) { return <BentoItem {...props} />; }
 
 export const LazyTaskViewContainer = dynamic(() => import('./TaskViewContainer'), {
     ssr: false,
@@ -166,10 +157,3 @@ export function LazyAIProjectCharter() {
     return <AIProjectCharter />;
 }
 
-export function LazyMotionDiv(props: any) {
-    return <motion.div {...props} />;
-}
-
-export function LazyMotionSection(props: any) {
-    return <motion.section {...props} />;
-}
